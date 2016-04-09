@@ -1,0 +1,121 @@
+
+/* Supermap Property Card */
+
+.supermap-canvas {
+
+}
+#supermap-canvas .gm-style-iw img,
+#map6 .gm-style-iw img {
+	padding: 0;
+	margin: 0;
+}
+#supermap-canvas .gm-style-iw ul,
+#supermap-canvas .gm-style-iw li,
+#map6 .gm-style-iw ul,
+#map6 .gm-style-iw li{
+	list-style: none;
+	padding: 0;
+	margin: 0;
+}
+#supermap-canvas .gm-style-iw ul,
+#map6 .gm-style-iw ul{
+}
+#supermap-canvas .gm-style-iw li,
+#map6 .gm-style-iw li {
+	display: inline-block;
+	line-height: 1;
+	border-right: 1px solid #bbb;
+	padding-right: 0.3em;
+}
+#supermap-canvas .gm-style-iw li:last-child,
+#map6 .gm-style-iw li:last-child{
+	line-height: 1;
+	border-right: none;
+}
+
+.supermap-property-card {
+max-width: 200px;
+background: #ccc;
+border-radius: 4px;
+margin-bottom: 1em;
+}
+
+.supermap-card-boxed {
+
+}
+.supermap-card-boxed img {
+
+}
+.map-card-boxed-left {
+	width: 30%;
+	float: left;
+	clear: left;
+}
+
+.map-card-boxed-right {
+	width: 67%;
+	float: right;
+	clear: right;
+	background: #ddd;
+}
+.map-card-title {
+	font-size: 0.8em;
+}
+
+
+#epl-map-report {
+	display: none;
+}
+#epl-map-canvas,
+#map-canvas,
+#epl-map-canvas-bike,
+#supermap-canvas,
+#map1, #map2, #map3, #map4, #map5, #map6, #map7, #map8 {  
+    width: 100%; 
+	height: 100%;
+}
+#epl-map-canvas img,
+#map-canvas img,
+#epl-map-canvas-bike img,
+#supermap-canvas img,
+#map1 img, #map2 img, #map3 img, #map4 img, #map5 img, #map6 img, #map7 img, #map8 img {
+    max-width: none !important;
+}
+
+#map7.entry-image img {
+	max-width: 100% !important;
+	height:100%!important;
+}
+
+#tabs {
+
+}
+#map1, #map2, #map3, #map4, #map5, #map6, #map8 {
+	display: none;
+}
+
+/* Fix Twenty Twelve Styling */
+.entry-content #map1 img,
+.entry-content #map2 img,
+.entry-content #map3 img,
+.entry-content #map4 img,
+.entry-content #map5 img,
+.entry-content #map6 img,
+.entry-content #map7 img,
+.entry-content #map8 img {
+	border-radius: 0 !important;
+	box-shadow: none !important;
+}
+
+
+#map-container {
+	width: 100%;
+	height:400px;
+}
+#map-container img {
+ background: transparent;
+}
+#supermap-container {
+	width: 100%;
+	height:450px;
+}
