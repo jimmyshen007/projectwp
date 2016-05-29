@@ -286,8 +286,15 @@ function inline_js_tabbed_map() {
 	
 	global $property;
 	
-	if ( $property->get_property_meta('property_address_display') == 'yes' ) { 
-		$property_address_coordinates = $property->get_property_meta('property_address_coordinates');
+	if ( $property->get_property_meta('property_address_display') == 'yes' ) {
+		// Use just coordinate latitude to test.
+		$property_address_coordinates = $property_coordinate_lat =
+			$property->get_property_meta('property_coordinate_lat');
+		if(trim($property_address_coordinates)){
+			$property_coordinate_lng = $property->get_property_meta('property_coordinate_lng');
+			$property_address_coordinates .= ',' . $property_coordinate_lng;
+
+		}
 	} else {
 		$property_address_coordinates = '';
 	}
@@ -307,9 +314,11 @@ function inline_js_tabbed_map() {
 		$geourl = "http://maps.google.com/maps/api/geocode/json?address=". urlencode($address) ."&sensor=false";
 		$response = epl_remote_url_get($geourl);
 		if(!empty($response)) {
-			$geocoordinates = $response[0]->geometry->location->lat . ',' . $response[0]->geometry->location->lng;
-			update_post_meta($property->post->ID,'property_address_coordinates',$geocoordinates);
-			$property_address_coordinates = $property->get_property_meta('property_address_coordinates');
+			$property_coordinate_lat = $response[0]->geometry->location->lat;
+			$property_coordinate_lng = $response[0]->geometry->location->lng;
+			update_post_meta($property->post->ID,'property_coordinate_lat', $property_coordinate_lat);
+			update_post_meta($property->post->ID,'property_coordinate_lng', $property_coordinate_lng);
+			$property_address_coordinates = $property_coordinate_lat . "," . $property_coordinate_lng;
 		}
 
 	}
@@ -612,7 +621,14 @@ function alt_inline_js_tabbed_map() {
 	global $property;
 
 	if ( $property->get_property_meta('property_address_display') == 'yes' ) {
-		$property_address_coordinates = $property->get_property_meta('property_address_coordinates');
+		// Use just coordinate latitude to test coordinate existence first.
+		$property_address_coordinates = $property_coordinate_lat =
+			$property->get_property_meta('property_coordinate_lat');
+		if(trim($property_address_coordinates)){
+			$property_coordinate_lng = $property->get_property_meta('property_coordinate_lng');
+			$property_address_coordinates .= ',' . $property_coordinate_lng;
+
+		}
 	} else {
 		$property_address_coordinates = '';
 	}
@@ -632,9 +648,11 @@ function alt_inline_js_tabbed_map() {
 		$geourl = "http://maps.google.com/maps/api/geocode/json?address=". urlencode($address) ."&sensor=false";
 		$response = epl_remote_url_get($geourl);
 		if(!empty($response)) {
-			$geocoordinates = $response[0]->geometry->location->lat . ',' . $response[0]->geometry->location->lng;
-			update_post_meta($property->post->ID,'property_address_coordinates',$geocoordinates);
-			$property_address_coordinates = $property->get_property_meta('property_address_coordinates');
+			update_post_meta($property->post->ID,'property_coordinate_lat', $response[0]->geometry->location->lat);
+			update_post_meta($property->post->ID,'property_coordinate_lng', $response[0]->geometry->location->lng);
+			$property_coordinate_lat = $property->get_property_meta('property_coordinate_lat');
+			$property_coordinate_lng = $property->get_property_meta('property_coordinate_lng');
+			$property_address_coordinates .= $property_coordinate_lat . ',' . $property_coordinate_lng;
 		}
 
 	}
@@ -651,14 +669,14 @@ function alt_inline_js_tabbed_map() {
 	</style>
 	<script>
         jQuery(document).ready(function(){
-	  L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
-          var latlng = <?php echo '"' . $property_address_coordinates . '"' ?>;
-          var latlngArry = latlng.split(",");
+	      L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+          var latStr = <?php echo '"' . $property_coordinate_lat . '"' ?>;
+		  var lngStr = <?php echo '"' . $property_coordinate_lng . '"' ?>;
           var lat = 0;
           var lng = 0;
-          if(latlngArry.length == 2){
-              var lat = parseFloat(latlngArry[0]);
-              var lng = parseFloat(latlngArry[1]);
+          if(latStr){
+              lat = parseFloat(latStr);
+              lng = parseFloat(lngStr);
           }
 	  var map = L.mapbox.map('map-alt', null, {
 	      maxZoom: 18
@@ -678,7 +696,7 @@ function alt_inline_js_tabbed_map() {
                  // coordinates here are in longitude, latitude order because
                  // x, y is the standard for GeoJSON and many formats
                  coordinates: [
-		     lng,
+		             lng,
                      lat
                  ]
               },

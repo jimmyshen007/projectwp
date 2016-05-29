@@ -37,6 +37,10 @@ function epl_am_enqueue_scripts() {
 	$cs_path = plugins_url('custom_support');
 	wp_enqueue_style( 'mapbox-style', $cs_path . '/mapbox/mapbox.css', array(), null);
 	wp_enqueue_script( 'mapbox', $cs_path . '/mapbox/mapbox.js', array(), null);
+	wp_enqueue_script('mapbox-plugins', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js');
+	wp_enqueue_style('mapbox-plugins-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css');
+	wp_enqueue_style('mapbox-plugins-default-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css');
+
 	//}
 	wp_enqueue_script( 'epl-am-gmap', EPL_AM_PLUGIN_URL . 'js/gmap3.min.js', array('epl-am-map-api') ,EPL_AM_VERSION);
 	wp_enqueue_script( 'epl-am-markerclusterer-script', EPL_AM_PLUGIN_URL . 'js/markerclusterer.js', array('epl-am-map-api') ,EPL_AM_VERSION);
@@ -46,6 +50,8 @@ function epl_am_enqueue_scripts() {
 	wp_enqueue_style( 'bpopup-style', EPL_AM_PLUGIN_URL . 'css/bpopup.css', array(), EPL_AM_VERSION );
 	wp_enqueue_script( 'bpopup-script', EPL_AM_PLUGIN_URL . 'js/jquery.bpopup.min.js',array('jquery') , EPL_AM_VERSION);
 	wp_enqueue_script( 'jquery-easing-script', EPL_AM_PLUGIN_URL . 'js/jquery.easing.1.3.js',  array('bpopup-script') , EPL_AM_VERSION );
+
+	wp_enqueue_script( 'history-js', $cs_path . '/historyjs/jquery.history.js');
 }
 add_action( 'wp_enqueue_scripts', 'epl_am_enqueue_scripts', 10, 3 );
 
@@ -242,10 +248,10 @@ function epl_advanced_map( $atts ) {
 					if($results->have_posts()) :
 						$post_counter = 1;
 						while( $results->have_posts()) : $results->the_post();
-							$property_address_coordinates = $property->get_property_meta('property_address_coordinates');
-							$property_address_coordinates = explode(',', $property_address_coordinates);
-							$epl_am_lat 	= trim($property_address_coordinates[0]);
-							$epl_am_long 	= trim($property_address_coordinates[1]);
+							$property_coord_lng = $property->get_property_meta('property_coordinate_lng');
+							$property_coord_lat = $property->get_property_meta('property_coordinate_lat');
+							$epl_am_lat 	= trim($property_coord_lat);
+							$epl_am_long 	= trim($property_coord_lng);
 							if($post_counter == 1) {
 								$center_lat = $epl_am_lat;
 								$center_long = $epl_am_long;
@@ -287,10 +293,10 @@ function epl_advanced_map( $atts ) {
 						$center_long 		= trim($center_coordinates[1]);
 					} else {
 						if( !is_null($property) ) {
-							$center_coordinates = $property->get_property_meta('property_address_coordinates');
-							$center_coordinates = explode(',',$center_coordinates);
-							$center_lat 		= trim($center_coordinates[0]);
-							$center_long 		= trim($center_coordinates[1]);
+							$property_coord_lng = $property->get_property_meta('property_coordinate_lng');
+							$property_coord_lat = $property->get_property_meta('property_coordinate_lat');
+							$center_lat 	= trim($property_coord_lat);
+							$center_long 	= trim($property_coord_lng);
 						}
 					}
 					$return .= '

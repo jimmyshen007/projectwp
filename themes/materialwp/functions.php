@@ -96,9 +96,9 @@ add_action( 'widgets_init', 'materialwp_widgets_init' );
  * Enqueue scripts and styles.
  */
 function materialwp_scripts() {
-	wp_enqueue_script('mwp-jquery', '//code.jquery.com/jquery-1.12.0.min.js');
+	//wp_enqueue_script('mwp-jquery', '//code.jquery.com/jquery-1.12.0.min.js');
 
-	wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
+	//wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
 
 	wp_enqueue_style( 'mwp-bootstrap-styles', get_template_directory_uri() . '/bower_components/bootstrap/dist/css/bootstrap.min.css', array(), '3.3.4', 'all' );
 
