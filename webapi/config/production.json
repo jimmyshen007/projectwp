@@ -1,0 +1,11 @@
+{
+  "mongodb": {
+    "host": "localhost",
+    "port": 27017,
+    "db": "payment"
+  },
+  "buildDirectory": "dist",
+  "express": {
+    "port": 3005
+  }
+}
