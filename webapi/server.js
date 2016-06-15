@@ -5,8 +5,6 @@ import http from 'http';
 import config from 'config';
 
 import * as api from './server/api/http';
-import * as eventService from './server/api/service/event';
-import * as uni from './server/app.js';
 
 const app = express();
 const httpServer = http.createServer(app);

@@ -6,13 +6,12 @@ var nib = require('nib');
 var config = require('config');
 
 var isDev = (process.env.NODE_ENV === 'development');
-var appEntry = './client/app';
 
 var defineEnvPlugin = new webpack.DefinePlugin({
   __DEV__: isDev
 });
 
-var entryScripts = [ appEntry ];
+var entryScripts = [ ];
 var output = {
   path: path.join(__dirname, [ '/', config.get('buildDirectory') ].join('')),
   filename: 'bundle.js'
@@ -46,8 +45,7 @@ if (isDev) {
   plugins.push(new webpack.HotModuleReplacementPlugin());
   entryScripts = [
     'webpack-dev-server/client?http://localhost:3001',
-    'webpack/hot/only-dev-server',
-    appEntry
+    'webpack/hot/only-dev-server'
   ];
 
   moduleLoaders = [

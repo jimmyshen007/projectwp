@@ -1,23 +1,23 @@
 import * as common from './common';
 
-let serviceName = 'orders';
+let serviceName = 'customers';
 
-export function getOrders() {
+export function getCustomers() {
     return common.getServices(serviceName);
 }
 
-export function getOrderById(orderId){
+export function getCustomerById(orderId){
     return common.getServiceById(serviceName, orderId);
 }
 
-export function addOrder(order) {
+export function addCustomer(order) {
     return common.addService(serviceName, order);
 }
 
-export function editOrder(id, order) {
+export function editCustomer(id, order) {
     return common.editService(id, order, serviceName);
 }
 
-export function deleteOrder(id) {
+export function deleteCustomer(id) {
     return common.deleteService(id, serviceName);
 }

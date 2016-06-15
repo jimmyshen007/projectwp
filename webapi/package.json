@@ -53,6 +53,7 @@
     "chai": "3.5.x",
     "css-loader": "0.23.x",
     "extract-text-webpack-plugin": "1.0.x",
+    "phantomjs-prebuilt": "2.1.x",
     "karma": "0.13.x",
     "karma-chai": "0.1.x",
     "karma-chrome-launcher": "1.0.x",

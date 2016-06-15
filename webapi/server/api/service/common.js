@@ -9,7 +9,7 @@ let db = null;
 let Schema = m.Schema;
 let orderSchema = new Schema({
     postID: String,
-    customerID: ObjectId,
+    customerID: String,
     status: String
 });
 
@@ -54,7 +54,7 @@ function preprocessRoute(serviceName, servObj){
     }
 }
 
-export function getService(serviceName){
+export function getServices(serviceName){
     let servInstances = null;
     connect(()=>{
         let service = m.model(serviceName, chooseSchema(serviceName));
@@ -86,6 +86,7 @@ export function getServiceById(serviceName, serviceId){
 
 export function addService(serviceName, servObj){
     let completed = false;
+    preprocessRoute(serviceName, servObj);
     connect(()=>{
         let service = m.model(serviceName, chooseSchema(serviceName));
         let newInstance = new service(servObj);
@@ -97,11 +98,12 @@ export function addService(serviceName, servObj){
             }
         });
     });
-    return completed;
+    return {result: completed};
 }
 
 export function editService(serviceId, servObj, serviceName) {
     let completed = false;
+    preprocessRoute(serviceName, servObj);
     connect(()=>{
         let service = m.model(serviceName, chooseSchema(serviceName));
         service.update({_id: serviceId}, {$set: servObj}, (err, raw) => {
@@ -112,7 +114,7 @@ export function editService(serviceId, servObj, serviceName) {
             }
         });
     });
-    return completed;
+    return {result: completed};
 }
 
 export function deleteService(serviceId, serviceName) {
@@ -127,5 +129,5 @@ export function deleteService(serviceId, serviceName) {
             }
         });
     });
-    return completed;
+    return {result: completed};
 }
