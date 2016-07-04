@@ -1,75 +1,71 @@
 import * as service from './service';
+const OK = 0;
+
+function handle_response(err, res, data, errmsg){
+    if(!err) {
+        if(data) {
+            res.json({"data": data});
+        }else{
+            res.json({});
+        }
+    } else {
+        console.log(err);
+        res.status(400);
+        res.json({"errors": errmsg});
+    }
+}
 
 export function getOrders(req, res) {
-  service.getOrders()
-  .then((orders) => res.json(orders))
-  .catch(err => {
-    res.status(400);
-    res.json({error: err});
-  });
+    let ret = service.getOrders();
+    ret.then((data, err) => {
+        handle_response(err, res, data, "Get Orders Error");
+    });
 }
 
 export function addOrder(req, res) {
-  service.addOrder(req.body)
-  .then((order) => res.json(order))
-  .catch(err => {
-    res.status(400);
-    res.json({error: err, order: req.body});
-  });
+    let ret = service.addOrder(req.body);
+    ret.then((err) => {
+        handle_response(err, res, null, "Add Order Error");
+    });
 }
 
 export function editOrder(req, res) {
-  service.editOrder(req.params.id, req.body)
-  .then((order) => res.json(order))
-  .catch(err => {
-    res.status(400);
-    res.json({error: err, order: req.body});
-  });
+    let ret = service.editOrder(req.params.id, req.body);
+    ret.then((raw, err) => {
+        handle_response(err, res, null, "Edit Order Error");
+    });
 }
 
 export function deleteOrder(req, res) {
-  service.deleteOrder(req.params.id)
-  .then((order) => res.json(order))
-  .catch(err => {
-    res.status(400);
-    res.json({error: err, order: req.body});
-  });
+    let ret = service.deleteOrder(req.params.id);
+    ret.then((err) => {
+        handle_response(err, res, null, "Delete Order Error");
+    });
 }
 
 export function getCustomers(req, res) {
-  service.getCustomers()
-      .then((customers) => res.json(customers))
-      .catch(err => {
-        res.status(400);
-        res.json({error: err});
-      });
-}
+    let ret = service.getCustomers();
+    ret.then((data, err) => {
+        handle_response(err, res, data, "Get Customers Error");
+    });}
 
 export function addCustomer(req, res) {
-  service.addCustomer(req.body)
-      .then((customer) => res.json(customer))
-      .catch(err => {
-        res.status(400);
-        res.json({error: err, customer: req.body});
-      });
-}
+    let ret = service.addCustomer(req.body);
+    ret.then((err) => {
+        handle_response(err, res, null, "Add Customer Error");
+    });}
 
 export function editCustomer(req, res) {
-  service.editCustomer(req.params.id, req.body)
-      .then((customer) => res.json(customer))
-      .catch(err => {
-        res.status(400);
-        res.json({error: err, customer: req.body});
-      });
-}
+    let ret = service.editCustomer(req.params.id, req.body);
+    ret.then((raw, err) => {
+        handle_response(err, res, null, "Edit Customer Error");
+    });}
 
 export function deleteCustomer(req, res) {
-  service.deleteCustomer(req.params.id)
-      .then((customer) => res.json(customer))
-      .catch(err => {
-        res.status(400);
-        res.json({error: err, customer: req.body});
-      });
+    let ret = service.deleteCustomer(req.params.id);
+    ret.then((err) => {
+        handle_response(err, res, null, "Delete Customer Error");
+    });
 }
 //TODO
 //All other API calls come here.

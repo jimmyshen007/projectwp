@@ -5,6 +5,7 @@ import http from 'http';
 import config from 'config';
 
 import * as api from './server/api/http';
+import db from './server/api/db';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -30,4 +31,6 @@ app.post('/api/0/orders', api.addOrder);
 app.post('/api/0/orders/:id', api.editOrder);
 app.delete('/api/0/orders/:id', api.deleteOrder);
 
-httpServer.listen(port);
+db.once('open', ()=> {
+    httpServer.listen(port);
+});
