@@ -22,6 +22,13 @@ export function getOrders(req, res) {
     });
 }
 
+export function getOrderByID(req, res) {
+    let ret = service.getOrderById(req.params.id);
+    ret.then((data, err) => {
+        handle_response(err, res, data, "Get Order Error");
+    });
+}
+
 export function addOrder(req, res) {
     let ret = service.addOrder(req.body);
     ret.then((err) => {
@@ -40,6 +47,13 @@ export function deleteOrder(req, res) {
     let ret = service.deleteOrder(req.params.id);
     ret.then((err) => {
         handle_response(err, res, null, "Delete Order Error");
+    });
+}
+
+export function getCustomerByID(req, res) {
+    let ret = service.getCustomerById(req.params.id);
+    ret.then((data, err) => {
+        handle_response(err, res, data, "Get Customer Error");
     });
 }
 

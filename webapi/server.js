@@ -27,9 +27,16 @@ app.use(bodyParser.json());
  * API Endpoints
  */
 app.get('/api/0/orders', api.getOrders);
+app.get('/api/0/orders/:id', api.getOrderByID);
 app.post('/api/0/orders', api.addOrder);
 app.post('/api/0/orders/:id', api.editOrder);
 app.delete('/api/0/orders/:id', api.deleteOrder);
+
+app.get('/api/0/customers', api.getCustomers);
+app.get('/api/0/customers/:id', api.getCustomerByID);
+app.post('/api/0/customers', api.addCustomer);
+app.post('/api/0/customers/:id', api.editCustomer);
+app.delete('/api/0/customers/:id', api.deleteCustomer);
 
 db.once('open', ()=> {
     httpServer.listen(port);
