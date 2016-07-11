@@ -4,19 +4,7 @@
 import m from 'mongoose';
 import config from 'config';
 import xss from 'xss';
-
-let Schema = m.Schema;
-let orderSchema = new Schema({
-    postID: String,
-    customerID: String,
-    status: String
-});
-
-let customerSchema = new Schema({
-    userID: String,
-    favoriteList: [{type: String, value: String}]
-});
-
+import {db, orderSchema, customerSchema} from '../db';
 function chooseSchema(serviceName){
     switch(serviceName){
         case 'orders':
@@ -47,7 +35,7 @@ export function getServices(serviceName){
 
 export function getServiceById(serviceName, serviceId){
     let service = m.model(serviceName, chooseSchema(serviceName));
-    return service.find({_id: serviceId}).lean().exec();
+    return service.findOne({_id: serviceId}).lean().exec();
 }
 
 export function addService(serviceName, servObj){
@@ -69,3 +57,4 @@ export function deleteService(serviceId, serviceName) {
     let service = m.model(serviceName, chooseSchema(serviceName));
     return service.remove({_id: serviceId});
 }
+

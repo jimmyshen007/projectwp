@@ -5,7 +5,7 @@ import http from 'http';
 import config from 'config';
 
 import * as api from './server/api/http';
-import db from './server/api/db';
+import {db, orderSchema, customerSchema} from './server/api/db';
 
 const app = express();
 const httpServer = http.createServer(app);
@@ -37,6 +37,9 @@ app.get('/api/0/customers/:id', api.getCustomerByID);
 app.post('/api/0/customers', api.addCustomer);
 app.post('/api/0/customers/:id', api.editCustomer);
 app.delete('/api/0/customers/:id', api.deleteCustomer);
+
+app.post('/api/0/customers/:id/favor', api.addFavoriteElem);
+app.delete('/api/0/customers/:id/favor/:fid', api.delFavoriteElem);
 
 db.once('open', ()=> {
     httpServer.listen(port);

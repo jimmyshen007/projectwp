@@ -16,5 +16,22 @@ process.on('SIGINT', function() {
     });
 });
 
-export {db as default};
+let Schema = m.Schema;
+let orderSchema = new Schema({
+    postID: String,
+    customerID: String,
+    status: String
+});
+
+let favorSchema = new Schema({
+    type: String,
+    value: String
+});
+
+let customerSchema = new Schema({
+    userID: String,
+    favoriteList: [favorSchema]
+});
+
+export {db, orderSchema, customerSchema};
 
