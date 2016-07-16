@@ -59,6 +59,98 @@ export function deleteOrder(req, res) {
     });
 }
 
+export function getOrdersByUserID(req, res){
+    let ret = service.getOrdersByUserID(req.params.uid);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Orders by UserID Error");
+    });
+}
+
+export function getOrdersByPostID(req, res){
+    let ret = service.getOrdersByPostID(req.params.pid);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Orders by PostID Error");
+    });
+}
+
+export function getOrdersByPostAuthorID(req, res){
+    let ret = service.getOrdersByPostAuthorID(req.params.paid);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Orders by PostAuthorID Error");
+    });
+}
+
+export function getFavoritesByUserID(req, res){
+    let ret = service.getFavoritesByUserID(req.params.uid);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Favorites by UserID Error");
+    });
+}
+
+export function getFavorites(req, res) {
+    let ret = service.getFavorites();
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Favoriates Error");
+    });
+}
+
+export function getFavoriteByID(req, res) {
+    let ret = service.getFavoriteById(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Favorite Error");
+    });
+}
+
+export function addFavorite(req, res) {
+    let ret = service.addFavorite(req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Add Favorite Error");
+    });
+}
+
+export function editFavorite(req, res) {
+    let ret = service.editFavorite(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Edit Favorite Error");
+    });
+}
+
+export function deleteFavorite(req, res) {
+    let ret = service.deleteFavorite(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Delete Favorite Error");
+    });
+}
+
+
+
+
+
+
+
+
+
+//The following functions are deprecated.
+/*
+
 export function getCustomerByID(req, res) {
     let ret = service.getCustomerById(req.params.id);
     ret.then((data) => {
@@ -121,17 +213,7 @@ export function delFavoriteElem(req, res){
         handle_response(res, null, err, "Del Favorite Element Error");
     });
 }
+*/
 
-export function getOrderByUserID(){
-
-}
-
-export function getOrderByPostID(){
-
-}
-
-export function getCustomerByUserID(){
-
-}
 //TODO
 //All other API calls come here.

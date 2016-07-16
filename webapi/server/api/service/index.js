@@ -1,2 +1,2 @@
 export * from './order';
-export * from './customer';
+export * from './favorite';

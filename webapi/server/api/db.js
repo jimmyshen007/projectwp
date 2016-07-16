@@ -19,10 +19,23 @@ process.on('SIGINT', function() {
 let Schema = m.Schema;
 let orderSchema = new Schema({
     postID: String,
-    customerID: String,
+    postAuthorID: String,
+    userID: String,
+    orderValue: Number, //price or cost
+    valueUnit: String, //ie the currency unit.
     status: String
 });
 
+let favoriteSchema = new Schema({
+    fType: String,
+    fValue: String,
+    userID: String,
+});
+
+
+/*
+ * Deprecated.
+ */
 let favorSchema = new Schema({
     type: String,
     value: String
@@ -32,6 +45,7 @@ let customerSchema = new Schema({
     userID: String,
     favoriteList: [favorSchema]
 });
+////////////////////////////////
 
-export {db, orderSchema, customerSchema};
+export {db, orderSchema, favoriteSchema};
 

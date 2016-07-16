@@ -1,3 +1,4 @@
+/**
 import * as common from './common';
 import m from 'mongoose';
 import {db, orderSchema, customerSchema} from '../db';
@@ -49,3 +50,4 @@ export function delFavoriteElem(id, favorID){
         }
     });
 }
+ */
