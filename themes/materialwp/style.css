@@ -222,8 +222,8 @@ th {
 	border: 0;
 	box-shadow: none;
 	border-radius: 0;
-	background: transparent;
-	border-bottom: 1px solid #757575;
+	/*background: transparent;
+	border-bottom: 1px solid #757575;*/
 }
 
 /*--------------------------------------------------------------

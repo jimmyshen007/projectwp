@@ -14,7 +14,7 @@
 <link rel="profile" href="http://gmpg.org/xfn/11">
 <link rel="pingback" href="<?php bloginfo( 'pingback_url' ); ?>">
 
-<?php wp_head(); ?>
+<?php wp_head(); echo'<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 </head>
 
 <body <?php body_class(); ?> >
@@ -68,11 +68,11 @@
 					</div>
 				</div>
 			  	<script>
-					$(document).ready(function(){
-						$('#mb-search-results').on('click', function(){
-							$('#mb-search-results').hide();
+						$(document).ready(function(){
+							$('#mb-search-results').on('click', function(){
+								$('#mb-search-results').hide();
+							});
 						});
-					});
 				</script>
         	</div><!-- /.container -->
 		</nav><!-- .navbar .navbar-default -->

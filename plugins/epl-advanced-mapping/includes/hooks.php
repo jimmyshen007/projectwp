@@ -30,7 +30,7 @@ function epl_am_enqueue_scripts() {
 	wp_enqueue_style( 'epl-am-style', EPL_AM_PLUGIN_URL . 'css/style.css', array(), EPL_AM_VERSION);
 	wp_dequeue_script('google-map-v-3');
 	if(!checkChinaIP() && !wp_script_is('google-maps', 'enqueued')){
-	    wp_enqueue_script( 'epl-am-map-api', '//maps.googleapis.com/maps/api/js?sensor=false', array('jquery'),EPL_AM_VERSION );
+		wp_enqueue_script('epl-am-map-api', '//maps.googleapis.com/maps/api/js?sensor=false', array('jquery'), EPL_AM_VERSION);
 	}
 	//if(checkChinaIP()){
 	// Custom support path.

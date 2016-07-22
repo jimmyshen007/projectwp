@@ -7,12 +7,15 @@
 
 get_header(); ?>
 <script>
-	$(document).ready(function(e) {
-		$('#main_section').height($(window).height() - 180);
-		$(window).on('resize', function () {
-			$('#main_section').height($(window).height() - 175);
+	jQuery(document).ready(function($) {
+		// Code that uses jQuery's $ can follow here.
+		$(document).ready(function(e) {
+			$('#main_section').height($(window).height() - 180);
+			$(window).on('resize', function () {
+				$('#main_section').height($(window).height() - 175);
+			});
+			$('body').css("overflow", "hidden");
 		});
-		$('body').css("overflow", "hidden");
 	});
 </script>
 <div id="main_section" class="container" style="overflow: hidden; width: 100%; height:600px; min-height: 600px" xmlns="http://www.w3.org/1999/html">
@@ -69,13 +72,16 @@ get_header(); ?>
 	</div>
 	<script>
 		//Google map js
-		$(document).ready(function(e){
-			L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
-			L.mapbox.map('general-map-container', 'mapbox.streets')
-				.addControl(L.mapbox.geocoderControl('mapbox.places', {
-					autocomplete: true,
-					keepOpen: true
-				}));
+		jQuery(document).ready(function($) {
+			// Code that uses jQuery's $ can follow here.
+			$(document).ready(function(e){
+				L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+				L.mapbox.map('general-map-container', 'mapbox.streets')
+					.addControl(L.mapbox.geocoderControl('mapbox.places', {
+						autocomplete: true,
+						keepOpen: true
+					}));
+			});
 		});
 	</script>
 </div> <!-- .container -->
