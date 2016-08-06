@@ -818,9 +818,11 @@
 	
 //Property Search Query
 function epl_search_pre_get_posts( $query ) {
-
-	if ( is_admin() || !$query->is_main_query() ) {
-		return;
+	global $custom_ajax_search;
+	if(!$custom_ajax_search) {
+		if (is_admin() || !$query->is_main_query()) {
+			return;
+		}
 	}
 	
 	if( epl_is_search() ) {
@@ -829,6 +831,7 @@ function epl_search_pre_get_posts( $query ) {
 		$query->init();
 		$query->set('posts_per_page', get_option('posts_per_page'));
 		$query->set('paged', $paged);
+		$query->is_search = true;
 		extract($_REQUEST);
 		
 		if(isset($property_id) ) {
@@ -938,17 +941,349 @@ function epl_search_pre_get_posts( $query ) {
 			$query->set('tax_query', $tax_query);
 		}
 		$query->parse_query();
+		$query->request;
 	}
 }
 add_action( 'pre_get_posts', 'epl_search_pre_get_posts' );
 
+function set_postfields($field, $wp_query) {
+	global $wpdb;
+	if ( epl_is_search()) {
+		if(isset($_GET['my_epl_input_lat']) && isset($_GET['my_epl_input_lng'])) {
+			$km = '6371';
+			$mile = '3959';
+			$slat = floatval($_GET['my_epl_input_lat']);
+			$slng = floatval($_GET['my_epl_input_lng']);
+			$lat = "lat_postmeta.meta_value";
+			$lng = "lng_postmeta.meta_value";
+			$dist = ' , (' . $km . ' * acos( cos( radians(' . $slat . ') ) * cos( radians(' . $lat . ') )' .
+				'* cos( radians(' . $lng . ')' . '- radians(' . $slng . ') ) + sin( radians(' . $slat . ') )' .
+				'* sin( radians(' . $lat . ') ) ) ) as DISTANCE';
+			$field .= $dist;
+		}
+	}
+	return $field;
+}
+
+add_filter('posts_fields', 'set_postfields', 10, 2);
+
+function set_postjoin($join, $wp_query) {
+	if ( epl_is_search()) {
+		if ((isset($_GET['my_epl_input_lat']) && isset($_GET['my_epl_input_lng']))
+			|| (isset($_GET['my_epl_bb_max_lat']) && isset($_GET['my_epl_bb_min_lat']) &&
+			isset($_GET['my_epl_bb_max_lng']) && isset($_GET['my_epl_bb_min_lng']))){
+			$addition = " LEFT JOIN wp_postmeta lat_postmeta on lat_postmeta.post_id = wp_posts.ID"
+				. " and lat_postmeta.meta_key = 'property_coordinate_lat'
+			LEFT JOIN wp_postmeta lng_postmeta on lng_postmeta.post_id = wp_posts.ID"
+				. " and lng_postmeta.meta_key = 'property_coordinate_lng'";
+			$join .= $addition;
+		}
+	}
+	return $join;
+}
+
+add_filter('posts_join', 'set_postjoin', 10, 2);
+
+function set_groupby($groupby, $wp_query){
+	global $wpdb;
+	if ( epl_is_search()) {
+		if (isset($_GET['my_epl_input_lat']) && isset($_GET['my_epl_input_lng'])) {
+			$groupby = "{$wpdb->posts}.ID";
+		}
+	}
+	return $groupby;
+}
+
+add_filter('posts_groupby', 'set_groupby', 10, 2);
+
+function set_having($having, $wp_query){
+	if ( epl_is_search()) {
+		if (isset($_GET['my_epl_input_lat']) && isset($_GET['my_epl_input_lng'])) {
+			$distance = '100';
+			if (isset($_GET['distance-scope']) && $_GET['distance-scope'] != 'auto'){
+				$distance = floatval($_GET['distance-scope']);
+			}
+			$addition = " having DISTANCE < $distance";
+			$having .= $addition;
+		}
+	}
+	return $having;
+}
+
+add_filter('posts_groupby', 'set_having', 10000, 2);
+
+function set_bbox_where($where, &$wp_query)
+{
+	if (epl_is_search()) {
+		if (isset($_GET['my_epl_bb_max_lat']) && isset($_GET['my_epl_bb_min_lat']) &&
+			isset($_GET['my_epl_bb_max_lng']) && isset($_GET['my_epl_bb_min_lng'])){
+				$lat = "lat_postmeta.meta_value";
+				$lng = "lng_postmeta.meta_value";
+				$min_lat = floatval($_GET['my_epl_bb_min_lat']);
+				$max_lat = floatval($_GET['my_epl_bb_max_lat']);
+				$min_lng = floatval($_GET['my_epl_bb_min_lng']);
+				$max_lng = floatval($_GET['my_epl_bb_max_lng']);
+				$where .= " AND ($lat BETWEEN $min_lat AND $max_lat)";
+
+				if($min_lng > 180){
+					$min_lng -= 360;
+				}else if($min_lng < -180){
+					$min_lng += 360;
+				}
+				if($max_lng > 180){
+					$max_lng -= 360;
+				}else if($max_lng < -180){
+					$max_lng += 360;
+				}
+				if($min_lng > $max_lng){
+					$where .= " AND (($lng BETWEEN $min_lng AND 180.0)"
+						. " OR ($lng BETWEEN -180.0 AND $max_lng))";
+				}else{
+					$where .= " AND ($lng BETWEEN $min_lng AND $max_lng)";
+				}
+		}
+	}
+	return $where;
+}
+
+add_filter('posts_where', 'set_bbox_where', 10, 2);
+
 //Is Property Search
 function epl_is_search() {
-	if(isset($_REQUEST['action']) && $_REQUEST['action'] == 'epl_search') {
-		return true;
+	if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'epl_search') ||
+		(isset($_REQUEST['epl_action']) && $_REQUEST['epl_action'] == 'epl_search')) {
+			return true;
 	}
 	return false;
 }
+
+class CustomSearchPageGenerator
+{
+	private function custom_get_pagenum_link($pagenum = 1, $escape = true ) {
+		$pagenum = (int) $pagenum;
+
+		$request = remove_query_arg( 'paged' );
+
+		$home_root = parse_url(home_url());
+		$home_root = ( isset($home_root['path']) ) ? $home_root['path'] : '';
+		$home_root = preg_quote( $home_root, '|' );
+
+		$request = preg_replace('|^'. $home_root . '|i', '', $request);
+		$request = preg_replace('|^/+|', '', $request);
+
+		$base = trailingslashit( get_bloginfo( 'url' ) );
+
+		if ( $pagenum > 1 ) {
+			$result = add_query_arg( 'paged', $pagenum, $base . $request );
+		} else {
+			$result = $base . $request;
+		}
+
+		/**
+		 * Filter the page number link for the current request.
+		 *
+		 * @since 2.5.0
+		 *
+		 * @param string $result The page number link.
+		 */
+		$result = apply_filters( 'get_pagenum_link', $result );
+
+		if ( $escape )
+			return esc_url( $result );
+		else
+			return esc_url_raw( $result );
+	}
+
+	public static function generate_post_pagination($query)
+	{
+		$big = 999999999; // need an unlikely integer
+
+		$pages = paginate_links(array(
+			'base' => str_replace($big, '%#%', self::custom_get_pagenum_link($big, $escape = false)),
+			'format' => '?paged=%#%',
+			'current' => max(1, get_query_var('paged')),
+			'total' => $query->max_num_pages,
+			'type' => 'array',
+		));
+
+		if (is_array($pages)) {
+			echo '<div class="pagination-wrap"><ul id="pagination-list" class="pagination">';
+			foreach ($pages as $page) {
+				if (strpos($page, 'current') !== false) {
+					echo "<li class=\"active\">$page</li>";
+				} else {
+					echo "<li>$page</li>";
+				}
+			}
+			echo '</ul></div>';
+		};
+	}
+
+	public static function generate_post_list()
+	{
+		global $wp_query, $property, $post;
+		$posts_json = array();
+		if (have_posts()) :
+			$custom_styles = '<style>
+			.c-span{
+				height: 24px !important;
+				width: 24px !important;
+				font-size: 12px !important;
+				padding: 0 5px !important;
+			}
+			.c-font{
+				font-family: Circular, Helvetica Neue, Helvetica, Arial, sans-serif;
+				font-size: 18px;
+				padding: 5px;
+			}
+			.c-text-overflow{
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+			}
+			@media(max-width: 700px) {
+				.c-responsive{
+					display: inline-block;
+					width: 100%;
+				}
+			}
+			@media(min-width: 701px) {
+				.c-responsive{
+					min-width: 40%;
+					max-width: 48%;
+					width: 45%;
+				}
+			}
+			</style>';
+			echo $custom_styles;
+			$cs_path = plugins_url('custom_support');
+			echo '<table class="table-responsive" style="border-collapse: separate; border-spacing: 10px">';
+			$idx = 0;
+			$cols = 2;
+			$num_idx = 1;
+			// the Loop
+			while (have_posts()) : the_post();
+				//do_action('epl_property_blog');
+				$idx = $idx % $cols;
+
+				if (has_post_thumbnail()) {
+					$image = wp_get_attachment_image_src(get_post_thumbnail_id(get_the_ID()), 'medium');
+					$prop_image = $image[0];
+				} else {
+					$prop_image = $cs_path . '/images/no_photo_ph.jpg';
+				}
+				$post_title = $post->post_title;
+				$post_link = esc_url(get_permalink());
+				$post_address = epl_property_get_the_full_address();
+				$post_bed = $property->get_property_bed_raw();
+				$post_bath = $property->get_property_bath_raw();
+				$post_parking = $property->get_property_parking_raw();
+				$post_air = $property->get_property_air_conditioning_raw();
+				$post_pool = $property->get_property_pool_raw();
+
+				$post_json = array('coord_lat' => $property->get_property_meta('property_coordinate_lat'),
+					'coord_lng' => $property->get_property_meta('property_coordinate_lng'),
+					'title' => $post_title,
+					'image' => $prop_image,
+					'address' => $post_address,
+					'bed' => $post_bed,
+					'bath' => $post_bath,
+					'parking' => $post_parking,
+					'air' => $post_air,
+					'pool' => $post_pool,
+					'type' => $post->post_type,
+					'link' => $post_link);
+
+				$post_price_tag = '';
+				if ($post->post_type == 'property') {
+					$post_json['price'] = epl_get_property_price();
+					$post_price_tag .= $post_json['price'];
+				} elseif ($post->post_type == 'rental') {
+					$post_json['rent'] = $property->get_property_rent();
+					$post_json['period'] = $property->get_property_meta('property_rent_period');
+					$post_price_tag .= $post_json['rent'] . ' /' . $post_json['period'];
+				}
+				if ($idx == 0) {
+					echo '<tr>';
+				}
+
+				$bed_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/bed-24.png" title="Bed" width="24" height="24">';
+				$bath_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/shower_and_tub-24.png" title="Bath" width="24">';
+				$parking_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/garage-24.png" title="Parking" width="24">';
+				$air_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/air_conditioner-24.png" title="Air Conditioner" width="24">';
+				$pool_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Sports/swimming-24.png" title="Pool" width="24">';
+				$fhtml = '<div class="epl-adv-popup-meta" style="position: relative;">';
+				$fhtml .= '<span class="c-span">' . $bed_icon . '</span><span class="c-span">' . $post_bed . '</span>';
+				$fhtml .= '<span class="c-span">' . $bath_icon . '</span><span class="c-span">' . $post_bath . '</span>';
+				$fhtml .= '<span class="c-span">' . $parking_icon . '</span><span class="c-span">' . $post_parking . '</span>';
+				if ($post_air) {
+					$fhtml .= '<span class="c-span">' . $air_icon . '</span>';
+				}
+				if ($post_pool) {
+					$fhtml .= '<span class="c-span">' . $pool_icon . '</span>';
+				}
+				$fhtml .= '</div>';
+
+				$contents = '<div style="position:absolute; width: 100%; height: 20%; left: 10px; bottom: 5px;
+ 				padding:5px">';
+				$title_elem = '<div class="c-text-overflow" style="max-width: 80%; height: 29px;">' .
+					'<span class="c-font" style="color:rgb(255, 128, 0)">' . $num_idx
+					. '</span><a class="c-font c-text-overflow" href="' . $post_link . '"
+				 title="' . $post_title . '" style="color:rgb(86, 90, 92);">' . $post_title
+					. '</a></div>';
+
+				$author_sticker = epl_get_author_sticker();
+				$author_elem = '<div style="position: absolute; right: 25px; bottom: 25px">' . $author_sticker . '</div>';
+				$contents .= $title_elem . $fhtml . '</div>';
+				$price_elem = '<div style="position:absolute; left: 0px; top: 61.8%;
+			    display: block; padding: 5px; background-color: rgba(230,232,232,0.618)"><span>'
+					. $post_price_tag . '</span></div>';
+				$img_elem = '<div style="max-width:100%; height: auto; margin-bottom: 20%;">' .
+					'<a href="' . $post_link . ' "><img class="img-responsive" src="' . $prop_image . '"
+				 style="margin-left: auto; margin-right: auto;" /></a></div>';
+				echo '<td class="jumbotron c-responsive" style="position: relative;">' .
+					$img_elem . $contents . $price_elem . $author_elem .
+					'</td>';
+				if ($idx == $cols - 1) {
+					echo '</tr>';
+				}
+				$idx += 1;
+				array_push($posts_json, $post_json);
+				$num_idx++;
+				// define the structure of your posts markup
+			endwhile;
+			// We only have one cell in the row. Add a fake cell to make the align well.
+			if ($idx == 1) {
+				echo '<td class="c-responsive" style="position: relative;"></td></tr>';
+			}
+			echo '</table>';
+			CustomSearchPageGenerator::generate_post_pagination($wp_query);
+		else:
+			get_template_part('content', 'none');
+		endif;
+		echo '<div id="posts-jsonoutput" style="visibility: hidden; display:none">' . json_encode($posts_json) . '</div>';
+
+	}
+}
+
+function load_post_ajax()
+{
+	// initialsise your output
+	global $wp_query, $wp_the_query, $custom_ajax_search;
+	$output = '';
+	$custom_ajax_search = true;
+	$wp_the_query = $wp_query;
+	if (isset($_REQUEST['paged'])) {
+		$paged_val = intval($_REQUEST['paged']);
+		$wp_query->set('paged', $paged_val);
+	}
+	$wp_query->get_posts();
+	CustomSearchPageGenerator::generate_post_list();
+	die($output);
+}
+
+add_action('wp_ajax_load_post_ajax', 'load_post_ajax');
+add_action('wp_ajax_nopriv_load_post_ajax', 'load_post_ajax');
 
 function epl_get_meta_values( $key = '', $type = 'post', $status = 'publish' ) {
 	if( empty($key) ) {
@@ -1059,13 +1394,16 @@ function epl_custom_render_frontend_fields($field,$config='',$value='',$post_typ
 	switch ($field['type']) {
 		// checkbox
 		case "checkbox": ?>
-			<span class="epl-search-row epl-search-row-checkbox <?php echo isset($field['class']) ? $field['class'] : ''; ?>">
-						<input type="checkbox" name="<?php echo $field['meta_key']; ?>" id="<?php echo $field['meta_key']; ?>" class="in-field"
+			<div class="col-md-offset-2 col-md-10">
+				<div class="checkbox">
+					<label>
+            			<input type="checkbox" name="<?php echo $field['meta_key']; ?>" id="<?php echo $field['meta_key']; ?>"
 							<?php if(isset($value) && !empty($value)) { echo 'checked="checked"'; } ?> />
-						<label for="<?php echo $field['meta_key']; ?>" class="check-label">
-							<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'],__($field['label'], 'epl') ); ?>
-						</label>
-				</span> <?php
+						<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'],__($field['label'], 'epl') ); ?>
+          			</label>
+          		</div>
+          	</div>
+			<?php
 			break;
 
 		// text
@@ -1111,18 +1449,17 @@ function epl_custom_render_frontend_fields($field,$config='',$value='',$post_typ
 
 		// select
 		case "select": ?>
-			<div class="epl-search-row epl-search-row-select epl-<?php echo $field['meta_key']; ?> fm-block <?php echo isset($field['class']) ? $field['class'] : ''; ?>">
-
-				<label for="<?php echo $field['meta_key']; ?>" class="epl-search-label fm-label">
+		    <div class="form-group">
+				<label for="<?php echo $field['meta_key']; ?>" class="col-md-3 control-label">
 					<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'], $field['label'] ); ?>
 				</label>
 
-				<div class="field">
+				<div class="col-md-8">
 					<select
 						<?php echo isset($field['multiple']) ? ' multiple ':' '; ?>
 						name="<?php echo $field['meta_key']; echo isset($field['multiple']) ? '[]':''; ?>"
 						id="<?php echo $field['meta_key']; ?>"
-						class="in-field field-width">
+						class="form-control">
 						<option value="">
 							<?php echo apply_filters('epl_search_widget_option_label_'.$field['option_filter'],__('Any', 'epl') ); ?>
 						</option>

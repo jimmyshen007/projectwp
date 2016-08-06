@@ -62,7 +62,19 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
         endif;
 
         ?>
-        <div class="epl-search-forms-wrapper epl-search-<?php echo $style; ?>">
+        <style>
+            .custom_bgcolor{
+                background-color: #fff !important;
+            }
+        </style>
+        <div class="panel-group">
+            <div class="panel panel-default bs-component">
+                <div class="panel-heading custom_bgcolor">
+                    <a data-toggle="collapse" href="#filters-collapse" class="btn btn-default"
+                       style="margin-top: 0; margin-bottom: 0;">
+                            <?php echo __('Filters', 'epl') ?></a>
+                        <!-- <a data-toggle="collapse" href="#filters-collapse"><php echo __('Filters', 'epl') ?></a> -->
+                </div>
         <?php
         $tabcounter = 1; // reset tab counter
 
@@ -80,41 +92,65 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
             }
             ?>
             </ul>
-            <div class="epl-search-form <?php echo $is_sb_current; ?>" id="epl_ps_tab_<?php echo $tabcounter; ?>">
-                <?php
-                if( isset($show_title) && $show_title == 'true') {
-                    if(!empty($title)) {
-                        ?><h3><?php echo $title; ?></h3><?php
-                    }
-                }
-                ?>
-                <form method="get" action="<?php echo esc_url( home_url('/') ); ?>">
-                    <input type="hidden" name="action" value="epl_search" />
+            <div id="filters-collapse" class="panel-collapse collapse">
+                <div class="panel-body">
                     <?php
-                    $epl_frontend_fields = epl_search_widget_fields_frontend($post_type,$property_status);
-
-                    foreach($epl_frontend_fields as $epl_frontend_field) {
-
-                        if($epl_frontend_field['key'] == 'search_house_category' && isset($house_category_multiple) && $house_category_multiple == 'on') {
-
-                            $epl_frontend_field['multiple'] 	= true;
-                            $epl_frontend_field['query'] 		= array('query'	=> 'meta','compare' => 'IN' );
-
+                    if( isset($show_title) && $show_title == 'true') {
+                        if(!empty($title)) {
+                            ?><h3><?php echo $title; ?></h3><?php
                         }
-
-                        $config	=	isset(${$epl_frontend_field['key']}) ? ${$epl_frontend_field['key']} : '';
-                        $value	=	isset(${$epl_frontend_field['meta_key']}) ? ${$epl_frontend_field['meta_key']} : '';
-                        epl_custom_render_frontend_fields($epl_frontend_field,$config,$value,$post_type,$property_status);
                     }
                     ?>
+                    <form id="my_epl_form" class="form-horizontal" method="get" action="<?php echo esc_url( home_url('/') ); ?>">
+                        <fieldset>
+                            <input type="hidden" name="epl_action" value="epl_search" />
+                            <div class="form-group">
+                                <label for="distance-scope" class="col-md-3 control-label">
+                                    <?php echo __('Distance scope', 'epl') ?></label>
+                                <div class="col-md-8">
+                                    <select name="distance-scope" class="form-control">
+                                        <option value="auto">Auto</option>
+                                        <option value="1">1 km</option>
+                                        <option value="5">5 km</option>
+                                        <option value="10">10 km</option>
+                                        <option value="30">30 km</option>
+                                        <option value="50">50 km</option>
+                                        <option value="100">100 km</option>
+                                    </select>
+                                </div>
+                                <span class="material-input"></span>
+                            </div>
+                            <?php
+                            $epl_frontend_fields = epl_search_widget_fields_frontend($post_type,$property_status);
 
-                    <div class="epl-search-submit-row epl-search-submit property-type-search">
-                        <input type="submit" value="<?php echo $submit_label != '' ? $submit_label : __('Search', 'epl'); ?>" class="epl-search-btn" />
-                    </div>
-                </form>
+                            foreach($epl_frontend_fields as $epl_frontend_field) {
+
+                                if($epl_frontend_field['key'] == 'search_house_category' && isset($house_category_multiple) && $house_category_multiple == 'on') {
+
+                                    $epl_frontend_field['multiple'] 	= true;
+                                    $epl_frontend_field['query'] 		= array('query'	=> 'meta','compare' => 'IN' );
+
+                                }
+
+                                $config	=	isset(${$epl_frontend_field['key']}) ? ${$epl_frontend_field['key']} : '';
+                                $value	=	isset(${$epl_frontend_field['meta_key']}) ? ${$epl_frontend_field['meta_key']} : '';
+                                epl_custom_render_frontend_fields($epl_frontend_field,$config,$value,$post_type,$property_status);
+                            }
+                            ?>
+
+                            <div class="form-group">
+                                <div class="col-md-10 col-md-offset-2">
+                                    <button type="submit" class="btn btn-primary"><?php echo $submit_label != ''
+                                            ? $submit_label : __('Search', 'epl'); ?></button>
+                                </div>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
             </div>
             <?php $tabcounter++; endforeach; endif; ?>
-    </div>
+            </div>
+        </div>
     <?php
     return ob_get_clean();
 }

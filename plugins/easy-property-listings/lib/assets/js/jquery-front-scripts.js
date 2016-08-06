@@ -194,7 +194,7 @@ jQuery(document).ready(function($){
 
 
 	/* Sort properties by price */
-	jQuery('#epl-sort-listings').on('change',function(){
+/*	jQuery('#epl-sort-listings').on('change',function(){
 		var sortby 		= jQuery(this).val();
 		var url 		= window.location.href.split('?')[0];
 		var querystring = window.location.href.split('?')[1];
@@ -214,6 +214,6 @@ jQuery(document).ready(function($){
 		}
 		window.location.replace(newUrl);
 		
-	});
+	});*/
 	
 })

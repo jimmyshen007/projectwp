@@ -906,7 +906,7 @@ function epl_sorting_options() {
 			'key'	=>	'post_date',
 			'order'	=>	'ASC'
 		),
-		array(
+/*		array(
 			'id'	=>	'status_asc',
 			'label'	=>	__('Status : Current First','epl'),
 			'type'	=>	'meta',
@@ -923,7 +923,7 @@ function epl_sorting_options() {
 			'order'	=>	'DESC',
 			'orderby'	=>	'meta_value',
 
-		),
+		),*/
 
 
 	) );
@@ -937,9 +937,9 @@ function epl_switch_views_sorting() {
 	$sorters = epl_sorting_options();
 	?>
 	<div class="epl-switching-sorting-wrap epl-clearfix">
-		<?php do_action('epl_add_custom_menus'); ?>
+		<?php //do_action('epl_add_custom_menus'); ?>
 		<div class="epl-properties-sorting epl-clearfix">
-			<select id="epl-sort-listings">
+			<select id="epl-sort-listings" class="form-control">
 				<option <?php selected( $sortby, '' ); ?> value=""><?php _e('Sort','epl'); ?></option>
 				<?php
 					foreach($sorters as $sorter) { ?>

@@ -634,7 +634,13 @@ class EPL_Property_Meta {
 		$bed['l'] = '<li class="bedrooms">' . $this->get_property_meta('property_bedrooms') . ' '.__('bed', 'epl').'</li>';
 		return $bed[$returntype];
 	}
-	
+
+	public function get_property_bed_raw(){
+		if($this->get_property_meta('property_bedrooms') == '')
+			return "";
+		return $this->get_property_meta('property_bedrooms');
+	}
+
 	// property bathrooms
 	public function get_property_bath($returntype = 'i') {
 		if($this->get_property_meta('property_bathrooms') == '')
@@ -644,7 +650,13 @@ class EPL_Property_Meta {
 		$bath['l'] = '<li class="bathrooms">' . $this->get_property_meta('property_bathrooms') . ' '.__('bath', 'epl').'</li>';
 		return $bath[$returntype];
 	}
-	
+
+	public function get_property_bath_raw(){
+		if($this->get_property_meta('property_bathrooms') == '')
+			return "";
+		return $this->get_property_meta('property_bathrooms');
+	}
+
 	// property rooms
 	public function get_property_rooms($returntype = 'i') {
 		if($this->get_property_meta('property_rooms') == '')
@@ -668,6 +680,18 @@ class EPL_Property_Meta {
 		$parking['d'] = $property_parking . ' '.__('Parking Spaces', 'epl').' ';
 		$parking['l'] = '<li class="parking">' . $property_parking . ' '.__('Parking Spaces', 'epl').'</li>';
 		return $parking[$returntype];
+	}
+
+	public function get_property_parking_raw(){
+		if( $this->get_property_meta('property_garage') == '' && $this->get_property_meta('property_carport') == '' )
+			return "";
+		$property_garage 	= intval($this->get_property_meta('property_garage'));
+		$property_carport 	= intval($this->get_property_meta('property_carport'));
+		$property_parking 	= $property_carport + $property_garage;
+		if ( $property_parking == 0)
+			return "";
+		$property_parking = strval($property_parking);
+		return $property_parking;
 	}
 
 	// property garage
@@ -702,7 +726,18 @@ class EPL_Property_Meta {
 			return $air[$returntype];
 		}
 	}
-	
+
+	public function get_property_air_conditioning_raw()
+	{
+		if ($this->get_property_meta('property_air_conditioning') == '')
+			return false;
+		$property_air_conditioning = $this->get_property_meta('property_air_conditioning');
+		if( isset($property_air_conditioning) && ($property_air_conditioning == 1 || $property_air_conditioning == 'yes') ){
+			return true;
+		}
+		return false;
+	}
+
 	// property pool
 	public function get_property_pool($returntype = 'i') {
 		if($this->get_property_meta('property_pool') == '')
@@ -714,8 +749,18 @@ class EPL_Property_Meta {
 			return $pool[$returntype];
 		}
 	}
-	
-	// property security system
+
+	public function get_property_pool_raw($returntype = 'i') {
+		if($this->get_property_meta('property_pool') == '')
+			return false;
+		$property_pool = $this->get_property_meta('property_pool');
+		if( isset($property_pool) && ($property_pool == 1 || $property_pool == 'yes') ) {
+			return true;
+		}else{
+			return false;
+		}
+	}
+			// property security system
 	public function get_property_security_system($returntype = 'i') {
 		if($this->get_property_meta('property_security_system') == '')
 			return;
@@ -856,4 +901,12 @@ class EPL_Property_Meta {
 		return $contacts;
 	}
 
+	public function get_property_coord_lat(){
+		$lat = $this->get_property_meta("property_coordinate_lat");
+		return $lat;
+	}
+	public function get_property_coord_lng(){
+		$lng = $this->get_property_meta("property_coordinate_lng");
+		return $lng;
+	}
 }

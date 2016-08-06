@@ -8018,10 +8018,9 @@ L.Control = L.Class.extend({
 		    pos = this.getPosition(),
 		    corner = map._controlCorners[pos];
 
-		L.DomUtil.addClass(container, 'leaflet-control');
-
-		if (container.classList[0] != 'leaflet-control-mapbox-geocoder' ||
+		if (container.classList[0] != 'custom-geocoder-control' ||
 			L.DomUtil.get('mb-main-search-bar') == null){
+			L.DomUtil.addClass(container, 'leaflet-control');
 			if (pos.indexOf('bottom') !== -1) {
 				corner.insertBefore(container, corner.firstChild);
 			} else {
@@ -9997,15 +9996,17 @@ var GeocoderControl = L.Control.extend({
                 form = L.DomUtil.create('form', 'leaflet-control-mapbox-geocoder-form', wrap),
                 input = L.DomUtil.create('input', '', form);
         }else{
-            var link = L.DomUtil.get('mb-search-link'),
-                results = L.DomUtil.get('mb-search-results'),
+            var results = L.DomUtil.get('mb-search-results'),
                 wrap = L.DomUtil.get('mb-search-wrap'),
                 form = L.DomUtil.get('mb-search-form'),
-                input = L.DomUtil.get('mb-search-input');
+                input = L.DomUtil.get('mb-search-input'),
+                link = null;//L.DomUtil.get('mb-search-link');
         }
 
-        link.href = '#';
-        link.innerHTML = '&nbsp;';
+        if(link){
+        	link.href = '#';
+        	link.innerHTML = '&nbsp;';
+        }
 
         input.type = 'text';
         input.setAttribute('placeholder', 'Search');
@@ -10022,8 +10023,10 @@ var GeocoderControl = L.Control.extend({
         if (this.options.keepOpen) {
             L.DomUtil.addClass(container, 'active');
         } else {
-            this._map.on('click', this._closeIfOpen, this);
-            L.DomEvent.addListener(link, 'click', this._toggle, this);
+        	if(link){
+            	this._map.on('click', this._closeIfOpen, this);
+            	L.DomEvent.addListener(link, 'click', this._toggle, this);
+            }
         }
 
         return container;
@@ -10078,17 +10081,26 @@ var GeocoderControl = L.Control.extend({
             var name = feature.place_name;
             if (!name.length) continue;
 
-            var r = L.DomUtil.create('a', '', this._results);
+            var r = L.DomUtil.create('a', 'mb-search-result-a', this._results);
             var text = ('innerText' in r) ? 'innerText' : 'textContent';
-            r[text] = name;
+            var icon8 = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Maps/map_marker-24.png" title="Map Marker" width="24">';
+            r.innerHTML = icon8 + name;
+            //r[text] = name;
             r.setAttribute('title', name);
             r.href = '#';
 
+            var sres = L.DomUtil.get('mb-search-results');
+            if(sres != null){
+            	sres.style.visibility = 'visible';
+            }
             (L.bind(function(feature) {
                 L.DomEvent.addListener(r, 'click', function(e) {
                     this._chooseResult(feature);
                     L.DomEvent.stop(e);
                     this.fire('select', { feature: feature });
+                    if(sres != null){
+                    	sres.style.visibility = 'hidden';
+                    }
                 }, this);
             }, this))(feature);
         }
@@ -10099,12 +10111,92 @@ var GeocoderControl = L.Control.extend({
     },
 
     _chooseResult: function(result) {
+    	var eplform = L.DomUtil.get('my_epl_form');
         if (result.bbox) {
             this._map.fitBounds(util.lbounds(result.bbox));
+            // Remove center coodinates input fields.
+            var inputLat = L.DomUtil.get('my_epl_input_lat');
+            if(inputLat){
+            	$(inputLat).remove();
+            }
+            var inputLng = L.DomUtil.get('my_epl_input_lng');
+            if(inputLng){
+            	$(inputLng).remove();
+            }
+            // Add bounding box coordinates input fields.
+        	var bbMinLat = L.DomUtil.get('my_epl_bb_min_lat');
+        	if(!bbMinLat){
+        		bbMinLat = L.DomUtil.create('input', '', eplform);
+        		bbMinLat.id = "my_epl_bb_min_lat";
+        		bbMinLat.name = "my_epl_bb_min_lat";
+        	}
+        	bbMinLat.value = result.bbox[1];
+        	var bbMaxLat = L.DomUtil.get('my_epl_bb_max_lat');
+        	if(!bbMaxLat){
+        		bbMaxLat = L.DomUtil.create('input', '', eplform);
+        		bbMaxLat.id = "my_epl_bb_max_lat";
+        		bbMaxLat.name = "my_epl_bb_max_lat";
+        	}
+        	bbMaxLat.value = result.bbox[3];
+
+        	var bbMinLng = L.DomUtil.get('my_epl_bb_min_lng');
+        	if(!bbMinLng){
+        		bbMinLng = L.DomUtil.create('input', '', eplform);
+        		bbMinLng.id = "my_epl_bb_min_lng";
+        		bbMinLng.name = "my_epl_bb_min_lng";
+        	}
+        	bbMinLng.value = result.bbox[0];
+        	var bbMaxLng = L.DomUtil.get('my_epl_bb_max_lng');
+        	if(!bbMaxLng){
+        		bbMaxLng = L.DomUtil.create('input', '', eplform);
+        		bbMaxLng.id = "my_epl_bb_max_lng";
+        		bbMaxLng.name = "my_epl_bb_max_lng";
+        	}
+        	bbMaxLng.value = result.bbox[2];
+            if(eplform){
+                $(eplform).submit();
+            }
         } else if (result.center) {
+        	// Remove bounding box coordinates input fields.
+        	var bbMinLat = L.DomUtil.get('my_epl_bb_min_lat');
+        	if(bbMinLat){
+        		$(bbMinLat).remove();
+        	}
+			var bbMaxLat = L.DomUtil.get('my_epl_bb_max_lat');
+			if(bbMaxLat){
+        		$(bbMaxLat).remove();
+        	}
+         	var bbMinLng = L.DomUtil.get('my_epl_bb_min_lng');
+        	if(bbMinLng){
+        		$(bbMinLng).remove();
+        	}
+			var bbMaxLng = L.DomUtil.get('my_epl_bb_max_lng');
+			if(bbMaxLng){
+        		$(bbMaxLng).remove();
+        	}
+
+        	// Add center coordinates input fields.
+        	var inputLat = L.DomUtil.get('my_epl_input_lat');
+        	if(!inputLat){
+        		inputLat = L.DomUtil.create('input', '', eplform);
+        		inputLat.id = "my_epl_input_lat";
+        		inputLat.name = "my_epl_input_lat";
+        	}
+        	inputLat.value = result.center[1];
+            var inputLng = L.DomUtil.get('my_epl_input_lng');
+            if(!inputLng){
+            	inputLng = L.DomUtil.create('input', '', eplform);
+            	inputLng.id = "my_epl_input_lng";
+            	inputLng.name = "my_epl_input_lng";
+            }
+            inputLng.value = result.center[0];
             this._map.setView([result.center[1], result.center[0]], (this._map.getZoom() === undefined) ?
                 this.options.pointZoom :
                 Math.max(this._map.getZoom(), this.options.pointZoom));
+
+            if(eplform){
+                $(eplform).submit();
+            }
         }
     },
 

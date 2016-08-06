@@ -1,42 +1,51 @@
 <?php
 /**
- * The template for displaying archive pages.
- *
- * Learn more: http://codex.wordpress.org/Template_Hierarchy
+ * The template for displaying search results pages.
  *
  * @package materialwp
  */
 
 get_header(); ?>
+<script>
+	$(document).ready(function(e) {
+		$('#main_section').height($(window).height() - 180);
+		$(window).on('resize', function () {
+			$('#main_section').height($(window).height() - 175);
+		});
+		$('body').css("overflow", "hidden");
+	});
+</script>
+<div id="main_section" class="container" style="overflow: hidden; width: 100%; height:600px; min-height: 600px" xmlns="http://www.w3.org/1999/html">
+  	<!-- first column -->
+  	<div id="search-result-wrapper" style="overflow-y: scroll; max-width: 100%; width: 60%; height: 100%; float: left">
+		<!-- filter panel -->
+		<div><?php echo do_shortcode('[listing_custom_search post_type="property"]') ?></div>
+		<!-- filter panel 2 -->
+		<div></div>
+		<!-- sort -->
+		<div></div>
+		<div style="height: 100%; width: 100%">
 
-<div class="container">
-	<div class="row">
-
-		<div id="primary" class="col-md-8 col-lg-8">
-			<main id="main" class="site-main" role="main">
+			<section id="primary">
+				<main id="main" class="site-main" role="main">
 
 				<?php if ( have_posts() ) : ?>
-
-					<header>
-						<?php
-							the_archive_title( '<h1 class="page-title">', '</h1>' );
-							the_archive_description( '<div class="taxonomy-description">', '</div>' );
-						?>
+					<!--
+					<header class="page-header">
+						<h1 class="page-title"><?php printf( __( 'Search Results for: %s', 'materialwp' ), '<span>' . get_search_query() . '</span>' ); ?></h1>
 					</header><!-- .page-header -->
-
 					<?php /* Start the Loop */ ?>
 					<?php do_action( 'epl_property_loop_start' ); ?>
 					<?php while ( have_posts() ) : the_post(); ?>
-
 						<?php
-							/* Include the Post-Format-specific template for the content.
-							 * If you want to override this in a child theme, then include a file
-							 * called content-___.php (where ___ is the Post Format name) and that will be used instead.
-							 */
-							//get_template_part( 'content', get_post_format() );
-						    do_action('epl_property_blog');
+						/**
+						 * Run the loop for the search to output the results.
+						 * If you want to overload this in a child theme then include a file
+						 * called content-search.php and that will be used instead.
+						 */
+						 //get_template_part( 'content', 'search' );
+						 do_action('epl_property_blog');
 						?>
-
 					<?php endwhile; ?>
 					<?php do_action( 'epl_property_loop_end' ); ?>
 					<?php materialwp_paging_nav(); ?>
@@ -47,11 +56,27 @@ get_header(); ?>
 
 				<?php endif; ?>
 
-			</main><!-- #main -->
-		</div><!-- #primary -->
+				</main><!-- #main -->
+			</section><!-- #primary -->
 
-		<?php get_sidebar(); ?>
-	</div> <!-- .row -->
+			<!-- <php get_sidebar(); ?> -->
+
+		</div> <!-- .row -->
+	</div>
+	<!-- second column for map  -->
+	<div id="map-container-wrapper" style="width: 40%; height: 100%; float: left; padding-left: 5px">
+		<div id="general-map-container" class="panel panel-default" style="height: 100%"></div>
+	</div>
+	<script>
+		$(document).ready(function(e){
+			L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+			L.mapbox.map('general-map-container', 'mapbox.streets')
+				.addControl(L.mapbox.geocoderControl('mapbox.places', {
+					autocomplete: true,
+					keepOpen: true
+				}));
+		});
+	</script>
 </div> <!-- .container -->
 
 <?php get_footer(); ?>
