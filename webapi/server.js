@@ -28,19 +28,40 @@ app.use(bodyParser.json());
  */
 app.get('/api/0/orders', api.getOrders);
 app.get('/api/0/orders/:id', api.getOrderByID);
+app.get('/api/0/orders/stripe/:id', api.getOrderByStripeID);
 app.get('/api/0/orders/user/:uid', api.getOrdersByUserID);
 app.get('/api/0/orders/post/:pid', api.getOrdersByPostID);
 app.get('/api/0/orders/postAuthor/:paid', api.getOrdersByPostAuthorID);
+app.get('/api/0/orders/sku/:kid', api.getOrdersBySkuID);
 app.post('/api/0/orders', api.addOrder);
 app.post('/api/0/orders/:id', api.editOrder);
+app.post('/api/0/orders/stripe/:id', api.editOrderByStripeID);
 app.delete('/api/0/orders/:id', api.deleteOrder);
 
 app.get('/api/0/favorites', api.getFavorites);
 app.get('/api/0/favorites/:id', api.getFavoriteByID);
 app.get('/api/0/favorites/user/:uid', api.getFavoritesByUserID);
 app.post('/api/0/favorites', api.addFavorite);
-app.post('/api/0/favorites/:id', api.editOrder);
-app.delete('/api/0/favorites/:id', api.deleteOrder);
+app.post('/api/0/favorites/:id', api.editFavorite);
+app.delete('/api/0/favorites/:id', api.deleteFavorite);
+
+app.get('/api/0/products', api.getProducts);
+app.get('/api/0/products/:id', api.getProductByID);
+app.get('/api/0/products/stripe/:id', api.getProductByStripeID);
+app.get('/api/0/products/post/:pid', api.getProductsByPostID);
+app.post('/api/0/products', api.addProduct);
+app.post('/api/0/products/:id', api.editProduct);
+app.post('/api/0/products/stripe/:id', api.editProductByStripeID);
+app.delete('/api/0/products/:id', api.deleteProduct);
+
+app.get('/api/0/skus', api.getSkus);
+app.get('/api/0/skus/:id', api.getSkuByID);
+app.get('/api/0/skus/stripe/:id', api.getSkuByStripeID);
+app.get('/api/0/skus/post/:pid', api.getSkusByPostID);
+app.post('/api/0/skus', api.addSku);
+app.post('/api/0/skus/:id', api.editSku);
+app.post('/api/0/skus/stripe/:id', api.editSkuByStripeID);
+app.delete('/api/0/skus/:id', api.deleteSku);
 
 // The following apis are deprecated.
 /*

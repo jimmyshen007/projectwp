@@ -7,7 +7,7 @@ import m from 'mongoose';
 
 m.Promise = promise;
 m.connect('mongodb://localhost:' + config.get('mongodb.port') + '/' + config.get('mongodb.db'));
-let db = m.connection;
+export let db = m.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 process.on('SIGINT', function() {
     m.connection.close(function () {
@@ -17,21 +17,29 @@ process.on('SIGINT', function() {
 });
 
 let Schema = m.Schema;
-let orderSchema = new Schema({
+export let orderSchema = new Schema({
     postID: String,
     postAuthorID: String,
     userID: String,
-    orderValue: Number, //price or cost
-    valueUnit: String, //ie the currency unit.
-    status: String
+    skuID: String,
+    stripeOrderID: String
 });
 
-let favoriteSchema = new Schema({
+export let favoriteSchema = new Schema({
     fType: String,
     fValue: String,
-    userID: String,
+    userID: String
 });
 
+export let productSchema = new Schema({
+    postID: String,
+    stripeProdID: String
+});
+
+export let skuSchema = new Schema({
+    postID: String,
+    stripeSkuID: String,
+});
 
 /*
  * Deprecated.
@@ -46,6 +54,3 @@ let customerSchema = new Schema({
     favoriteList: [favorSchema]
 });
 ////////////////////////////////
-
-export {db, orderSchema, favoriteSchema};
-
