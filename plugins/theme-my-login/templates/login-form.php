@@ -16,7 +16,7 @@ Theme My Login will always look in your theme's directory first, before using th
 					_e( 'Username or E-mail', 'theme-my-login' );
 				else
 					_e( 'Username', 'theme-my-login' );
-			?></label>
+				?></label>
 			<input type="text" name="log" id="user_login<?php $template->the_instance(); ?>" class="input" value="<?php $template->the_posted_value( 'log' ); ?>" size="20" />
 		</p>
 

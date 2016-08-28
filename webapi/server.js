@@ -39,8 +39,8 @@ app.get('/api/0/favorites', api.getFavorites);
 app.get('/api/0/favorites/:id', api.getFavoriteByID);
 app.get('/api/0/favorites/user/:uid', api.getFavoritesByUserID);
 app.post('/api/0/favorites', api.addFavorite);
-app.post('/api/0/favorites/:id', api.editOrder);
-app.delete('/api/0/favorites/:id', api.deleteOrder);
+app.post('/api/0/favorites/:id', api.editFavorite);
+app.delete('/api/0/favorites/:id', api.deleteFavorite);
 
 // The following apis are deprecated.
 /*
