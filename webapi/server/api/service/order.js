@@ -4,33 +4,45 @@ import * as common from './common';
 let serviceName = 'orders';
 
 export function getOrders() {
-    return common.getServices(serviceName);
+    return common.listStripeService(serviceName, {});
 }
 
-export function getOrderById(orderId){
-    return common.getServiceById(serviceName, orderId);
+export function getOrderByStripeID(stripeID){
+    return common.getStripeServicesByAttribute(serviceName, 'stripeOrderID', stripeID, true);
+}
+
+export function getOrderById(id){
+    return common.getStripeServicesByAttribute(serviceName, '_id', id);
 }
 
 export function getOrdersByUserID(userID){
-    return common.getServicesByAttribute(serviceName, "userID", userID);
+    return common.getStripeServicesByAttribute(serviceName, "userID", userID);
 }
 
 export function getOrdersByPostID(postID){
-    return common.getServicesByAttribute(serviceName, "postID", postID);
+    return common.getStripeServicesByAttribute(serviceName, "postID", postID);
 }
 
 export function getOrdersByPostAuthorID(postAuthorID){
-    return common.getServicesByAttribute(serviceName, "postAuthorID", postAuthorID);
+    return common.getStripeServicesByAttribute(serviceName, "postAuthorID", postAuthorID);
+}
+
+export function getOrdersBySkuID(skuID){
+    return common.getStripeServicesByAttribute(serviceName, "skuID", skuID);
 }
 
 export function addOrder(order) {
-    return common.addService(serviceName, order);
+    return common.addStripeService(serviceName, order);
 }
 
 export function editOrder(id, order) {
-    return common.editService(id, order, serviceName);
+    return common.updateStripeService(serviceName, id, order);
+}
+
+export function editOrderByStripeID(stripeID, order) {
+    return common.updateStripeService(serviceName, stripeID, order, true);
 }
 
 export function deleteOrder(id) {
-    return common.deleteService(id, serviceName);
+    return common.delStripeService(serviceName, id);
 }
