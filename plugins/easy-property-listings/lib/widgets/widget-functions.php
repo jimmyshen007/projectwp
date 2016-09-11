@@ -1161,6 +1161,58 @@ class CustomSearchPageGenerator
 			$idx = 0;
 			$cols = 2;
 			$num_idx = 1;
+			global $user_ID;
+			/* script to add to or remove from wishlist */
+			$like_scrpit2 = '<script> 
+								var urlstr = "/api/0/favorites/user/";
+								var wishlist;
+								alert(wishlist.data.length);
+								function LikeSwitch(imgElem){
+									postID = imgElem.id.substring(4);
+									if (imgElem.name == "like") {  // add to wishlist
+										jQuery.ajax({
+											url: "/api/0/favorites",
+											dataType: "json",
+											method: "POST",
+											data: {"fType": "post", "fValue": postID,"userID" : '.$user_ID.'},
+											success: function(result){									
+												wishlist.data.push(result.data); // add to the array
+												imgElem.src = "https://maxcdn.icons8.com/Color/PNG/24/Messaging/filled_like-24.png";
+												imgElem.name = "liked";
+												imgElem.style.opacity = 1;
+											}});
+									} else {   // remove from wishlist
+										var urldel = "/api/0/favorites/";
+										for (var i=0; i<wishlist.data.length; i++ )
+										{
+											if (wishlist.data[i].fType == "post" && wishlist.data[i].fValue == postID) {
+												favID = wishlist.data[i]._id;
+											}
+										}
+										jQuery.ajax({
+											url: urldel + favID,
+											dataType: "json",
+											method: "DELETE",
+											success: function(result){
+												if (result.data.ok == 1) {
+													for (var i = 0; i < wishlist.data.length; i++) {
+														if (wishlist.data[i]._id == favID) {
+															wishlist.data.splice(i,1);
+														}
+													}
+													imgElem.src = "https://maxcdn.icons8.com/Android_L/PNG/24/Messaging/filled_like-24.png";
+													imgElem.name = "like";
+													imgElem.style.opacity = 0.2;
+													
+											} else { //server error: failed to delete
+												alert("Oops, we are encountering some server issue. Please try it later.");
+											}
+										}});
+									}
+								}
+							</script>';
+			
+			echo $like_scrpit2;
 			// the Loop
 			while (have_posts()) : the_post();
 				//do_action('epl_property_blog');
@@ -1234,6 +1286,41 @@ class CustomSearchPageGenerator
 
 				$author_sticker = epl_get_author_sticker();
 				$author_elem = '<div style="position: absolute; right: 25px; bottom: 25px">' . $author_sticker . '</div>';
+				$like_sticker = '<button class="close" style="margin-right: 30%; opacity: 1" ><img id="like'.$post->ID.'" style="opacity: .2" src="https://maxcdn.icons8.com/Android_L/PNG/24/Messaging/filled_like-24.png" title="Add to Wish List"  width="30" name="like" onclick="LikeSwitch(this)"></button>';
+				$like_elem = '<div style="position:absolute; right: 0px; top: 9%; width: 55px;
+			    display: block; padding: 4px; background-color: rgba(230,232,232,0.618)"><span>'
+					. $like_sticker . '</span></div>';
+				$like_scrpit = '<script>
+										if(wishlist == null) 
+										{
+											jQuery.ajax({
+												url: urlstr.concat('.$user_ID.'),
+												dataType: "json",
+												method: "Get",
+												success: function(result){
+													wishlist = result;
+                                        			for (var i=0; i < wishlist.data.length; i++){
+                                        			
+                                        				if (wishlist.data[i].fType == "post" && wishlist.data[i].fValue == '.$post->ID.') {
+															document.getElementById("like'.$post->ID.'").src = \'https://maxcdn.icons8.com/Color/PNG/24/Messaging/filled_like-24.png\';
+															document.getElementById("like'.$post->ID.'").name = "liked";
+															document.getElementById("like'.$post->ID.'").style.opacity = 1;
+													}
+                                        		}
+											}});
+										} else 
+										{
+											for (var i=0; i < wishlist.data.length; i++){
+                                        		if (wishlist.data[i].fType == "post" && wishlist.data[i].fValue == '.$post->ID.') {
+													document.getElementById("like' . $post->ID . '").src = \'https://maxcdn.icons8.com/Color/PNG/24/Messaging/filled_like-24.png\';
+													document.getElementById("like' . $post->ID . '").name = "liked";
+													document.getElementById("like' . $post->ID . '").style.opacity = 1;
+												}
+											}
+										}
+ 										
+                                        
+								</script>';
 				$contents .= $title_elem . $fhtml . '</div>';
 				$price_elem = '<div style="position:absolute; left: 0px; top: 61.8%;
 			    display: block; padding: 5px; background-color: rgba(230,232,232,0.618)"><span>'
@@ -1242,7 +1329,7 @@ class CustomSearchPageGenerator
 					'<a href="' . $post_link . ' "><img class="img-responsive" src="' . $prop_image . '"
 				 style="margin-left: auto; margin-right: auto;" /></a></div>';
 				echo '<td class="jumbotron c-responsive" style="position: relative;">' .
-					$img_elem . $contents . $price_elem . $author_elem .
+					$img_elem . $contents . $price_elem . $like_elem. $like_scrpit. $author_elem .
 					'</td>';
 				if ($idx == $cols - 1) {
 					echo '</tr>';

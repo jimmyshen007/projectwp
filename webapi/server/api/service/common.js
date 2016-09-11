@@ -7,7 +7,7 @@ import xss from 'xss';
 import stripe from 'stripe';
 import {db, orderSchema, favoriteSchema, productSchema, skuSchema, accountSchema} from '../db';
 
-let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
+let sapi = stripe('sk_test_tpFrMjZ9ivdUjnEeEXDiqq98');
 function chooseSchema(serviceName){
     switch(serviceName){
         case 'orders':

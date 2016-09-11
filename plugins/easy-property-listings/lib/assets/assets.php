@@ -53,7 +53,7 @@ function epl_wp_enqueue_scripts() {
 	
 	if( is_epl_post() && shortcode_exists('listing_map') ) {
 	    if(!checkChinaIP()){
-		wp_enqueue_script('google-map-v-3','https://maps.googleapis.com/maps/api/js?v=3.exp');
+		//wp_enqueue_script('google-map-v-3','https://maps.googleapis.com/maps/api/js?v=3.exp');
             }
 	}
 	

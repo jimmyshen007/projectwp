@@ -84,7 +84,7 @@ function materialwp_widgets_init() {
 		'name'          => __( 'Sidebar', 'materialwp' ),
 		'id'            => 'sidebar-1',
 		'description'   => '',
-		'before_widget' => '<aside id="%1$s" class="widget %2$s"><div class="panel panel-warning">',
+		'before_widget' => '<aside id="%1$s" class="widget %2$s" style="width: 360px;"><div class="panel panel-warning">',
 		'after_widget'  => '</div></aside>',
 		'before_title'  => ' <div class="panel-heading"><h3 class="panel-title">',
 		'after_title'   => '</h3></div>',
@@ -99,6 +99,18 @@ function materialwp_scripts() {
 	//wp_enqueue_script('mwp-jquery', '//code.jquery.com/jquery-1.12.0.min.js');
 
 	//wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
+
+	wp_enqueue_style( 'rating-styles', 'http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css',array(), false, 'all');
+
+	wp_enqueue_style( 'star-styles', get_template_directory_uri() .'/jquery-bar-rating-master/dist/themes/bootstrap-stars.css');
+
+	wp_enqueue_script('star-jquery', get_template_directory_uri() .'/jquery-bar-rating-master/dist/jquery.barrating.min.js');
+
+	wp_enqueue_style( 'file-styles', get_template_directory_uri() .'/jasny-bootstrap/css/jasny-bootstrap.css');
+
+	wp_enqueue_script('file-jquery', get_template_directory_uri() .'/jasny-bootstrap/js/jasny-bootstrap.min.js');
+
+	wp_enqueue_script('file-min-jquery', get_template_directory_uri() .'/jasny-bootstrap/js/jasny-bootstrap.js');
 
 	wp_enqueue_style( 'mwp-bootstrap-styles', get_template_directory_uri() . '/bower_components/bootstrap/dist/css/bootstrap.min.css', array(), '3.3.4', 'all' );
 
@@ -124,6 +136,158 @@ function materialwp_scripts() {
 }
 add_action( 'wp_enqueue_scripts', 'materialwp_scripts' );
 
+/*
+function add_comment_fields($fields) {
+
+	$fields = '<div class="form-group">
+        <label for="star" class="col-md-2 control-label">Please Rate</label>
+	    <div class="br-wrapper br-theme-bootstrap-stars">
+        <div class="stars stars-example-bootstrap">
+          <select id="star" name="star">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </select>
+          <script type="text/javascript">
+		   $(function() {
+      		$(\'#star\').barrating({
+        		theme: \'fontawesome-stars\',
+        		initialRating:3
+      			});
+  			 });
+		  </script>
+		</div>
+        </div>
+    </div>
+        <div class="form-group is-empty"><div class="col-md-10">' . $fields;
+	return $fields;
+
+}
+add_filter('comment_form_field_comment','add_comment_fields');
+*/
+
+function add_comment_class($classes, $class, $commentID, $comment, $post_id ){
+	array_push($classes, "well");
+	return $classes;
+}
+add_filter('comment_class', 'add_comment_class',1,5);
+function get_total_reviews($post_id) {
+	global $wpdb;
+	$query = 'SELECT count(meta_ID) as review_count FROM wp_comments as c, wp_commentmeta as m where c.comment_ID = m.comment_ID and comment_post_ID = '.$post_id;
+	$results = $wpdb->get_results( $query, ARRAY_A );
+	//var_dump(get_template_directory());
+	echo"<label>".$results[0]['review_count']." Reviews</label>";
+}
+
+function get_review_star($post_id) {
+	global $wpdb;
+	$query1 = 'SELECT AVG(meta_value) as avg_star FROM wp_commentmeta as m, wp_comments as c where m.comment_id = c.comment_id and meta_key=\'star\' and comment_post_ID = '.$post_id;
+	$query2 = 'SELECT count(meta_ID) as review_count FROM wp_comments as c, wp_commentmeta as m where c.comment_ID = m.comment_ID and comment_post_ID = '.$post_id;
+	$result1 = $wpdb->get_results( $query1, ARRAY_A );
+	$result2 = $wpdb->get_results( $query2, ARRAY_A );
+	echo "<div class=\"br-wrapper br-theme-bootstrap-stars\">
+ 		  <div class=\"stars stars-example-bootstrap\">
+ 		  <h4 class=\"secondary-heading\" >".$result2[0]['review_count']." Reviews</h4>
+ 		  <select id=\"example\">
+  			<option value=\"1\">1</option>
+  			<option value=\"2\">2</option>
+  			<option value=\"3\">3</option>
+  			<option value=\"4\">4</option>
+  			<option value=\"5\">5</option>
+		  </select>
+		  </div>
+		  </div>
+		  <script type=\"text/javascript\">
+		   $(function() {
+      		$('#example').barrating({
+        		theme: 'fontawesome-stars',
+        		readonly:true,
+        		initialRating:".round($result1[0]['avg_star'],0,PHP_ROUND_HALF_UP)."
+      			});
+  			 });
+		  </script>";
+}
+
+function add_comment_meta_values($comment_id) {
+	if(isset($_POST['star'])) {
+		$age = wp_filter_nohtml_kses($_POST['star']);
+		add_comment_meta($comment_id, 'star', $age, false);
+	}
+
+}
+add_action ('comment_post', 'add_comment_meta_values', 1);
+
+function add_rating_feild() {
+	echo'<div class="form-group">
+        <input type="hidden" name="star" id="star">
+        <label for="star" class="col-md-2 control-label">Please Rate</label>
+	    <div class="br-wrapper br-theme-bootstrap-stars">
+        <div class="stars stars-example-bootstrap">
+          <select id="rate" name="rate">
+            <option>1</option>
+            <option>2</option>
+            <option>3</option>
+            <option>4</option>
+            <option>5</option>
+          </select>
+          <script type="text/javascript">
+		   $(function() {
+      		$(\'#rate\').barrating(\'show\',{
+        		theme: \'fontawesome-stars\',
+        		onSelect: function(value, text, event) {
+    				if (typeof(event) !== \'undefined\') {
+      					// rating was selected by a user
+      					$("#star").val(value);
+    				} else {
+    				}
+    			  }
+      			});
+  			 });
+		  </script>
+		</div>
+        </div>
+    </div>
+        <div class="form-group is-empty"><div class="col-md-10">';
+
+}
+add_action ('comment_form_top', 'add_rating_feild');
+
+function edit_submit_button($submit_button, $args) {
+	$submit_button = '<button name="submit" type="submit" class="btn btn-primiry" id="submitz" style="color: #009688;">SUBMIT</button>';
+/*	$submit_button = '
+	<button name="submit" type="button" class="btn btn-primiry" id="submit1" style="color: #009688;">SUBMIT</button>
+	<script type="text/javascript">
+	$(document).ready( function() {
+	  var $ta = $("textarea");
+	  $ta.removeProp("background");
+	  
+      var form = $(\'#commentform\');
+	
+      form.find(\'button\').click( function() {
+        if ($("#comment").val() == "")
+        {
+        	window.alert("Please say something for the property in the comment feild.");
+        }
+        else{
+        	$.ajax( {
+        	type: "POST",
+        	url: form.attr( \'action\' ),
+        	data: form.serialize(),
+        	success: function( response ) {
+          	window.alert("Your Comment has been submitted successfully.");
+          	$("#comment").val("");
+          	}
+        	} );
+        }
+      } );
+    } );
+    </script>';*/
+	return $submit_button;
+
+}
+add_filter('comment_form_submit_button','edit_submit_button', 1, 2);
 /**
  * Implement the Custom Header feature.
  */

@@ -15,7 +15,7 @@ function getClientIP(){
 function checkChinaIP() {
 	$ip = getClientIP();
 	$cIP = explode(".", $ip);
-	$ipList = split("\n", file_get_contents(__DIR__ . "/china_ip"));
+	$ipList = preg_split("/\n/", file_get_contents(__DIR__ . "/china_ip"));
 	foreach($ipList as $value) {
 		if(!$value){
 			continue;

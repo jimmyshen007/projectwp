@@ -85,6 +85,31 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 						);
 					?>
         		</div> <!-- .navbar-collapse -->
+			  	<style>
+					.fontcolor {
+						color: black !important;
+					}
+					.custom-width {
+						width: 300px !important;
+					}
+				</style>
+			    <div id="mb-main-search-bar" class="leaflet-control-mapbox-geocoder leaflet-bar leaflet-control custom-width"
+					 style="float: right">
+					<a id="mb-search-link" class="leaflet-control-mapbox-geocoder-toggle mapbox-icon mapbox-icon-geocoder"></a>
+					<div id="mb-search-results" class="leaflet-control-mapbox-geocoder-results custom-width"></div>
+					<div id="mb-search-wrap" class="leaflet-control-mapbox-geocoder-wrap custom-width">
+						<form id="mb-search-form" class="leaflet-control-mapbox-geocoder-form">
+							<input id="mb-search-input" class="custom-width fontcolor" type="text" />
+						</form>
+					</div>
+				</div>
+			  	<script>
+						$(document).ready(function(){
+							$('#mb-search-results').on('click', function(){
+								$('#mb-search-results').hide();
+							});
+						});
+				</script>
         	</div><!-- /.container -->
 		</nav><!-- .navbar .navbar-default -->
 	</header><!-- #masthead -->

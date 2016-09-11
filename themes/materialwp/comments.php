@@ -29,14 +29,7 @@ if ( post_password_required() ) {
 					number_format_i18n( get_comments_number() ), '<span>' . get_the_title() . '</span>' );
 			?>
 		</h2>
-
-		<?php if ( get_comment_pages_count() > 1 && get_option( 'page_comments' ) ) : // are there comments to navigate through ?>
-		<nav id="comment-nav-above" class="comment-navigation" role="navigation">
-			<h1 class="screen-reader-text"><?php _e( 'Comment navigation', 'materialwp' ); ?></h1>
-			<div class="nav-previous"><?php previous_comments_link( __( '&larr; Older Comments', 'materialwp' ) ); ?></div>
-			<div class="nav-next"><?php next_comments_link( __( 'Newer Comments &rarr;', 'materialwp' ) ); ?></div>
-		</nav><!-- #comment-nav-above -->
-		<?php endif; // check for comment navigation ?>
+		<h2><?php get_review_star(get_the_ID()); ?></h2>
 
 		<ol class="comment-list">
 			<?php
@@ -50,8 +43,10 @@ if ( post_password_required() ) {
 		<?php if ( get_comment_pages_count() > 1 && get_option( 'page_comments' ) ) : // are there comments to navigate through ?>
 		<nav id="comment-nav-below" class="comment-navigation" role="navigation">
 			<h1 class="screen-reader-text"><?php _e( 'Comment navigation', 'materialwp' ); ?></h1>
-			<div class="nav-previous"><?php previous_comments_link( __( '&larr; Older Comments', 'materialwp' ) ); ?></div>
-			<div class="nav-next"><?php next_comments_link( __( 'Newer Comments &rarr;', 'materialwp' ) ); ?></div>
+			<ul class="pager">
+				<li class="previous"><?php previous_comments_link( __( '&larr; Older Comments', 'materialwp' ) ); ?></li>
+				<li class="next"><?php next_comments_link( __( 'Newer Comments &rarr;', 'materialwp' ) ); ?></li>
+			</ul>
 		</nav><!-- #comment-nav-below -->
 		<?php endif; // check for comment navigation ?>
 
@@ -64,7 +59,8 @@ if ( post_password_required() ) {
 		<p class="no-comments"><?php _e( 'Comments are closed.', 'materialwp' ); ?></p>
 	<?php endif; ?>
 
-	<?php 
+	<?php
+
 	    $req = get_option( 'require_name_email' );
 	    $aria_req = ( $req ? " aria-required='true'" : '' );
 
@@ -75,9 +71,10 @@ if ( post_password_required() ) {
         'title_reply'=>'Leave a Comment',
         // remove "Text or HTML to be displayed after the set of comment fields"
         'comment_notes_after' => '',
+            'logged_in_as' => '',
         // redefine your own textarea (the comment body)
-        'comment_field' => ' 
-        <div class="form-group"><textarea class="form-control floating-label" placeholder="Comments" rows="10" id="comment" name="comment" aria-required="true"></textarea></div>',
+        'comment_field' => '
+      <textarea class="form-control empty" style="height: 65px;" placeholder="Comments" rows="3" id="comment" name="comment" aria-required="true"></textarea></div><span class="material-input"></span></div>',
 
         'fields' => apply_filters( 'comment_form_default_fields', array(
 
@@ -99,6 +96,7 @@ if ( post_password_required() ) {
 	  ),
 	);
 
+	
 	comment_form($comments_args); 	?>
 
 </div><!-- #comments -->
