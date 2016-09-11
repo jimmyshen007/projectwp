@@ -5,7 +5,7 @@ import m from 'mongoose';
 import config from 'config';
 import xss from 'xss';
 import stripe from 'stripe';
-import {db, orderSchema, favoriteSchema, productSchema, skuSchema} from '../db';
+import {db, orderSchema, favoriteSchema, productSchema, skuSchema, accountSchema} from '../db';
 
 let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
 function chooseSchema(serviceName){
@@ -18,6 +18,8 @@ function chooseSchema(serviceName){
             return productSchema;
         case 'skus':
             return skuSchema;
+        case 'accounts':
+            return accountSchema;
         default:
             undefined;
     }
@@ -63,8 +65,19 @@ export function addService(serviceName, servObj){
     preprocessRoute(serviceName, servObj);
 
     let service = m.model(serviceName, chooseSchema(serviceName));
-    let newInstance = new service(servObj);
-    return newInstance.save();
+    return service.findOne(servObj).lean().exec().then((data)=> {
+        if(!data) {
+            let newInstance = new service(servObj);
+            return newInstance.save();
+        }else{
+            let p = new Promise((resolve, reject) => {
+                resolve(data);
+            });
+            return p;
+        }
+    }, (err) => {
+        throw err;
+    })
 }
 
 export function editService(serviceId, servObj, serviceName) {
@@ -104,7 +117,9 @@ function callStripeAPI(params){
                                 params.serviceAttrValue)).then((data) => {
                                 let ids = [];
                                 for (let d of data) {
-                                    ids.push(d.stripeProdID);
+                                    if(d.stripeProdID) {
+                                        ids.push(d.stripeProdID);
+                                    }
                                 }
                                 if(ids.length > 0) {
                                     return sapi.products.list({"ids": ids});
@@ -135,7 +150,14 @@ function callStripeAPI(params){
                         for(let d of data){
                             ids.push(d.stripeProdID);
                         }
-                        return sapi.products.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        if(ids.length > 0) {
+                            return sapi.products.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        }else{
+                            let p = new Promise((resolve, reject) => {
+                                resolve({});
+                            });
+                            return p;
+                        }
                     }, (err) => {
                         throw err;
                     });
@@ -174,7 +196,9 @@ function callStripeAPI(params){
                                 params.serviceAttrValue)).then((data) => {
                             let ids = [];
                             for (let d of data) {
-                                ids.push(d.stripeSkuID);
+                                if(d.stripeSkuID) {
+                                    ids.push(d.stripeSkuID);
+                                }
                             }
                             if(ids.length > 0) {
                                 return sapi.skus.list({"ids": ids});
@@ -205,7 +229,14 @@ function callStripeAPI(params){
                         for(let d of data){
                             ids.push(d.stripeSkuID);
                         }
-                        return sapi.skus.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        if(ids.length > 0) {
+                            return sapi.skus.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        }else{
+                            let p = new Promise((resolve, reject) => {
+                                resolve({});
+                            });
+                            return p;
+                        }
                     }, (err) => {
                         throw err;
                     });
@@ -247,7 +278,9 @@ function callStripeAPI(params){
                                 params.serviceAttrValue)).then((data) => {
                             let ids = [];
                             for (let d of data) {
-                                ids.push(d.stripeOrderID);
+                                if(d.stripeOrderID) {
+                                    ids.push(d.stripeOrderID);
+                                }
                             }
                             if(ids.length > 0) {
                                 return sapi.orders.list({"ids": ids});
@@ -278,7 +311,14 @@ function callStripeAPI(params){
                         for(let d of data){
                             ids.push(d.stripeOrderID);
                         }
-                        return sapi.orders.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        if(ids.length > 0) {
+                            return sapi.orders.list(Object.assign({}, {"ids": ids}, params.serviceObj));
+                        }else{
+                            let p = new Promise((resolve, reject) => {
+                                resolve({});
+                            });
+                            return p;
+                        }
                     }, (err) => {
                         throw err;
                     });
@@ -315,6 +355,116 @@ function callStripeAPI(params){
                             }, (err) => {
                                 throw err;
                             });
+                    }
+            }
+        case 'accounts':
+            switch(params.action) {
+                case 'create':
+                    return sapi.accounts.create(params.serviceObj).then(
+                        (account) => {
+                            let servObj = {"stripeAccID": account.id,
+                                "userID": account.metadata.userID};
+                            let newInstance = new service(servObj);
+                            return newInstance.save();
+                        }, (err) => {
+                            throw err;
+                        });
+                case 'retrieve':
+                    // Directly retrieve a stripe object.
+                    if(params.direct){
+                        return sapi.accounts.retrieve(params.serviceAttrValue);
+                    }else {
+                        return service.find(
+                            constructJSONHelper(params.serviceAttrName,
+                                params.serviceAttrValue)).then((data) => {
+                            let accPs = [];
+                            for (let d of data) {
+                                if(d.stripeAccID) {
+                                    accPs.push(sapi.accounts.retrieve(d.stripeAccID).then(
+                                        (data) => {
+                                            return new Promise((resolve, reject) =>{
+                                               resolve(data);
+                                            });
+                                        }, (err) => {
+                                            console.log(err);
+                                            //This is a background task which we do not
+                                            //expect when it is done. This is when the
+                                            //stripe acc is gone, so we need to remove
+                                            //the wrapper from our database.
+                                            let fakeP = new Promise((resolve, reject) => {
+                                                resolve({});
+                                            });
+                                            return service.remove({_id: d._id}).then(
+                                                (data)=> {
+                                                    return fakeP;
+                                            }, (err)=>{
+                                                    return fakeP;
+                                                });
+                                        }
+                                    ));
+                                }else{
+                                    //This is a background task which we do not
+                                    //expect when it is done. This is when the stripeAccID
+                                    //is undefined, then the wrapper is a invalid one, and
+                                    //we need to remove it.
+                                    let fakeP = new Promise((resolve, reject) => {
+                                        resolve({});
+                                    });
+                                    return service.remove({_id: d._id}).then(
+                                        (data) => {
+                                            return fakeP;
+                                        }, (err)=> {
+                                            return fakeP;
+                                    });
+                                }
+                            }
+                            if(accPs.length > 0) {
+                                return Promise.all(accPs);
+                            }else {
+                                let p = new Promise((resolve, reject) => {
+                                    resolve([{}]);
+                                });
+                                return p;
+                            }
+                        }, (err) => {
+                            throw err;
+                        });
+                    }
+                case 'update':
+                    if(params.direct) {
+                        return sapi.accounts.update(params.serviceId, params.serviceObj);
+                    }else{
+                        return service.findOne({_id: params.serviceId}).then(
+                            (data) => {
+                                return sapi.accounts.update(data.stripeAccID, params.serviceObj);
+                            }, (err) => {
+                                throw err;
+                            });
+                    }
+                case 'list':
+                    return sapi.accounts.list(params.serviceObj);
+
+                case 'delete':
+                    return service.findOne({_id: params.serviceId}).then((data) => {
+                        let id = data._id;
+                        return sapi.accounts.del(data.stripeAccID).then((confirm) => {
+                            return service.remove({_id: id});
+                        }, (err) => {
+                            console.log(err);
+                            return service.remove({_id: id});
+                        });
+                    }, (err) => {
+                        throw err;
+                    });
+                case 'reject':
+                    if(params.direct) {
+                        return sapi.accounts.reject(params.serviceId, params.serviceObj);
+                    }else {
+                        return service.findOne({_id: params.serviceId}).then((data) => {
+                            return sapi.accounts.reject(data.stripeAccID, params.serviceObj);
+                        }, (err) => {
+                            throw err;
+                        });
                     }
             }
     }
@@ -368,14 +518,23 @@ export function delStripeService(serviceName, serviceId){
     return callStripeAPI(params);
 }
 
-export function payStripeOrder(serviceName, serviceId, serviceObj){
-    preprocessRoute(serviceName, servObj);
-    let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj, 'action': 'pay'};
+export function payStripeOrder(serviceName, serviceId, serviceObj, direct=false){
+    preprocessRoute(serviceName, serviceObj);
+    let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj, 'action': 'pay',
+        'direct': direct};
     return callStripeAPI(params);
 }
 
-export function returnStripeOrder(serviceName, serviceId, serviceObj){
-    preprocessRoute(serviceName, servObj);
-    let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj, 'action': 'return'};
+export function returnStripeOrder(serviceName, serviceId, serviceObj, direct=false){
+    preprocessRoute(serviceName, serviceObj);
+    let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj, 'action': 'return',
+        'direct': direct};
+    return callStripeAPI(params);
+}
+
+export function rejectStripeAccount(serviceName, serviceId, serviceObj, direct=false){
+    preprocessRoute(serviceName, serviceObj);
+    let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj,
+        'direct': direct, 'action': 'reject'};
     return callStripeAPI(params);
 }

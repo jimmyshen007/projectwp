@@ -46,3 +46,19 @@ export function editOrderByStripeID(stripeID, order) {
 export function deleteOrder(id) {
     return common.delStripeService(serviceName, id);
 }
+
+export function payOrder(id, servObject){
+    return common.payStripeOrder(serviceName, id, servObject);
+}
+
+export function returnOrder(id, servObject){
+    return common.returnStripeOrder(serviceName, id, servObject);
+}
+
+export function payOrderByStripeID(id, servObject) {
+    return common.payStripeOrder(serviceName, id, servObject, true);
+}
+
+export function returnOrderByStripeID(id, servObject) {
+    return common.returnStripeOrder(serviceName, id, servObject, true);
+}
