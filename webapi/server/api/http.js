@@ -1,4 +1,6 @@
 import * as service from './service';
+import stripe from 'stripe';
+let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
 
 function handle_response(res, data, err, errmsg){
     if(!err) {
@@ -12,6 +14,35 @@ function handle_response(res, data, err, errmsg){
         res.status(400);
         res.json({"errors": errmsg});
     }
+}
+
+export function testPayOrder(req, res){
+    sapi.tokens.create({
+        email: 'maidongxi1@example.com',
+        card: {
+            "number": '4242424242424242',
+            "exp_month": 12,
+            "exp_year": 2017,
+            "cvc": '123'
+        }
+    }, function(err, token) {
+        // asynchronously called
+        let ret = service.payOrder(req.params.id, {source: token.id, email: 'maidongxi1@example.com'});
+        ret.then((data) => {
+            handle_response(res, data, null, null);
+        }, (err) => {
+            handle_response(res, null, err, "Pay Order by ID Error");
+        });
+    });
+}
+
+export function testReturnOrder(req, res){
+    let ret = service.returnOrder(req.params.id, {});
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Return Order by ID Error");
+    });
 }
 
 /**
@@ -169,6 +200,64 @@ export function getOrdersByPostAuthorID(req, res){
         handle_response(res, data, null, null);
     }, (err) => {
         handle_response(res, null, err, "Get Orders by PostAuthorID Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/orders/pay/xxx for details, please see stripe docs
+ * A test case is included here in testPayOrder.
+ * Sample data response:
+ * Please see stripe docs.
+ */
+export function payOrder(req, res){
+    let ret = service.payOrder(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Pay Order Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/orders/return/xxxx
+ * A test case is included in testReturnOrder.
+ * Sample data response:
+ * {"data":{"id":"orret_18rVn5BfJLgIcXuMeeqwZQLc","object":"order_return","amount":3000,"created":1473353659,"currency":"usd","items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"order":"or_18g9sYBfJLgIcXuMhGIBgKMb","refund":"re_18rVn5BfJLgIcXuMTZ1Eewk1"}}
+ */
+export function returnOrder(req, res){
+    let ret = service.returnOrder(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Return Order Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/orders/pay/stripe/xxx for details, please see stripe docs.
+ * Sample data response:
+ * Please see stripe docs.
+ */
+export function payOrderByStripeID(req, res){
+    let ret = service.payOrderByStripeID(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Pay Order By Stripe ID Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/orders/return/stripe/xxxx
+ * Sample data response:
+ * {"data":{"id":"orret_18rVn5BfJLgIcXuMeeqwZQLc","object":"order_return","amount":3000,"created":1473353659,"currency":"usd","items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"order":"or_18g9sYBfJLgIcXuMhGIBgKMb","refund":"re_18rVn5BfJLgIcXuMTZ1Eewk1"}}
+ */
+export function returnOrderByStripeID(req, res){
+    let ret = service.returnOrderByStripeID(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Return Order By Stripe ID Error");
     });
 }
 
@@ -455,6 +544,156 @@ export function deleteSku(req, res) {
     });
 }
 
+/**
+ * Sample input: API_INITIAL_PATH/accounts/user/xxx
+ * Sample data response:
+ * {"data":[{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null
+ * Note: If a stripe account is deleted from stripe side, it will produce an empty object in
+ * the array.
+ * If the ID given is completely not found: data will be {} instead of [{}]. This is the
+ * nature of mongoose to return earlier with unknown ID.
+ */
+export function getAccountsByUserID(req, res) {
+    let ret = service.getAccountByUserID(req.params.uid);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Accounts by userID Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts/stripe/xxx
+ * Sample data response:
+ * {"data":{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"fields_needed","due_by":null,"fields_needed":["external_account","legal_entity.dob.day","legal_entity.dob.month","legal_entity.dob.year","legal_entity.first_name","legal_entity.last_name","legal_entity.type","tos_acceptance.date","tos_acceptance.ip"]},"currencies_supported":["usd","aed","all","ang","ars","aud","awg","bbd","bdt","bif","bmd","bnd","bob","brl","bsd","bwp","bzd","cad","chf","clp","cny","cop","crc","cve","czk","djf","dkk","dop","dzd","egp","etb","eur","fjd","fkp","gbp","gip","gmd","gnf","gtq","gyd","hkd","hnl","hrk","htg","huf","idr","ils","inr","isk","jmd","jpy","kes","khr","kmf","krw","kyd","kzt","lak","lbp","lkr","lrd","ltl","mad","mdl","mnt","mop","mro","mur","mvr","mwk","mxn","myr","nad","ngn","nio","nok","npr","nzd","pab","pen","pgk","php","pkr","pln","pyg",
+ */
+export function getAccountByStripeID(req, res){
+    let ret = service.getAccountByStripeID(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Account by StripeID Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts/xxx
+ * Sample data response:
+ * {"data":[{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":
+ * Note: If a stripe account is deleted from stripe side, it will produce an empty object in
+ * the array.
+ * If the ID given is completely not found: data will be {} instead of [{}]. This is the
+ * nature of mongoose to return earlier with unknown ID.
+ */
+export function getAccountByID(req, res){
+    let ret = service.getAccountByID(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Account by ID Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts
+ * Sample data response:
+ * {"data":{"object":"list","data":[{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"fields_needed","due_by":null,"fields_needed":["external_account","legal_entity.dob.day","legal_entity.dob.month","legal_entity.dob.year","legal_entity.first_name","legal_entity.last_name","legal_entity.type","tos_acceptance.date","tos_acceptance.ip"]},"currencies_supported":["usd","aed","all","ang","ars","aud","awg","bbd","bdt","bif","bmd","bnd","bob","brl","bsd","bwp","bzd","cad","chf","clp","cny","cop","crc","cve","czk","djf","dkk","dop","dzd","egp","etb","eur","fjd","fkp","gbp","gip","gmd","gnf","gtq","gyd","hkd","hnl","hrk","htg","huf","idr","ils","inr","isk","jmd","jpy","kes","khr","kmf","krw","kyd","kzt","lak","lbp","lkr","lrd","ltl","mad","mdl","mnt","mop","mro","mur","mvr","mwk","mxn","myr","nad","ngn","nio","nok","npr","nzd","pab","pen","pgk","php","pkr","pln","pyg","qar","rub","sar","sbd","scr","sek","sgd","shp","sll","sos","std","svc","szl","thb","top","ttd","twd","tzs","uah","ugx","uyu","uzs","vnd","vuv","wst","xaf","xof","xpf","yer","zar"]},{"id":"acct_18m2ZBLUxBeddbgv","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"jimmyshen007@gmail.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18m2ZBLUxBeddbgv/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{},"product_description":null,"statement_descriptor":null ...
+ */
+export function getAccounts(req, res){
+    let ret = service.getAccounts();
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Get Accounts Error");
+    });
+}
+
+/**
+ *
+ * Sample input: API_INITIAL_PATH/accounts with JSON: {"country": "AU", "managed": true, "email": "jimmyshen007@gmail.com", "metadata": {"userID": "123"}}
+ * Sample response:
+ * {"data":{"__v":0,"stripeAccID":"acct_18mQzLAClEnsczj2","userID":"123","_id":"57bf21174bc54c71d680bce3"}}
+ */
+export function addAccount(req, res) {
+    let ret = service.addAccount(req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Add Account Error");
+    });
+}
+
+/**
+ *
+ * Sample input: API_INITIAL_PATH/accounts/stripe/xxx with JSON: {"email": "abc@a.com"}
+ * Sample response:
+ * {"data":{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"fields_needed","due_by":null,"fields_needed":["external_account","legal_entity.dob.day","legal_entity.dob.month","legal_entity.dob.year","legal_entity.first_name","legal_entity.last_name","legal_entity.type","tos_acceptance.date","tos_acceptance.ip"]},"currencies_supported":["usd","aed","all","ang","ars","aud","awg","bbd","bdt","bif","bmd","bnd","bob","brl","bsd","bwp","bzd","cad","chf","clp","cny","cop","crc","cve","czk","djf","dkk","dop","dzd","egp","etb","eur","fjd","fkp","gbp","gip","gmd","gnf","gtq","gyd","hkd","hnl","hrk","htg","huf","idr","ils","inr","isk","jmd","jpy","kes","khr","kmf","krw","kyd","kzt","lak","lbp","lkr","lrd","ltl","mad","mdl","mnt","mop","mro","mur","mvr","mwk","mxn","myr","nad","ngn","nio","nok","npr","nzd","pab","pen","pgk","php","pkr","pln","pyg","qar","rub","sar","sbd","scr","sek","sgd","shp","sll","sos","std","svc","szl","thb","top","ttd","twd","tzs","uah","ugx","uyu","uzs","vnd","vuv","wst","xaf","xof","xpf","yer","zar"]}}
+ */
+export function editAccountByStripeID(req, res) {
+    let ret = service.editAccountByStripeID(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Edit Account by StripeID Error");
+    });
+}
+
+/**
+ *
+ * Sample input: API_INITIAL_PATH/accounts/xxxx with JSON: {"email": "abc@a.com"}
+ * Sample response:
+ * {"data":{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"fields_needed","due_by":null,"fields_needed":["external_account","legal_entity.dob.day","legal_entity.dob.month","legal_entity.dob.year","legal_entity.first_name","legal_entity.last_name","legal_entity.type","tos_acceptance.date","tos_acceptance.ip"]},"currencies_supported":["usd","aed","all","ang","ars","aud","awg","bbd","bdt","bif","bmd","bnd","bob","brl","bsd","bwp","bzd","cad","chf","clp","cny","cop","crc","cve","czk","djf","dkk","dop","dzd","egp","etb","eur","fjd","fkp","gbp","gip","gmd","gnf","gtq","gyd","hkd","hnl","hrk","htg","huf","idr","ils","inr","isk","jmd","jpy","kes","khr","kmf","krw","kyd","kzt","lak","lbp","lkr","lrd","ltl","mad","mdl","mnt","mop","mro","mur","mvr","mwk","mxn","myr","nad","ngn","nio","nok","npr","nzd","pab","pen","pgk","php","pkr","pln","pyg","qar","rub","sar","sbd","scr","sek","sgd","shp","sll","sos","std","svc","szl","thb","top","ttd","twd","tzs","uah","ugx","uyu","uzs","vnd","vuv","wst","xaf","xof","xpf","yer","zar"]}}
+ */
+export function editAccont(req, res) {
+    let ret = service.editAccount(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Edit Account Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts/57a75af67cfb6759f39f0319
+ * Sample response:
+ * {"data":{"ok":1,"n":1}}
+ */
+export function deleteAccount(req, res) {
+    let ret = service.deleteAccount(req.params.id);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Delete Account Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts/reject/xxxx with JSON {"reason": "fraud"}
+ * Sample response:
+ * {"data":{"id":"acct_18sYTLLV24J3QINA","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":false,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":true,"display_name":null,"email":"jimmyshen007@gmail.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18sYTLLV24J3QINA/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"rejected.fraud","due_by":null,"fields_needed":[]}}}
+ */
+export function rejectAccount(req, res){
+    let ret = service.rejectAccount(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Reject Account Error");
+    });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/accounts/reject/stripe/xxxx
+ * Sample response:
+ * {"data":{"id":"acct_18sYTLLV24J3QINA","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":false,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":true,"display_name":null,"email":"jimmyshen007@gmail.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18sYTLLV24J3QINA/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"rejected.fraud","due_by":null,"fields_needed":[]}}}
+ */
+export function rejectAccountByStripeID(req, res){
+    let ret = service.rejectAccountByStripeID(req.params.id, req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Reject Account By Stripe ID Error");
+    });
+}
 
 //The following functions are deprecated.
 /*
