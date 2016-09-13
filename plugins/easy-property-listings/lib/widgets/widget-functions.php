@@ -1166,7 +1166,6 @@ class CustomSearchPageGenerator
 			$like_scrpit2 = '<script> 
 								var urlstr = "/api/0/favorites/user/";
 								var wishlist;
-								alert(wishlist.data.length);
 								function LikeSwitch(imgElem){
 									postID = imgElem.id.substring(4);
 									if (imgElem.name == "like") {  // add to wishlist
@@ -1204,14 +1203,14 @@ class CustomSearchPageGenerator
 													imgElem.name = "like";
 													imgElem.style.opacity = 0.2;
 													
-											} else { //server error: failed to delete
-												alert("Oops, we are encountering some server issue. Please try it later.");
-											}
+												} else { //server error: failed to delete
+													alert("Oops, we are encountering some server issue. Please try it later.");
+												}
 										}});
 									}
 								}
 							</script>';
-			
+
 			echo $like_scrpit2;
 			// the Loop
 			while (have_posts()) : the_post();

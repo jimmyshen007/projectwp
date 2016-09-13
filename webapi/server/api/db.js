@@ -41,10 +41,6 @@ export let skuSchema = new Schema({
     stripeSkuID: String,
 });
 
-export let accountSchema = new Schema({
-   userID: String,
-   stripeAccID: String
-});
 /*
  * Deprecated.
  */

@@ -26,11 +26,23 @@
 	<div id="sidebar-1"class="panel panel-default">
 		<div class="panel-heading">Panel heading</div>
 		<div class="panel-body">
-			<fieldset id="fs1">
-				<a id="BtnLike" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="ChangeFav()" style="width: 100%" >
-					<span style="font-size: 15px">Save to  Wish List</span>
-				</a>
-			</fieldset>
+			<div class="list-group">
+				<div class="list-group-item">
+					<fieldset id="fs1">
+						<a id="BtnApple" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="Apply()" style="width: 100%" >
+							<span style="font-size: 15px">Apply</span>
+						</a>
+					</fieldset>
+				</div>
+				<div class="list-group-separator" style="width:100%; margin-left: -13%;"></div>
+				<div class="list-group-item">
+					<fieldset id="fs2">
+						<a id="BtnLike" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="ChangeFav()" style="width: 100%" >
+							<span style="font-size: 15px">Save to  Wish List</span>
+						</a>
+					</fieldset>
+				</div>
+
 			<div id="div1"></div>
 			<script>
 				var userID = <?php global $user_ID; echo $user_ID;?>;
@@ -57,7 +69,6 @@
 					if (userID == 0) {
 						document.getElementById("hidelogin").click();
 					}
-
 					else {
 						if (document.getElementById("BtnLike").className == "btn btn-raised btn-default") //Add to Wish List
 						{
@@ -86,6 +97,46 @@
 									}
 								}});
 						}
+					}
+				}
+				function Apply() {
+					if (userID == 0) {
+						document.getElementById("hidelogin").click();
+					} else {
+						var urlstr2 = "/api/0/products/post/";
+						var product;
+						var stripeProdID;
+						var stripeSkuID;
+						jQuery.ajax({
+							url: urlstr2.concat(postID),
+							dataType: "json",
+							method: "Get",
+							success: function (result) {
+								product = result.data.data;
+								if (product == null) { /* Product does not exist. Create a new product */
+									jQuery.ajax({
+										url: '/api/0/products',
+										dataType: "json",
+										method: "POST",
+										data: {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID}},
+										success: function (result) { /* Create a new sku under the product*/
+											stripeProdID = result.data.stripeProdID;
+											jQuery.ajax({
+												url: '/api/0/skus',
+												dataType: "json",
+												method: "POST",
+												data: {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID}, "price": 2000, "product": stripeProdID},
+												success: function (result) {
+													stripeSkuID = result.data.stripeSkuID;
+													alert(stripeSkuID);
+												}
+											});
+										}
+									});
+								}
+							}
+						});
+
 					}
 				}
 			</script>
