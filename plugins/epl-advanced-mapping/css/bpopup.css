@@ -1,0 +1,87 @@
+.bpopup {
+	background-color:#FFF;
+	color:#111;
+	display:none;
+	width:450px;
+	min-width:400px !important;
+	padding:5px 25px 25px;
+	border-radius:10px;
+	-moz-border-radius:10px;
+	-webkit-border-radius:10px;
+	-khtml-border-radius:10px;
+	box-shadow:0 0 18px 0 #666;
+	-moz-box-shadow:0 0 18px 0 #666;
+	-webkit-box-shadow:0 0 18px 0 #666;
+	-khtml-box-shadow:0 0 18px 0 #666;
+}
+.bpopup .b-close {
+	display:block;
+	color:#bbb;
+	cursor:pointer;
+	padding:0 6px;
+	text-align:center;
+	text-decoration:none;
+	right:0px;
+	top:0px;
+	font-size:16px;
+	font-weight:bold;
+	position:absolute;
+	margin:1px 1px 0 0;
+	
+	border-radius:0px 10px 0px 0px;
+	-moz-border-radius:0px 10px 0px 0px;
+	-webkit-border-radius:0px 10px 0px 0px;
+	-khtml-border-radius:0px 10px 0px 0px;
+	
+	box-shadow:0 2px 3px rgba(0,0,0,0.3);
+	-moz-box-shadow:0 2px 3px rgba(0,0,0,0.3);
+	-webkit-box-shadow:0 2px 3px rgba(0,0,0,0.3);
+	-khtml-box-shadow:0 2px 3px rgba(0,0,0,0.3);
+}
+.bpopup h3 {
+	margin:0 0 10px 0;
+	padding: 0 0 10px 0;
+	border-bottom:1px solid #ccc;
+}
+
+
+
+.epl-am-post-content .fLeft {
+	float:left;
+	width:30%;
+}
+.epl-am-post-content .fLeft img {
+	max-width:100%;
+	height:auto;
+	width:auto;
+}
+.epl-am-post-content .fRight {
+	float:right;
+	width:65%;
+	margin-left:5%;
+}
+.epl-am-post-content .fRight .fBottom {
+	
+}
+
+.epl-am-post-content .baths, .epl-am-post-content .beds, .epl-am-post-content .cars { float: left; margin: 13px 15px 0 0; font-size: 14px; }
+.epl-am-post-content .baths { float: left; background: url(../images/slider-map-simple-overlay-beds.png) no-repeat center left; padding: 0 0 0 15px; margin: 0 10px 0 5px; font-size: 11px; }
+.epl-am-post-content .beds { float: left; background: url(../images/slider-map-simple-overlay-bathrooms.png) no-repeat center left; padding: 0 0 0 15px; margin: 0 10px 0 0; font-size: 11px; }
+.epl-am-post-content .cars { float: left; background: url(../images/slider-map-simple-overlay-cars.png) no-repeat center left; padding: 0 0 0 19px; margin: 0 10px 0 0; font-size: 11px; }
+.epl-am-post-content .button_link {
+	display: block;
+	float: right;
+	background: #eee;
+	opacity: 0.9;
+	padding: 2px 15px;
+	text-decoration:none;
+	border-radius: 5px;
+	-moz-border-radius: 5px;
+	-webkit-border-radius: 5px;
+}
+.epl-am-post-content .button_link:hover {
+    opacity: 1;
+    text-decoration:none;
+	background: #aaa;
+	color: #fff
+}
