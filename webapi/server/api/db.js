@@ -22,7 +22,11 @@ export let orderSchema = new Schema({
     postAuthorID: String,
     userID: String,
     skuID: String,
-    stripeOrderID: String
+    stripeOrderID: String,
+    appStatus: String,
+    startDate: Date,
+    term: String,
+    numTenant: Number
 });
 
 export let favoriteSchema = new Schema({
@@ -39,6 +43,11 @@ export let productSchema = new Schema({
 export let skuSchema = new Schema({
     postID: String,
     stripeSkuID: String,
+});
+
+export let accountSchema = new Schema({
+    userID: String,
+    stripeAccID: String
 });
 
 /*
