@@ -42,6 +42,10 @@ export function addSku(sku) {
     return common.addStripeService(serviceName, sku);
 }
 
+export function addProductAndSku(mixedObj) {
+    return common.addProductAndSku(serviceName, mixedObj);
+}
+
 export function editSkuByStripeID(stripeID, sku) {
     return common.updateStripeService(serviceName, stripeID, sku, true);
 }

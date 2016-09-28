@@ -201,6 +201,35 @@ function callStripeAPI(params){
                             throw err;
                         });
                     break;
+                case 'createPandS':
+                    return sapi.products.create(params.serviceObj.product).then(
+                        (product) => {
+                            let servObj = {"stripeProdID": product.id,
+                                "postID": product.metadata.postID};
+                            let pservice = m.model('products', chooseSchema('products'));
+                            let newInstance = new pservice(servObj);
+                            return newInstance.save().then(
+                                (data) => {
+                                    let skuObj = Object.assign({},
+                                        params.serviceObj.sku, {"product": data.stripeProdID});
+                                    return sapi.skus.create(skuObj).then(
+                                        (sku) => {
+                                            let servObj = {"stripeSkuID": sku.id,
+                                                "postID": sku.metadata.postID};
+                                            let newInstance = new service(servObj);
+                                            return newInstance.save();
+                                        }, (err) => {
+                                            throw err;
+                                        });
+                                },
+                                (err) => {
+                                    throw err;
+                                }
+                            );
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
                 case 'retrieve':
                     // Directly retrieve a stripe object.
                     if(params.direct){
@@ -578,6 +607,13 @@ export function addAttachStripeOrder(serviceName, serviceId, serviceObj){
     preprocessRoute(serviceName, serviceObj);
     let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj,
         'action': 'addAttach'};
+    return callStripeAPI(params);
+}
+
+export function addProductAndSku(serviceName, serviceObj){
+    preprocessRoute(serviceName, serviceObj);
+    let params = {'serviceName': serviceName, 'serviceObj': serviceObj,
+        'action': 'createPandS'};
     return callStripeAPI(params);
 }
 

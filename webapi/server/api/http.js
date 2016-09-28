@@ -650,6 +650,21 @@ export function addSku(req, res) {
 
 /**
  *
+ * Sample input: API_INITIAL_PATH/skus with JSON: { "product": {"name": "testp222", "shippable": false, "metadata": {"postID": "1234"}}, "sku": {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": "1234"}, "price": 3000}}
+ * Sample response:
+ * {"data":{"__v":0,"stripeSkuID":"sku_8xpkjNkOjKlb8D","postID":"1234","_id":"57a760ef7cfb6759f39f031a"}}
+ */
+export function addProductAndSku(req, res) {
+    let ret = service.addProductAndSku(req.body);
+    ret.then((data) => {
+        handle_response(res, data, null, null);
+    }, (err) => {
+        handle_response(res, null, err, "Add Product and Sku Error");
+    });
+}
+
+/**
+ *
  * Sample input: API_INITIAL_PATH/skus with JSON: {"price": 3000}
  * Sample response:
  * {"data":{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":3000,"product":"prod_8weFswEoY6i2IW","updated":1470588472}}

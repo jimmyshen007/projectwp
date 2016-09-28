@@ -92,6 +92,7 @@ app.get('/api/0/skus/:id', api.getSkuByID);
 app.get('/api/0/skus/stripe/:id', api.getSkuByStripeID);
 app.get('/api/0/skus/post/:pid', api.getSkusByPostID);
 app.post('/api/0/skus', api.addSku);
+app.post('/api/0/skus/pas', api.addProductAndSku)
 app.post('/api/0/skus/:id', api.editSku);
 app.post('/api/0/skus/stripe/:id', api.editSkuByStripeID);
 app.delete('/api/0/skus/:id', api.deleteSku);
