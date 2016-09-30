@@ -134,6 +134,9 @@ Theme My Login will always look in your theme's directory first, before using th
 							$show_password_fields = apply_filters( 'show_password_fields', true, $profileuser );
 							if ( $show_password_fields ) :
 							?>
+							<style>
+								#pass1 {display: none;}
+							</style>
 							<table class="tml-form-table">
 								<tr id="password" class="user-pass1-wrap">
 									<td>
@@ -144,10 +147,6 @@ Theme My Login will always look in your theme's directory first, before using th
 														<input type="password" name="pass1" id="pass1" class="form-control input-lg regular-text" value="" autocomplete="off" data-pw="<?php echo esc_attr( wp_generate_password( 24 ) ); ?>" aria-describedby="pass-strength-result" />
 													</span>
 											<div style="display:none" id="pass-strength-result" aria-live="polite"></div>
-											<button type="button" class="btn btn-raised btn-default wp-hide-pw hide-if-no-js" style="padding: 8px 15px;" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password', 'theme-my-login' ); ?>">
-												<span class="dashicons dashicons-hidden"></span>
-												<span class="text"><?php _e( 'Hide', 'theme-my-login' ); ?></span>
-											</button>
 											<button type="button" class="btn btn-raised btn-default wp-cancel-pw hide-if-no-js" style="padding: 8px 15px;" data-toggle="0" aria-label="<?php esc_attr_e( 'Cancel password change', 'theme-my-login' ); ?>">
 												<span class="text"><?php _e( 'Cancel', 'theme-my-login' ); ?></span>
 											</button>

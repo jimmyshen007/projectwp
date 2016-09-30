@@ -5,7 +5,55 @@ Template Name: User Orders
 
 get_header();
 ?>
+<?php
+global $user_ID, $wpdb;
+$ch = curl_init("http://localhost:3000/api/0/orders/user/".$user_ID);
 
+curl_setopt($ch, CURLOPT_HEADER, 0);
+curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+$res = json_decode(curl_exec($ch))->{'data'}->{'data'};
+$post_arr = array();
+$post_list_str = '0';
+foreach($res as $x => $x_value) {
+    array_push($post_arr, $x_value->{'metadata'}->{'postID'});
+    $post_list_str = $post_list_str.','.$x_value->{'metadata'}->{'postID'};
+}
+
+$query = 'SELECT id, post_title, guid FROM `wp_posts` WHERE post_author='.$user_ID.' and ID in ('.$post_list_str.') ORDER by id desc';
+$query2 = 'SELECT meta_key,meta_value FROM `wp_postmeta` '.
+    ' WHERE post_id in ('.$post_list_str.') and (meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
+    'meta_key=\'property_address_country\' or meta_key=\'property_address_street\' or meta_key=\'property_address_suburb\' '.
+    'or meta_key=\'property_address_street_number\')'.
+    'ORDER by post_id desc, meta_key asc';
+$query3 ='SELECT p1.id, p3.meta_value, p1.id from wp_posts as p1, wp_posts as p2, wp_postmeta as p3'.
+    ' where p1.id = p2.post_parent and p2.id = p3.post_id and p1.id in ('.$post_list_str.') and p3.meta_key = \'_wp_attached_file\''.
+    ' ORDER by p1.id DESC, p2.id desc';
+
+$results = $wpdb->get_results( $query, ARRAY_A );
+$results2 = $wpdb->get_results( $query2, ARRAY_A );
+$results3 = $wpdb->get_results( $query3, ARRAY_A );
+$subArraySz = 6;
+$order_count = count($results);
+/* results2
+ * ix6+0: property_address_country
+ * ix6+1: property_address_street
+ * ix6+2:property_address_street_number
+ * ix6+3: property_address_suburb
+ * ix6+4: property_rent
+ * ix6+5: property_rent_period
+ * */
+/* Find the first pic for each post */
+$pic_arr=array();
+for($i = 0; $i < count($post_arr); $i++){
+    for($j = 0; $j < count($results3); $j++) {
+        if($post_arr[$i] == $results3[$j]['id']) {
+            $pic_arr[$post_arr[$i]] = $results3[$j]['meta_value'];
+            break;
+        }
+    }
+}
+curl_close($ch);
+?>
 <div class="container">
     <div class="row">
         <div id="primary" class="col-md-12 col-lg-12">
@@ -23,7 +71,7 @@ get_header();
                             </ul>
                         </div>
                         <div class="panel panel-default">
-                            <div class="panel-heading">My orders: <?php echo $rental_count?></div>
+                            <div class="panel-heading">My orders: <?php echo $order_count?></div>
                             <table>
                                 <tbody>
                                 <tr>
@@ -31,23 +79,40 @@ get_header();
                                     <td style="width: 96%">
                                         <div class="panel-body">
                                             <div class="list-group">
-                                                <?php for($i=0;$i<2;$i++) { ?>
+                                                <?php for($i=0;$i<$order_count;$i++) { ?>
                                                     <div class="list-group-item">
                                                         <div class="row-content">
                                                             <table>
                                                                 <tbody>
                                                                 <tr>
                                                                     <td style="width: 30%">
-                                                                        <img style="height: 200px; width: 300px" src="http://localhost/wordpress/wp-content/uploads/2016/05/4242805-house-1-300x200.jpg" alt="icon">
+                                                                        <img style="height: 200px; width: 300px" src=<?php echo '/wordpress/wp-content/uploads/'.$pic_arr[$results[$i]['id']];?> alt="icon">
                                                                     </td>
                                                                     <td valign="top" style="width: 70%">
                                                                         <ul style="list-style-type: none;">
                                                                             <li>
-                                                                                <h3 class="list-group-item-heading">Warm & Quite & Big House</h3>
+                                                                                <h3 class="list-group-item-heading"><?php echo $results[$i]['post_title'];?></h3>
                                                                             </li>
                                                                             <li>
-                                                                                <p class="list-group-item-text"><span style="color: grey">310 Alert Rd, South Yarra</span></p>
-                                                                                <p class="list-group-item-text"><span style="color: grey">$499 AUD per week</span></p>
+                                                                                <p class="list-group-item-text">
+                                                                                    <span style="color: grey">
+                                                                                        <?php
+                                                                                        if ($results2[$i*$subArraySz+2]['meta_value'] !='')
+                                                                                            echo $results2[$i*$subArraySz+2]['meta_value'].'/';
+                                                                                        echo $results2[$i*$subArraySz+1]['meta_value'].', '.$results2[$i*$subArraySz+3]['meta_value'];
+                                                                                        ?>
+                                                                                    </span>
+                                                                                </p>
+                                                                                <p class="list-group-item-text">
+                                                                                    <span style="color: grey">
+                                                                                             <?php
+                                                                                             echo '$'.$results2[$i*$subArraySz+4]['meta_value'];
+                                                                                             $currency = ($results2[$i*$subArraySz]['meta_value'] == 'Australia' ? 'AUD' : 'USD');
+                                                                                             echo ' '.$currency. ' per ';
+                                                                                             echo $results2[$i*$subArraySz+5]['meta_value'];
+                                                                                             ?>
+                                                                                    </span>
+                                                                                </p>
                                                                             </li>
                                                                             <li>
                                                                                 <p> </br></p>
