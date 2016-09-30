@@ -22,6 +22,22 @@ export function getProducts(){
     return common.listStripeService(serviceName, {});
 }
 
+export function getWrapProducts(){
+    return common.getServices(serviceName);
+}
+
+export function getWrapProductByID(id){
+    return common.getServiceById(serviceName, id);
+}
+
+export function getWrapProductsByPostID(postId){
+    return common.getServicesByAttribute(serviceName, 'postID', postId);
+}
+
+export function editWrapProduct(id, product){
+    return common.editService(id, product, serviceName);
+}
+
 export function addProduct(prod) {
     return common.addStripeService(serviceName, prod);
 }
