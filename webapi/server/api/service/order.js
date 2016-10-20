@@ -55,7 +55,7 @@ export function getOrders() {
 }
 
 export function getOrderByStripeID(stripeID){
-    return common.getStripeServicesByAttribute(serviceName, 'stripeOrderID', stripeID, true);
+    return common.getStripeServicesByAttribute(serviceName, 'stripeOrderID', stripeID);
 }
 
 export function getOrderById(id){
@@ -78,16 +78,20 @@ export function getOrdersBySkuID(skuID){
     return common.getStripeServicesByAttribute(serviceName, "skuID", skuID);
 }
 
+export function getOrdersByStripeAccID(stripeAccID){
+    return common.getStripeServicesByAttribute(serviceName, 'stripeAccID', stripeAccID);
+}
+
 export function addOrder(order) {
     return common.addStripeService(serviceName, order);
 }
 
 export function editOrder(id, order) {
-    return common.updateStripeService(serviceName, id, order);
+    return common.updateStripeService(serviceName, '_id', id, order);
 }
 
 export function editOrderByStripeID(stripeID, order) {
-    return common.updateStripeService(serviceName, stripeID, order, true);
+    return common.updateStripeService(serviceName, 'stripeOrderID', stripeID, order);
 }
 
 export function deleteOrder(id) {
@@ -95,17 +99,17 @@ export function deleteOrder(id) {
 }
 
 export function payOrder(id, servObject){
-    return common.payStripeOrder(serviceName, id, servObject);
+    return common.payStripeOrder(serviceName, '_id', id, servObject);
 }
 
 export function returnOrder(id, servObject){
-    return common.returnStripeOrder(serviceName, id, servObject);
+    return common.returnStripeOrder(serviceName,'_id', id, servObject);
 }
 
 export function payOrderByStripeID(id, servObject) {
-    return common.payStripeOrder(serviceName, id, servObject, true);
+    return common.payStripeOrder(serviceName, 'stripeOrderID', id, servObject);
 }
 
 export function returnOrderByStripeID(id, servObject) {
-    return common.returnStripeOrder(serviceName, id, servObject, true);
+    return common.returnStripeOrder(serviceName, 'stripeOrderID', id, servObject);
 }

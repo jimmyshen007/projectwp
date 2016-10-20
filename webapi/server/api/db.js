@@ -26,7 +26,8 @@ export let orderSchema = new Schema({
     appStatus: String,
     startDate: Date,
     term: String,
-    numTenant: Number
+    numTenant: Number,
+    stripeAccID: String
 });
 
 export let favoriteSchema = new Schema({
@@ -37,12 +38,14 @@ export let favoriteSchema = new Schema({
 
 export let productSchema = new Schema({
     postID: String,
-    stripeProdID: String
+    stripeProdID: String,
+    stripeAccID: String
 });
 
 export let skuSchema = new Schema({
     postID: String,
     stripeSkuID: String,
+    stripeAccID: String
 });
 
 export let accountSchema = new Schema({

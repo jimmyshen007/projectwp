@@ -57,7 +57,7 @@ export function testReturnOrder(req, res){
  *
  * Sample input: API_INITIAL_PATH/orders
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"or_18fv2ABfJLgIcXuM8gmA5vhv","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470590758,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18fv2ABfJLgIcXuM8gmA5vhv"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470590758}],"has_more":false,"url":"/v1/orders"}}
+ * {"data":[{},{},{"id":"or_18fv2ABfJLgIcXuM8gmA5vhv","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470590758,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantit
  */
 export function getOrders(req, res) {
     let ret = service.getOrders();
@@ -84,9 +84,9 @@ export function getOrderByID(req, res) {
 }
 
 /**
- * Sample input: API_INITIAL_PATH/orders with JSON: {"currency": "USD", "metadata": {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123"}, "items": [{"type": "sku", "parent": "sku_8xpkjNkOjKlb8D"}]}
+ * Sample input: API_INITIAL_PATH/orders with JSON: {"currency": "USD", "metadata": {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123", "stripeAccID": "acct_18m2ZBLUxBeddbgv", "startDate": "2016-11-12", "term": "365", "numTenant": 2}, "items": [{"type": "sku", "parent": "sku_8xpkjNkOjKlb8D"}]}
  * Sample data response:
- * {"data":{"__v":0,"stripeOrderID":"or_18g9sYBfJLgIcXuMhGIBgKMb","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","_id":"57a84e2d7cfb6759f39f031c"}}
+ * {"data":{"__v":0,"stripeOrderID":"or_196WFcLUxBeddbgv8oCRUaTU","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","appStatus":"init","term":"365","numTenant":2,"startDate":"2016-11-12T00:00:00.000Z","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"58082c3840749eb7c1810cc9"}}
  */
 export function addOrder(req, res) {
     let ret = service.addOrder(req.body);
@@ -98,9 +98,9 @@ export function addOrder(req, res) {
 }
 
 /**
- * Sample input: API_INITIAL_PATH/orders with JSON: {"metadata": {"testattr": "testvalue"}}
+ * Sample input: API_INITIAL_PATH/orders/687798901afafea with JSON: {"metadata": {"testattr": "testvalue"}}
  * Sample data response:
- * {"data":{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470657491}}
+ * {"data":{"id":"or_196WFcLUxBeddbgv8oCRUaTU","object":"order","amount":2000,"amount_returned":null,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"charge":null,"created":1476930348,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":2000,"currency":"usd","description":"testp111","parent":"sku_9P7tjxNgD6Osr8","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-12","term":"365","numTenant":"2","testattr":"testvalue"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_196WFcLUxBeddbgv8oCRUaTU"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1476960721}}
  */
 export function editOrder(req, res) {
     let ret = service.editOrder(req.params.id, req.body);
@@ -115,7 +115,7 @@ export function editOrder(req, res) {
  *
  * Sample input: API_INITIAL_PATH/orders/stripe/xxx with JSON {"metadata": {"testattr2": "testvalue2"}}
  * Sample data response:
- * {"data":{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470658350}}
+ * {"data":{"id":"or_196WFcLUxBeddbgv8oCRUaTU","object":"order","amount":2000,"amount_returned":null,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"charge":null,"created":1476930348,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":2000,"currency":"usd","description":"testp111","parent":"sku_9P7tjxNgD6Osr8","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-12","term":"365","numTenant":"2","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_196WFcLUxBeddbgv8oCRUaTU"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1476961111}}
  */
 export function editOrderByStripeID(req, res){
     let ret = service.editOrderByStripeID(req.params.id, req.body);
@@ -155,9 +155,19 @@ export function getOrderByStripeID(req, res){
 }
 
 /**
+ * Sample input: API_INITIAL_PATH/orders/stripeAcc/xxx
+ * Sample data response:
+ * {"data":[{"id":"or_196KhNLUxBeddbgvxHMFWhj7","object":"order","amount":1000,"amount_returned":null,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null
+ */
+export function getOrdersByStripeAccID(req, res){
+    let ret = service.getOrdersByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Orders by StripeAccID Error");
+}
+
+/**
  * Sample input: API_INITIAL_PATH/orders/sku/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470658350}],"has_more":false,"url":"/v1/orders"}}
+ * {"data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":3000,"application":null,"application_fee":null,"charge":"ch_18rUQ2BfJLgIcXuMS20NKwCy"
  */
 export function getOrdersBySkuID(req, res){
     let ret = service.getOrdersBySkuID(req.params.kid);
@@ -172,7 +182,7 @@ export function getOrdersBySkuID(req, res){
 /**
  * Sample input: API_INITIAL_PATH/orders/user/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470658350},{"id":"or_18fv2ABfJLgIcXuM8gmA5vhv","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470590758,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18fv2ABfJLgIcXuM8gmA5vhv"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470590758}],"has_more":false,"url":"/v1/orders"}}
+ * {"data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":3000,"application":null,"application_fee":null,"charge":"ch_18rUQ2BfJLgIcXuMS20NKwCy",
  */
 export function getOrdersByUserID(req, res){
     let ret = service.getOrdersByUserID(req.params.uid);
@@ -186,7 +196,7 @@ export function getOrdersByUserID(req, res){
 /**
  * Sample input: API_INITIAL_PATH/orders/post/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470658350},{"id":"or_18fv2ABfJLgIcXuM8gmA5vhv","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470590758,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18fv2ABfJLgIcXuM8gmA5vhv"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470590758}],"has_more":false,"url":"/v1/orders"}}
+ * {"data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":3000,"application":null,"application_fee":null,"charge":"ch_18rUQ2BfJLgIcXuMS20NKwCy",
  */
 export function getOrdersByPostID(req, res){
     let ret = service.getOrdersByPostID(req.params.pid);
@@ -200,7 +210,7 @@ export function getOrdersByPostID(req, res){
 /**
  * Sample input: API_INITIAL_PATH/orders/postAuthor/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470647822,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18g9sYBfJLgIcXuMhGIBgKMb"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470658350},{"id":"or_18fv2ABfJLgIcXuM8gmA5vhv","object":"order","amount":3000,"amount_returned":null,"application":null,"application_fee":null,"charge":null,"created":1470590758,"currency":"usd","customer":null,"email":null,"items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_18fv2ABfJLgIcXuM8gmA5vhv"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"created","status_transitions":null,"updated":1470590758}],"has_more":false,"url":"/v1/orders"}}
+ * {"data":[{"id":"or_18g9sYBfJLgIcXuMhGIBgKMb","object":"order","amount":3000,"amount_returned":3000,"application":null,"application_fee":null,"charge":"ch_18rUQ2BfJLgIcXuMS20NKwCy",
  */
 export function getOrdersByPostAuthorID(req, res){
     let ret = service.getOrdersByPostAuthorID(req.params.paid);
@@ -215,7 +225,7 @@ export function getOrdersByPostAuthorID(req, res){
  * Sample input: API_INITIAL_PATH/orders/pay/xxx for details, please see stripe docs
  * A test case is included here in testPayOrder.
  * Sample data response:
- * Please see stripe docs.
+ * {"data":{"id":"or_196WFcLUxBeddbgv8oCRUaTU","object":"order","amount":2000,"amount_returned":null,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"charge":"ch_196fwMLUxBeddbgvX4YT3Ndu","created":1476930348,"currency":"usd","customer":null,"email":"maidongxi1@example.com","items":[{"object":"order_item","amount":2000,"currency":"usd","description":"testp111","parent":"sku_9P7tjxNgD6Osr8","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-12","term":"365","numTenant":"2","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_196WFcLUxBeddbgv8oCRUaTU"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"paid","status_transitions":null,"updated":1476967594}}
  */
 export function payOrder(req, res){
     let ret = service.payOrder(req.params.id, req.body);
@@ -230,7 +240,7 @@ export function payOrder(req, res){
  * Sample input: API_INITIAL_PATH/orders/return/xxxx
  * A test case is included in testReturnOrder.
  * Sample data response:
- * {"data":{"id":"orret_18rVn5BfJLgIcXuMeeqwZQLc","object":"order_return","amount":3000,"created":1473353659,"currency":"usd","items":[{"object":"order_item","amount":3000,"currency":"usd","description":"test22222223333","parent":"sku_8xpkjNkOjKlb8D","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"order":"or_18g9sYBfJLgIcXuMhGIBgKMb","refund":"re_18rVn5BfJLgIcXuMTZ1Eewk1"}}
+ * {"data":{"id":"orret_196g4MLUxBeddbgvSHW6Ryam","object":"order_return","amount":2000,"created":1476968090,"currency":"usd","items":[{"object":"order_item","amount":2000,"currency":"usd","description":"testp111","parent":"sku_9P7tjxNgD6Osr8","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"order":"or_196WFcLUxBeddbgv8oCRUaTU","refund":"re_196g4MLUxBeddbgv5jAhC9EX"}}
  */
 export function returnOrder(req, res){
     let ret = service.returnOrder(req.params.id);
@@ -244,7 +254,7 @@ export function returnOrder(req, res){
 /**
  * Sample input: API_INITIAL_PATH/orders/pay/stripe/xxx for details, please see stripe docs.
  * Sample data response:
- * Please see stripe docs.
+ * {"data":{"id":"or_196WFcLUxBeddbgv8oCRUaTU","object":"order","amount":2000,"amount_returned":null,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"charge":"ch_196fwMLUxBeddbgvX4YT3Ndu","created":1476930348,"currency":"usd","customer":null,"email":"maidongxi1@example.com","items":[{"object":"order_item","amount":2000,"currency":"usd","description":"testp111","parent":"sku_9P7tjxNgD6Osr8","quantity":1,"type":"sku"},{"object":"order_item","amount":0,"currency":"usd","description":"Taxes (included)","parent":null,"quantity":null,"type":"tax"},{"object":"order_item","amount":0,"currency":"usd","description":"Free shipping","parent":"ship_free-shipping","quantity":null,"type":"shipping"}],"livemode":false,"metadata":{"postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-12","term":"365","numTenant":"2","testattr":"testvalue","testattr2":"testvalue2"},"returns":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/order_returns?order=or_196WFcLUxBeddbgv8oCRUaTU"},"selected_shipping_method":"ship_free-shipping","shipping":null,"shipping_methods":[{"id":"ship_free-shipping","amount":0,"currency":"usd","delivery_estimate":null,"description":"Free shipping"}],"status":"paid","status_transitions":null,"updated":1476967594}}
  */
 export function payOrderByStripeID(req, res){
     let ret = service.payOrderByStripeID(req.params.id, req.body);
@@ -413,6 +423,13 @@ export function getWOrdersBySkuID(req, res){
     handleRet(ret, res, "Get WOrders By SkuID Error");
 }
 
+/**
+ * Sample input: API_INITPATH/worders/addSOrder/5afareafagareaceaf with JSON:
+ * {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123", "stripeAccID": "acct_18m2ZBLUxBeddbgv", "startDate": "2016-11-15", "term": "100", "numTenant": 2}
+ *
+ * Note: Date type variable such as startDate can be automatically constructed from string provided.
+ * i.e. "2016-11-15" will be constructed as Date format automatically.
+ */
 export function addWOrder(req, res){
     let ret = service.addWOrder(req.body);
     handleRet(ret, res, "Add WOrder Error");
@@ -465,9 +482,9 @@ export function addAttachSOrder(req, res){
 
 
 /**
- * Sample input: API_INITIAL_PATH/products with json: {"name": "testp111", "shippable": false, "metadata": {"postID": "1234"}}
+ * Sample input: API_INITIAL_PATH/products with json: {"name": "testp111", "shippable": false, "metadata": {"postID": "1234", "stripeAccID": "acct_18m2ZBLUxBeddbgv"}}
  * Sample data response:
- * {"data":{"__v":0,"stripeProdID":"prod_8weFswEoY6i2IW","postID":"1234","_id":"57a334dba1bccafedbd4a581"}}
+ * {"data":{"__v":0,"stripeProdID":"prod_9O2oLiUyjaht4j","postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"58039ffec483310518bc1ba7"}}
  */
 export function addProduct(req, res) {
     let ret = service.addProduct(req.body);
@@ -481,7 +498,8 @@ export function addProduct(req, res) {
 /**
  * Sample input: API_INITIAL_PATH/products/post/123
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"prod_8wdxsWrVRGR1cf","object":"product","active":true,"attributes":[],"caption":null,"created":1470312596,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"123"},"name":"testp111","package_dimensions":null,"shippable":true,"skus":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/skus?product=prod_8wdxsWrVRGR1cf&active=true"},"updated":1470312596,"url":null},{"id":"prod_8wdwq9JsEqAibO","object":"product","active":true,"attributes":[],"caption":null,"created":1470312529,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"123"},"name":"testpfff","package_dimensions":null,"shippable":true,"skus":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/skus?product=prod_8wdwq9JsEqAibO&active=true"},"updated":1470312529,"url":null}],"has_more":false,"url":"/v1/products"}}
+ * {"data":[{"id":"prod_8wdxsWrVRGR1cf","object":"product","active":true,"attributes":[],....
+ *
  */
 export function getProductsByPostID(req, res) {
     let ret = service.getProductsByPostID(req.params.pid);
@@ -493,9 +511,9 @@ export function getProductsByPostID(req, res) {
 }
 
 /**
- * Sample input: API_INITIAL_PATH/products/123
+ * Sample input: API_INITIAL_PATH/products/57eab5ccd747b0ad7651618f
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"prod_8wdxsWrVRGR1cf","object":"product","active":true,"attributes":[],"caption":null,"created":1470312596,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"123"},"name":"testp111","package_dimensions":null,"shippable":true,"skus":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/skus?product=prod_8wdxsWrVRGR1cf&active=true"},"updated":1470312596,"url":null},{"id":"prod_8wdwq9JsEqAibO","object":"product","active":true,"attributes":[],"caption":null,"created":1470312529,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"123"},"name":"testpfff","package_dimensions":null,"shippable":true,"skus":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/skus?product=prod_8wdwq9JsEqAibO&active=true"},"updated":1470312529,"url":null}],"has_more":false,"url":"/v1/products"}}
+ * {"data":[{"id":"prod_9GxuuKJc067ikI","object":"product","active":true,"attributes":[],"caption":null,"created":1474999581,"deactivate_on":[],"description":null,"images":[],
  */
 export function getProductByID(req, res) {
     let ret = service.getProductByID(req.params.id);
@@ -510,7 +528,7 @@ export function getProductByID(req, res) {
  *
  * Sample input: API_INITIAL_PATH/products
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"prod_8weFswEoY6i2IW","object":"product","active":true,"attributes":[],"caption":null,"created":1470313671,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"1234"},"name":"test222 ...
+ * {"data":[{"id":"prod_8wdwq9JsEqAibO","object":"product","active":true,"attributes":[],"caption":null,"created":1470312529,"deactivate_on":[],"description":null,"images":[
  */
 export function getProducts(req, res){
     let ret = service.getProducts();
@@ -524,7 +542,7 @@ export function getProducts(req, res){
 /**
  * Sample input: API_INITIAL_PATH/products/stripe/prod_xxx
  * Sample data response:
- * {"data":{"id":"prod_8weFswEoY6i2IW","object":"product","active":true,"attributes":[],"caption":null,"created":1470313671,"deactivate_on":[],"description":null,"images":[],"livemode":false,"metadata":{"postID":"1234"},"name":"test22222223333","package_dimensions":null,"shippable":true,"skus":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/skus?product=prod_8weFswEoY6i2IW&active=true"},"updated":1470402119,"url":null}}
+ * {"data":[{"id":"prod_8wdwq9JsEqAibO","object":"product","active":true,"attributes":[],"caption":null,"created":1470312529,"deactivate_on":[],
  */
 export function getProductByStripeID(req, res){
     let ret = service.getProductByStripeID(req.params.id);
@@ -533,6 +551,16 @@ export function getProductByStripeID(req, res){
     }, (err) => {
         handle_response(res, null, err, "Get Product By StripeID Error");
     });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/products/stripeAcc/acc_fxfsfafesf
+ * Sample data response:
+ * {"data":[{"id":"prod_9OOiCXK5LBttvk","object":"product","active":true,"attributes":[],"caption":null,"created":1476713810,"description":null,
+ */
+export function getProductsByStripeAccID(req, res){
+    let ret = service.getProductsByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Product By StripeAccID Error");
 }
 
 /**
@@ -580,7 +608,7 @@ export function deleteProduct(req, res) {
 /**
  * Sample input: API_INITIAL_PATH/skus/post/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":2000,"product":"prod_8weFswEoY6i2IW","updated":1470587090}],"has_more":false,"url":"/v1/skus"}}
+ * {"data":[{"id":"sku_9P7tjxNgD6Osr8","object":"sku","active":true,"attributes":{},"created":1476881850,"currency":"usd","image":null
  */
 export function getSkusByPostID(req, res) {
     let ret = service.getSkusByPostID(req.params.pid);
@@ -592,9 +620,9 @@ export function getSkusByPostID(req, res) {
 }
 
 /**
- * Sample input: API_INITIAL_PATH/skus/stripe/xxx
+ * Sample input: API_INITIAL_PATH/skus/stripe/sku_8xpkjNkOjKlb8D
  * Sample data response:
- * {"data":{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":2000,"product":"prod_8weFswEoY6i2IW","updated":1470587090}}
+ * {"data":[{"id":"sku_9P7tjxNgD6Osr8","object":"sku","active":true,"attributes":{},"created":1476881850,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"package_dimensions":null,"price":2000,"product":"prod_9P6HnSMCHPBk1Y","updated":1476881850}]}
  */
 export function getSkuByStripeID(req, res){
     let ret = service.getSkuByStripeID(req.params.id);
@@ -606,9 +634,19 @@ export function getSkuByStripeID(req, res){
 }
 
 /**
+ * Sample input: API_INITIAL_PATH/skus/stripeAcc/acc_8xpkjNkOjKlb8D
+ * Sample data response:
+ * {"data":[{"id":"sku_9P7tjxNgD6Osr8","object":"sku","active":true,"attributes":{},"created":1476881850,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"package_dimensions":null,"price":2000,"product":"prod_9P6HnSMCHPBk1Y","updated":1476881850}]}
+ */
+export function getSkusByStripeAccID(req, res){
+    let ret = service.getSkusByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Sku By StripeAccID Error");
+}
+
+/**
  * Sample input: API_INITIAL_PATH/skus/xxx
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":2000,"product":"prod_8weFswEoY6i2IW","updated":1470587090}],"has_more":false,"url":"/v1/skus"}}
+ * {"data":[{"id":"sku_9P7tjxNgD6Osr8","object":"sku","active":true,"attributes":{},"created":1476881850,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"package_dimensions":null,"price":2000,"product":"prod_9P6HnSMCHPBk1Y","updated":1476881850}]}
  */
 export function getSkuByID(req, res){
     let ret = service.getSkuByID(req.params.id);
@@ -622,7 +660,7 @@ export function getSkuByID(req, res){
 /**
  * Sample input: API_INITIAL_PATH/skus
  * Sample data response:
- * {"data":{"object":"list","data":[{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":2000,"product":"prod_8weFswEoY6i2IW","updated":1470587090}],"has_more":false,"url":"/v1/skus"}}
+ * {"data":[{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":2000,"product":"prod_8weFswEoY6i2IW","updated":1470587090}],"has_more":false,"url":"/v1/skus"}}
  */
 export function getSkus(req, res){
     let ret = service.getSkus();
@@ -635,9 +673,9 @@ export function getSkus(req, res){
 
 /**
  *
- * Sample input: API_INITIAL_PATH/skus with JSON: {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": "1234"}, "price": 2000, "product": "prod_8weFswEoY6i2IW"}
+ * Sample input: API_INITIAL_PATH/skus with JSON: {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": "1234", "stripeAccID": "acct_18m2ZBLUxBeddbgv"}, "price": 2000, "product": "prod_9P6HnSMCHPBk1Y"}
  * Sample response:
- * {"data":{"__v":0,"stripeSkuID":"sku_8xpkjNkOjKlb8D","postID":"1234","_id":"57a760ef7cfb6759f39f031a"}}
+ * {"data":{"__v":0,"stripeSkuID":"sku_9P7GTOpdmZeQgf","postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"58076599ea8f57e45c3aeafe"}}
  */
 export function addSku(req, res) {
     let ret = service.addSku(req.body);
@@ -650,9 +688,9 @@ export function addSku(req, res) {
 
 /**
  *
- * Sample input: API_INITIAL_PATH/skus with JSON: { "product": {"name": "testp222", "shippable": false, "metadata": {"postID": "1234"}}, "sku": {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": "1234"}, "price": 3000}}
+ * Sample input: API_INITIAL_PATH/skus with JSON: { "product": {"name": "testp222", "shippable": false, "metadata": {"postID": "1234", "stripeAccID":"acct_18m2ZBLUxBeddbgv"}}, "sku": {"currency": "USD", "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": "1234", "stripeAccID":"acct_18m2ZBLUxBeddbgv"}, "price": 3000}}
  * Sample response:
- * {"data":{"__v":0,"stripeSkuID":"sku_8xpkjNkOjKlb8D","postID":"1234","_id":"57a760ef7cfb6759f39f031a"}}
+ * {"data":{"__v":0,"stripeSkuID":"sku_9P8WHEShbEy4Og","postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"580777c132e070f774a32f50"}}
  */
 export function addProductAndSku(req, res) {
     let ret = service.addProductAndSku(req.body);
@@ -665,9 +703,9 @@ export function addProductAndSku(req, res) {
 
 /**
  *
- * Sample input: API_INITIAL_PATH/skus with JSON: {"price": 3000}
+ * Sample input: API_INITIAL_PATH/skus/stripe/sku_8xpkjNkOjKlb8D with JSON: {"price": 5000}
  * Sample response:
- * {"data":{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":3000,"product":"prod_8weFswEoY6i2IW","updated":1470588472}}
+ * {"data":{"id":"sku_9P8WHEShbEy4Og","object":"sku","active":true,"attributes":{},"created":1476884190,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"package_dimensions":null,"price":5000,"product":"prod_9P8WYMwKcvuoWQ","updated":1476884429}}
  */
 export function editSkuByStripeID(req, res) {
     let ret = service.editSkuByStripeID(req.params.id, req.body);
@@ -680,9 +718,9 @@ export function editSkuByStripeID(req, res) {
 
 /**
  *
- * Sample input: API_INITIAL_PATH/skus with JSON: {"price": 1000}
+ * Sample input: API_INITIAL_PATH/skus/feafeafwfewa with JSON: {"price": 1000}
  * Sample response:
- * {"data":{"id":"sku_8xpkjNkOjKlb8D","object":"sku","active":true,"attributes":{},"created":1470587090,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234"},"package_dimensions":null,"price":1000,"product":"prod_8weFswEoY6i2IW","updated":1470588376}}
+ * {"data":{"id":"sku_9P8WHEShbEy4Og","object":"sku","active":true,"attributes":{},"created":1476884190,"currency":"usd","image":null,"inventory":{"quantity":1,"type":"finite","value":null},"livemode":false,"metadata":{"postID":"1234","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"package_dimensions":null,"price":1000,"product":"prod_9P8WYMwKcvuoWQ","updated":1476884548}}
  */
 export function editSku(req, res) {
     let ret = service.editSku(req.params.id, req.body);

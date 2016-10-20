@@ -27,7 +27,11 @@ export function getSkusByPostID(postID) {
 }
 
 export function getSkuByStripeID(stripeID){
-    return common.getStripeServicesByAttribute(serviceName, 'stripeSkuID', stripeID, true);
+    return common.getStripeServicesByAttribute(serviceName, 'stripeSkuID', stripeID);
+}
+
+export function getSkusByStripeAccID(stripeAccID){
+    return common.getStripeServicesByAttribute(serviceName, 'stripeAccID', stripeAccID);
 }
 
 export function getSkuByID(id){
@@ -47,11 +51,11 @@ export function addProductAndSku(mixedObj) {
 }
 
 export function editSkuByStripeID(stripeID, sku) {
-    return common.updateStripeService(serviceName, stripeID, sku, true);
+    return common.updateStripeService(serviceName, 'stripeSkuID', stripeID, sku);
 }
 
 export function editSku(id, sku) {
-    return common.updateStripeService(serviceName, id, sku);
+    return common.updateStripeService(serviceName, '_id', id, sku);
 }
 
 export function deleteSku(id) {
