@@ -7,18 +7,19 @@ get_header();
 ?>
 <?php
 global $user_ID, $wpdb;
-$ch = curl_init("http://localhost:3000/api/0/orders/user/".$user_ID);
+$ch = curl_init("http://localhost:3000/api/0/worders/user/".$user_ID);
 
 curl_setopt($ch, CURLOPT_HEADER, 0);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-$res = json_decode(curl_exec($ch))->{'data'}->{'data'};
+$res = json_decode(curl_exec($ch))->{'data'};
 $post_arr = array();
+$status_arr=array();
 $post_list_str = '0';
 foreach($res as $x => $x_value) {
-    array_push($post_arr, $x_value->{'metadata'}->{'postID'});
-    $post_list_str = $post_list_str.','.$x_value->{'metadata'}->{'postID'};
+    array_push($post_arr, $x_value->{'postID'});
+    array_push($status_arr, $x_value->{'appStatus'});
+    $post_list_str = $post_list_str.','.$x_value->{'postID'};
 }
-
 $query = 'SELECT id, post_title, guid FROM `wp_posts` WHERE post_author='.$user_ID.' and ID in ('.$post_list_str.') ORDER by id desc';
 $query2 = 'SELECT meta_key,meta_value FROM `wp_postmeta` '.
     ' WHERE post_id in ('.$post_list_str.') and (meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
@@ -120,10 +121,10 @@ curl_close($ch);
                                                                                 <table>
                                                                                     <tbody>
                                                                                         <tr align="middle">
-                                                                                            <td style="width: 25%"><span style="color: lightgrey">Completing your application</span></td>
-                                                                                            <td style="width: 25%"><span style="color: lightgrey">Waiting for landloard's approval</span></td>
-                                                                                            <td style="width: 25%"><span style="color: #ff5722">Securing your next home</span></td>
-                                                                                            <td style="width: 25%"><span style="color: lightgrey">Hi5Fang! Get Ready to move!</span></td>
+                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completing application")?"#03a9f4":"lightgrey"; ?>">Completing your application</span></td>
+                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Waiting for approval")?"#4caf50":"lightgrey"; ?>">Waiting for landloard's approval</span></td>
+                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Paying")?"#ff5722":"lightgrey"; ?>">Securing your next home</span></td>
+                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completed")?"#f44336":"lightgrey"; ?>">Hi5Fang! Get Ready to move!</span></td>
                                                                                         </tr>
                                                                                     </tbody>
                                                                                 </table>
@@ -131,10 +132,10 @@ curl_close($ch);
                                                                             <li>
                                                                                 <div class="bs-component">
                                                                                     <div class="progress">
-                                                                                        <div class="progress-bar progress-bar-info" style="width: 25%"></div>
-                                                                                        <div class="progress-bar progress-bar-success" style="width: 25%"></div>
-                                                                                        <div class="progress-bar progress-bar-warning" style="width: 25%"></div>
-                                                                                        <div class="progress-bar progress-bar-danger" style="width: 25%;visibility: hidden"></div>
+                                                                                        <div class="progress-bar progress-bar-info" style="width: 25%;"></div>
+                                                                                        <div class="progress-bar progress-bar-success" style="width: 25%;<?php if($status_arr[$i] == "Completing application")echo "visibility: hidden";?>"></div>
+                                                                                        <div class="progress-bar progress-bar-warning" style="width: 25%;<?php if($status_arr[$i] == "Completing application" || $status_arr[$i] == "Waiting for approval")echo "visibility: hidden";?>"></div>
+                                                                                        <div class="progress-bar progress-bar-danger" style="width: 25%;<?php if($status_arr[$i] != "Completed")echo "visibility: hidden";?>"></div>
                                                                                     </div>
                                                                                 </div>
                                                                             </li>

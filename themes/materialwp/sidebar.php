@@ -135,11 +135,14 @@ switch ($rent_period) {
 				var userID = <?php global $user_ID; echo $user_ID;?>;
 				var postID = <?php global $post; echo $post->ID;?>;
 				var urlstr = "/api/0/favorites/user/";
-				var urlstr2 = "/api/0/orders/post/";
+				var urlstr2 = "/api/0/worders/post/";
 				var favID;
 				var liked = false;
 				var applied = false;
 				var action;
+				var stripeSkuID = "";
+				var skuID = "";
+
 				if (userID != 0) {
 					jQuery.ajax({
 						url: urlstr.concat(<?php global $user_ID; echo $user_ID;?>),
@@ -169,8 +172,8 @@ switch ($rent_period) {
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
-							for (var i = 0; i < result.data.data.length; i++) {
-								if (result.data.data[i].metadata.userID == userID) {
+							for (var i = 0; i < result.data.length; i++) {
+								if (result.data[i].userID == userID) {
 									document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
 									document.getElementById("BtnApply").innerHTML = "Check order status";
 									applied = true;
@@ -188,6 +191,7 @@ switch ($rent_period) {
 				else {
 					document.getElementById("BtnApply").style.pointerEvents = 'auto';
 				}
+				CheckAndCreateSku();
 				function createCookie(name,value,days) {
 					if (days) {
 						var date = new Date();
@@ -217,6 +221,36 @@ switch ($rent_period) {
 				function AddAction() {
 					createCookie('action', action,'0.1');
 
+				}
+				function CheckAndCreateSku() {
+					var urlstr = "/api/0/wskus/post/";
+					var sku;
+					var currency = "<?php echo $currency ?>";
+					var deposit  = <?php echo $deposit ?>;
+					jQuery.ajax({
+						url: urlstr.concat(postID),
+						dataType: "json",
+						method: "Get",
+						success: function (result) {
+							sku = result.data;
+							if (sku == "") { /* Product&Sku do not exist. Create a new product and Sku*/
+								jQuery.ajax({
+									url: '/api/0/skus/pas',
+									dataType: "json",
+									method: "POST",
+									data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID}, "price": deposit}},
+									success: function (result) { /* Create a new sku under the product*/
+										stripeSkuID = result.data.stripeSkuID;
+										skuID = result.data._id;
+									}
+								});
+							}
+							else { /* Product&Sku existed.*/
+								stripeSkuID = result.data[0].stripeSkuID;
+								skuID = result.data[0]._id;;
+							}
+						}
+					});
 				}
 				function ChangeFav(){
 					if (userID == 0) {
@@ -258,93 +292,32 @@ switch ($rent_period) {
 						if (userID == 0) {
 							document.getElementById("hidelogin").click();
 							action = 'apply';
-						} else {
-							var urlstr2 = "/api/0/products/post/";
-							var product;
-							var sku;
-							var skuID; /* mongodb uuid */
-							var stripeProdID;
-							var stripeSkuID;
-							var currency = "<?php echo $currency ?>";
-							var deposit  = <?php echo $deposit ?>;
-							jQuery.ajax({
-								url: urlstr2.concat(postID),
-								dataType: "json",
-								method: "Get",
-								success: function (result) {
-									product = result.data.data;
-									if (product == null) { /* Product does not exist. Create a new product */
-										jQuery.ajax({
-											url: '/api/0/products',
-											dataType: "json",
-											method: "POST",
-											data: {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID}},
-											success: function (result) { /* Create a new sku under the product*/
-												stripeProdID = result.data.stripeProdID;
-												jQuery.ajax({
-													url: '/api/0/skus',
-													dataType: "json",
-													method: "POST",
-													data: {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID}, "price": deposit, "product": stripeProdID},
-													success: function (result) {
-														stripeSkuID = result.data.stripeSkuID;
-														skuID = result.data._id;
-														AddOrder(stripeSkuID);
-													}
-												});
-											}
-										});
-									}
-									else { /* Product existed. Go ahead looking for sku*/
-										var urlstr3 = "/api/0/skus/post/";
-										jQuery.ajax({
-											url: urlstr3.concat(postID),
-											dataType: "json",
-											method: "Get",
-											success: function (result) {
-												sku = result.data.data;
-												if (sku == null) { /* Sku does not exist. Create a new sku under the product */
-													jQuery.ajax({
-														url: '/api/0/skus',
-														dataType: "json",
-														method: "POST",
-														data: {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID}, "price": deposit, "product": stripeProdID},
-														success: function (result) {
-															stripeSkuID = result.data.stripeSkuID;
-															skuID = result.data._id;
-															AddOrder(stripeSkuID);
-														}
-													});
-												} else {
-													stripeSkuID = sku[0].id;
-													/* where is sku uuid in response of getSkuByPostID() ? */
-													AddOrder(stripeSkuID);
-												}
-											}
-										});
-									}
-								}
-							});
+						} else { /* Create an order wrapper */
+							if (stripeSkuID != "") {
+								AddOrder(skuID, stripeSkuID, "09-OCT-16", "3 months", "2");
+							}
 						}
 					} else { //Already applied, go checking order status
 						window.location.replace("/wordpress/?page_id=140");
 					}
 				}
-				function AddOrder(stripeSkuID) {
+				function AddOrder(skuID, stripeSkuID, startDate, term, numTenant) { /* Create an order wrapper */
 					var currency = "<?php echo $currency ?>";
 					if (stripeSkuID != null) {
 						jQuery.ajax({
-							url: '/api/0/orders',
+							url: '/api/0/worders',
 							dataType: "json",
 							method: "POST",
-							data: {"currency": currency,
-									"metadata": {
-									"postID": postID,
-									"postAuthorID": userID,
-									"userID": userID,
-									"skuID": "57d948cddfeef27c0f8d39ff"
-								},
-								"items": [{"type": "sku", "parent": stripeSkuID}]
+							data: {
+								"postID": postID,
+								"postAuthorID": userID,
+								"currency": currency,
+								"userID": userID,
+								"skuID": skuID,
+								"appStatus": "Waiting for approval",
+								"startDate": startDate,
+								term: term,
+								numTenant: numTenant
 							},
 							success: function (result) {
 								document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
@@ -365,11 +338,11 @@ switch ($rent_period) {
 				document.getElementById("sidebar-1").style.position = "fixed";
 				document.getElementById("sidebar-1").style.top = "0";
 				document.getElementById("sidebar-1").style.zIndex = "1000";
-				document.getElementById("sidebar-1").style.width = "360px";
+				document.getElementById("sidebar-1").style.width = "350px";
 			}
 			if ( $(window).scrollTop() < distance ) {
 				document.getElementById("sidebar-1").style.position = "absolute";
-				document.getElementById("sidebar-1").style.width = "360px";
+				document.getElementById("sidebar-1").style.width = "350px";
 			}
 		});
 	</script>

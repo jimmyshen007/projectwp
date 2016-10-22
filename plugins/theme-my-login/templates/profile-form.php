@@ -18,7 +18,7 @@ Theme My Login will always look in your theme's directory first, before using th
 <div class="tml tml-profile" id="theme-my-login<?php $template->the_instance(); ?>">
 	<?php $template->the_action_template_message( 'profile' ); ?>
 	<?php $template->the_errors(); ?>
-	<form id="your-profile" action="<?php $template->the_action_url( 'profile', 'login_post' ); ?>" method="post">
+	<form id="your-profile" action="<?php $template->the_action_url( 'profile', 'login_post' ); ?> " method="post" enctype="multipart/form-data">
 		<?php wp_nonce_field( 'update-user_' . $current_user->ID ); ?>
 		<p>
 			<input type="hidden" name="from" value="profile" />
@@ -35,11 +35,14 @@ Theme My Login will always look in your theme's directory first, before using th
 								<tbody>
 								<tr>
 									<td style="text-align: center; vertical-align: top; width: 30%">
-										<?php do_action( 'show_user_profile', $profileuser ); ?>
+										<?php
+										do_action( 'show_user_profile', $profileuser ); ?>
 									</td>
 									<td style="width: 5%"></td>
 									<td style="width: 50%">
-										<?php do_action( 'profile_personal_options', $profileuser ); ?>
+										<?php
+
+											do_action( 'profile_personal_options', $profileuser ); ?>
 										<table class="tml-form-table">
 											<tr class="form-group">
 												<td>
@@ -184,7 +187,6 @@ Theme My Login will always look in your theme's directory first, before using th
 				</table>
 			</div>
 		</div>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">Tenant Verification</div>
 			<div class="panel-body">
@@ -201,7 +203,7 @@ Theme My Login will always look in your theme's directory first, before using th
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="..."></span>
+														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="passport" id="passport"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -218,7 +220,7 @@ Theme My Login will always look in your theme's directory first, before using th
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="..."></span>
+														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="studentID"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -251,8 +253,8 @@ Theme My Login will always look in your theme's directory first, before using th
 															<td>
 																<p></p>
 																<div class="form-group">
-																	<label class="control-label" for="pp_expiry_date">Expiry Date</label>
-																	<input class="form-control input-lg"  type="text" name="pp_expiry_date" id="pp_expiry_date"/>
+																	<label class="control-label" for="stuid_expiry_date">Expiry Date</label>
+																	<input class="form-control input-lg"  type="text" name="stuid_expiry_date" id="stuid_expiry_date"/>
 																</div>
 															</td>
 														</tr>
@@ -269,7 +271,6 @@ Theme My Login will always look in your theme's directory first, before using th
 				</table>
 			</div>
 		</div>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">Landlord Verification</div>
 			<div class="panel-body">

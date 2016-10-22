@@ -62,6 +62,7 @@ for($i = 0; $i < count($results1); $i++){
                 </table>
             </div>
             <div class="modal-body">
+                <p> <button id="button">Accept</button></p>
                 <table id="appTable"  class="table table-striped table-hover ">
                     <thead>
                     <tr>
@@ -69,28 +70,14 @@ for($i = 0; $i < count($results1); $i++){
                         <th>Column 2</th>
                     </tr>
                     </thead>
-                    <tbody>
+                    <tfoot>
                     <tr>
-                        <td>Row 1 Data 1</td>
-                        <td>Row 1 Data 2</td>
+                        <th>Column 1</th>
+                        <th>Column 2</th>
                     </tr>
-                    <tr>
-                        <td>Row 2 Data 1</td>
-                        <td>Row 2 Data 2</td>
-                    </tr>
+                    </tfoot>
                     </tbody>
                 </table>
-                <script>
-                    $(document).ready(function() {
-                        $('#appTable').DataTable( {
-                            select: {
-                                style: 'single'
-                            },
-                            "pageLength": 25,
-                            "lengthChange": false
-                        } );
-                    } );
-                </script>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button>
@@ -145,7 +132,52 @@ for($i = 0; $i < count($results1); $i++){
                                                                             <td align="right" valign="middle">
                                                                                 <a href="<?php echo $results1[$i][guid]?>" class="btn btn-success btn-sm">View</a>
                                                                                 <a href="" class="btn btn-danger btn-sm">Delete</a>
-                                                                                <button id="applications" type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#complete-dialog">Applications</button>
+                                                                                <button id="app<?php echo $results1[$i][id];?>" type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#complete-dialog" onclick="checkApp(this.id)">Applications</button>
+                                                                                <script>
+                                                                                    //$(document).ready(function() {
+                                                                                    function checkApp(id){
+                                                                                        var dataSet;
+                                                                                        var urlstr = "/api/0/worder/post/";
+                                                                                        var postID = id.substring(3);
+                                                                                        jQuery.ajax({
+                                                                                            url: urlstr.concat(postID),
+                                                                                            dataType: "json",
+                                                                                            method: "Get",
+                                                                                            success: function (result) {
+                                                                                                dataSet = result.data;
+
+                                                                                                var table = $('#appTable').DataTable( {
+                                                                                                    data: dataSet,
+                                                                                                    select: {
+                                                                                                        style: 'single'
+                                                                                                    },
+                                                                                                    "pageLength": 25,
+                                                                                                    "lengthChange": false
+                                                                                                } );
+
+                                                                                            }
+                                                                                        });
+
+                                                                                        var table = $('#appTable').DataTable( {
+                                                                                            ajax: dataSet,
+                                                                                            select: {
+                                                                                                style: 'single'
+                                                                                            },
+                                                                                            "pageLength": 25,
+                                                                                            "lengthChange": false
+                                                                                        } );
+
+
+
+
+
+                                                                                        $('#button').click( function () {
+                                                                                            alert(table.row('.selected').data());
+                                                                                        } );
+
+                                                                                    } //);
+
+                                                                                </script>
                                                                             </td>
                                                                         </tr>
                                                                     </tbody>
