@@ -27,7 +27,7 @@ export function getAccountByUserID(userID) {
 }
 
 export function getAccountByStripeID(stripeID){
-    return common.getStripeServicesByAttribute(serviceName, 'stripeAccID', stripeID, true);
+    return common.getStripeServicesByAttribute(serviceName, 'stripeAccID', stripeID);
 }
 
 export function getAccountByID(id){
@@ -43,11 +43,11 @@ export function addAccount(acc) {
 }
 
 export function editAccountByStripeID(stripeID, acc) {
-    return common.updateStripeService(serviceName, stripeID, acc, true);
+    return common.updateStripeService(serviceName, 'stripeAccID', stripeID, acc);
 }
 
 export function editAccount(id, acc) {
-    return common.updateStripeService(serviceName, id, acc);
+    return common.updateStripeService(serviceName, '_id', id, acc);
 }
 
 export function deleteAccount(id) {

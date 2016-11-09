@@ -19,6 +19,7 @@ get_header(); ?>
 		$(window).on('resize', function () {
 			$('#main_section').height($(window).height() - 175);
 		});
+		$('body').css("overflow", "hidden");
 	});
 </script>
 <script type="text/javascript">
@@ -279,20 +280,6 @@ get_header(); ?>
 			<?php echo  __( 'Search current map', 'materialwp' ) ?>
 		</button>
 	</div>
-	<script>
-		//Google map js
-		jQuery(document).ready(function($) {
-			// Code that uses jQuery's $ can follow here.
-			$(document).ready(function(e){
-				L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
-				L.mapbox.map('general-map-container', 'mapbox.streets')
-					.addControl(L.mapbox.geocoderControl('mapbox.places', {
-						autocomplete: true,
-						keepOpen: true
-					}));
-			});
-		});
-	</script>
 </div> <!-- .container -->
 
 <?php get_footer(); ?>

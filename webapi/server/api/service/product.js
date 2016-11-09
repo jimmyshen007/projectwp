@@ -11,7 +11,11 @@ export function getProductsByPostID(postID) {
 }
 
 export function getProductByStripeID(stripeID){
-    return common.getStripeServicesByAttribute(serviceName, 'stripeProdID', stripeID, true);
+    return common.getStripeServicesByAttribute(serviceName, 'stripeProdID', stripeID);
+}
+
+export function getProductsByStripeAccID(stripeAccID){
+    return common.getStripeServicesByAttribute(serviceName, 'stripeAccID', stripeAccID);
 }
 
 export function getProductByID(id){
@@ -43,11 +47,11 @@ export function addProduct(prod) {
 }
 
 export function editProductByStripeID(stripeID, product) {
-    return common.updateStripeService(serviceName, stripeID, product, true);
+    return common.updateStripeService(serviceName, 'stripeProdID', stripeID, product);
 }
 
 export function editProduct(id, product) {
-    return common.updateStripeService(serviceName, id, product);
+    return common.updateStripeService(serviceName, '_id', id, product);
 }
 
 export function deleteProduct(id) {

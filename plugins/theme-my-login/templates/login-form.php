@@ -5,6 +5,7 @@ Theme My Login will always look in your theme's directory first, before using th
 */
 var_dump($template);
 ?>
+
 <div class="tml tml-login" id="theme-my-login<?php $template->the_instance(); ?>">
 	<?php $template->the_action_template_message( 'login' ); ?>
 	<?php $template->the_errors(); ?>

@@ -3,7 +3,8 @@ import bodyParser from 'body-parser';
 import express from 'express';
 import http from 'http';
 import config from 'config';
-
+import expressJWT from 'express-jwt';
+import jwt from 'jsonwebtoken';
 import * as api from './server/api/http';
 import {db, orderSchema, favoriteSchema} from './server/api/db';
 
@@ -17,6 +18,7 @@ app.set('view engine', 'ejs');
 /**
  * Server middleware
  */
+//app.use(expressJWT({secret: 'cannottellyou'}));
 app.use(require('serve-static')(path.join(__dirname, config.get('buildDirectory'))));
 app.use(bodyParser.urlencoded({
     extended: true
@@ -60,6 +62,7 @@ app.get('/api/0/orders/user/:uid', api.getOrdersByUserID);
 app.get('/api/0/orders/post/:pid', api.getOrdersByPostID);
 app.get('/api/0/orders/postAuthor/:paid', api.getOrdersByPostAuthorID);
 app.get('/api/0/orders/sku/:kid', api.getOrdersBySkuID);
+app.get('/api/0/orders/stripeAcc/:id', api.getOrdersByStripeAccID);
 app.post('/api/0/orders', api.addOrder);
 app.post('/api/0/orders/:id', api.editOrder);
 app.post('/api/0/orders/stripe/:id', api.editOrderByStripeID);
@@ -82,6 +85,7 @@ app.get('/api/0/products', api.getProducts);
 app.get('/api/0/products/:id', api.getProductByID);
 app.get('/api/0/products/stripe/:id', api.getProductByStripeID);
 app.get('/api/0/products/post/:pid', api.getProductsByPostID);
+app.get('/api/0/products/stripeAcc/:id', api.getProductsByStripeAccID);
 app.post('/api/0/products', api.addProduct);
 app.post('/api/0/products/:id', api.editProduct);
 app.post('/api/0/products/stripe/:id', api.editProductByStripeID);
@@ -91,6 +95,7 @@ app.get('/api/0/skus', api.getSkus);
 app.get('/api/0/skus/:id', api.getSkuByID);
 app.get('/api/0/skus/stripe/:id', api.getSkuByStripeID);
 app.get('/api/0/skus/post/:pid', api.getSkusByPostID);
+app.get('/api/0/skus/stripeAccID/:id', api.getSkusByStripeAccID);
 app.post('/api/0/skus', api.addSku);
 app.post('/api/0/skus/pas', api.addProductAndSku)
 app.post('/api/0/skus/:id', api.editSku);

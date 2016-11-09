@@ -115,6 +115,37 @@ switch ($rent_period) {
 		<div class="panel-body">
 			<div class="list-group">
 				<div class="list-group-item">
+					<table>
+						<tbody>
+							<tr>
+								<th width="30%" style="text-align: center">Start Date</th>
+								<th width="45%" style="text-align: center">Term</th>
+								<th width="25%" style="text-align: center">Tenants</th>
+							</tr>
+							<tr>
+								<td><input type="text" class="form-control" id="datepicker" placeholder="yyyy-mm-dd"></td>
+								<td><div class="col-md-10" style="width: 100%">
+										<select id="term" class="form-control">
+											<option>3 months</option>
+											<option>6 months</option>
+											<option>12 months</option>
+										</select>
+									</div>
+								</td>
+								<td><div class="col-md-10" style="width: 100%">
+										<select id="tenants" class="form-control">
+											<option>1</option>
+											<option>2</option>
+											<option>3</option>
+											<option>4</option>
+											<option>5</option>
+										</select>
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+					<p class="text-muted">Please be noted the date you pick for moving in is in local time of destination.</p>
 					<fieldset id="fs1">
 						<a id="BtnApply" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="Apply()" style="width: 100%; pointer-events: none"  >
 							<span style="font-size: 15px">Apply</span>
@@ -142,6 +173,11 @@ switch ($rent_period) {
 				var action;
 				var stripeSkuID = "";
 				var skuID = "";
+
+				$( function() {
+					$( "#datepicker" ).datepicker({ minDate:0});
+					$( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd");
+				} );
 
 				if (userID != 0) {
 					jQuery.ajax({
@@ -238,8 +274,8 @@ switch ($rent_period) {
 									url: '/api/0/skus/pas',
 									dataType: "json",
 									method: "POST",
-									data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID}, "price": deposit}},
-									success: function (result) { /* Create a new sku under the product*/
+									data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":"acct_197bmLIw2qaoeMzL"}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":"acct_197bmLIw2qaoeMzL"}, "price": deposit}},
+									success: function (result) {
 										stripeSkuID = result.data.stripeSkuID;
 										skuID = result.data._id;
 									}
@@ -294,7 +330,17 @@ switch ($rent_period) {
 							action = 'apply';
 						} else { /* Create an order wrapper */
 							if (stripeSkuID != "") {
-								AddOrder(skuID, stripeSkuID, "09-OCT-16", "3 months", "2");
+								var date = document.getElementById("datepicker").value;
+								if (date == '')
+								{
+									document.getElementById("datepicker").focus();
+								} else {
+									var datetime = date.concat(" 15:00:00 UTC");
+									var term = document.getElementById("term").value;
+									var tenants = document.getElementById("tenants").value;
+									alert(datetime);
+									AddOrder(skuID, stripeSkuID, datetime, term, tenants);
+								}
 							}
 						}
 					} else { //Already applied, go checking order status
@@ -314,6 +360,7 @@ switch ($rent_period) {
 								"currency": currency,
 								"userID": userID,
 								"skuID": skuID,
+								"stripeAccID": "acct_197bmLIw2qaoeMzL",
 								"appStatus": "Waiting for approval",
 								"startDate": startDate,
 								term: term,

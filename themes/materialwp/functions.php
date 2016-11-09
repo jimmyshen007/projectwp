@@ -100,7 +100,11 @@ function materialwp_scripts() {
 
 	//wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
 
-	wp_enqueue_style( 'datatable-1-styles', '//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css');
+	wp_enqueue_style( 'datepicker-styles', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+
+	wp_enqueue_script( 'datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js');
+
+	wp_enqueue_style( 'datatable-1-styles', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css');
 
 	wp_enqueue_style( 'datatable-2-styles', 'https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap4.min.css');
 
@@ -109,7 +113,7 @@ function materialwp_scripts() {
 	wp_enqueue_style( 'datatable-4-styles', 'https://cdn.datatables.net/scroller/1.4.2/css/scroller.bootstrap4.min.css');
 
 
-	wp_enqueue_script( 'datatable-js', '//cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js');
+	wp_enqueue_script( 'datatable-js', 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js');
 
 	wp_enqueue_script( 'datatable-select-js', 'https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js');
 

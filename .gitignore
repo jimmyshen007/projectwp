@@ -1,3 +1,7 @@
 webapi/node_modules/
 webapi/.idea/
+<<<<<<< HEAD
 uploads/
+=======
+.Ds_Store
+>>>>>>> bbf330e877184c94c4a67a7620c30a43968353de
