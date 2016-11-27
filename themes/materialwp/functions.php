@@ -291,15 +291,16 @@ add_action( 'edit_user_profile_update', 'uploadID');
 function uploadID() {
 	global $user_ID;
 
-	$target_dir = "/var/www/wordpress/wp-content/uploads/ID/";
+	$target_dir = "/wordpress/wp-content/uploads/ID/";
 	$target_file_name = basename($_FILES['passport']['name']);
 	$uploadOk = 1;
 	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
-	$target_file = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$target_file = "/var/www".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$target_file1 = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
 	$pp_expire_date = $_POST['pp_expiry_date'];
 
-	add_user_meta( $user_ID, "expire_date", $pp_expire_date);
-	add_user_meta( $user_ID, "ID", $target_file);
+	add_user_meta( $user_ID, "passport_expire_date", $pp_expire_date);
+	add_user_meta( $user_ID, "Passport", $target_file1);
 
 // Check if image file is a actual image or fake image
 // Check file size

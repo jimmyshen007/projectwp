@@ -896,6 +896,56 @@ export function rejectAccountByStripeID(req, res){
     });
 }
 
+/* Email */
+export function sendMail(req, res) {
+    var nodemailer = require('nodemailer');
+    var sender = 'info@hi5fang.com';
+    var reciever = req.body.to;
+    var subject  = req.body.subject;
+    var html = req.body.html;
+    var xoauth2 = require('xoauth2');
+/*
+    generator.on('token', function(token){
+        console.log('New token for %s: %s', token.user, token.accessToken);
+    });*/
+
+    var transporter = nodemailer.createTransport({
+        service: 'Gmail',
+        auth: {
+            //user: sender,
+            //pass: "Hi11235813"
+            XOAuth2: xoauth2.createXOAuth2Generator({
+                user: sender,
+                clientId: "951721460534-db44nc96110ct9ga1so8qs05tielnhne.apps.googleusercontent.com",
+                clientSecret: "MPefeg3FemhmRuUp0arjX9gs",
+                refreshToken: "1/iopyNvbKxukxLQ5WjrO1dYzcsEmPd2EQDN7AcITHx1G4XOcDv3MhVRaGNjWrNGSo"//,
+                //accessToken: "ya29.Ci-fAzllrMkh1-uj4rKk-O7Z9rc1r632-rKlmMbhA91kAkP6BnmJW34ovXZH_lIxGg"
+            })
+        }
+    });
+
+    var mailOptions = {
+        from: sender, // sender address
+        to: reciever,  // list of receivers
+        subject: subject, // Subject line
+        //text: text //, // plaintext body
+        html:  html// You can choose to send an HTML body instead
+    };
+    transporter.sendMail(mailOptions, function(error, info){
+     if(error){
+     console.log(error);
+     res.json({data: 'error'});
+     }else{
+     console.log('Message sent: ' + info.response);
+     res.json({data: info.response});
+     };
+     });
+}
+/*
+export function sendMail(req, res) {
+    let ret = service.sendEmail(req.body);
+    handleRet(ret, res, "Send Mail Error");
+}*/
 //The following functions are deprecated.
 /*
 

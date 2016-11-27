@@ -123,7 +123,7 @@ curl_close($ch);
                                                                                         <tr align="middle">
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completing application")?"#03a9f4":"lightgrey"; ?>">Completing your application</span></td>
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Waiting for approval")?"#4caf50":"lightgrey"; ?>">Waiting for landloard's approval</span></td>
-                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Paying")?"#ff5722":"lightgrey"; ?>">Securing your next home</span></td>
+                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Approved")?"#ff5722":"lightgrey"; ?>">Securing your next home</span></td>
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completed")?"#f44336":"lightgrey"; ?>">Hi5Fang! Get Ready to move!</span></td>
                                                                                         </tr>
                                                                                     </tbody>

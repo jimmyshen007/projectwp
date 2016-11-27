@@ -7,6 +7,7 @@ get_header();
 ?>
 <?php
 global $user_ID, $wpdb;
+
 $ch = curl_init("http://localhost:3000/api/0/favorites/user/".$user_ID);
 
 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -68,10 +69,10 @@ curl_close($ch);
                         <p></p>
                         <div>
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-                                <li><a href="http://localhost/wordpress/?page_id=118">Profile</a></li>
-                                <li class="active"><a href="http://localhost/wordpress/?page_id=138">Wish List</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=136">Your Listings</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=140 ">Orders</a></li>
+                                <li><a href="/wordpress/?page_id=118">Profile</a></li>
+                                <li class="active"><a href="/wordpress/?page_id=138">Wish List</a></li>
+                                <li><a href="/wordpress/?page_id=136">Your Listings</a></li>
+                                <li><a href="/wordpress/?page_id=140 ">Orders</a></li>
                             </ul>
                         </div>
                         <div class="panel panel-default">

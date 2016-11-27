@@ -145,7 +145,7 @@ switch ($rent_period) {
 							</tr>
 						</tbody>
 					</table>
-					<p class="text-muted">Please be noted the date you pick for moving in is in local time of destination.</p>
+					<p class="text-muted" id="note">Please be noted the date you pick for moving in is in local time of destination.</p>
 					<fieldset id="fs1">
 						<a id="BtnApply" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="Apply()" style="width: 100%; pointer-events: none"  >
 							<span style="font-size: 15px">Apply</span>
@@ -210,18 +210,31 @@ switch ($rent_period) {
 						success: function (result) {
 							for (var i = 0; i < result.data.length; i++) {
 								if (result.data[i].userID == userID) {
+									startDate = result.data[i].startDate.substring(0,10);
+									term = result.data[i].term;
+									numTenant = result.data[i].numTenant;
+									document.getElementById("datepicker").disabled = true;
+									document.getElementById("datepicker").value = startDate;
+									document.getElementById("term").disabled = true;
+									document.getElementById("term").value = term;
+									document.getElementById("tenants").disabled = true;
+									document.getElementById("tenants").value = numTenant;
 									document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
 									document.getElementById("BtnApply").innerHTML = "Check order status";
+									document.getElementById("note").innerHTML = "You've applied for the property successfully. We will send you a notification email once we get response from the landlord.";
 									applied = true;
 								}
 							}
 							document.getElementById("BtnApply").style.pointerEvents = 'auto';
 							if (applied == false) {
 								if (getCookie('action') == 'apply') {
-									Apply();
+									//Apply(); TODO: need to pass start_date, term, numTenant via Cookie
 								}
 							}
 						}
+					})
+						.always(function(data) {
+						deleteCookie('action');
 					});
 				}
 				else {
@@ -338,7 +351,6 @@ switch ($rent_period) {
 									var datetime = date.concat(" 15:00:00 UTC");
 									var term = document.getElementById("term").value;
 									var tenants = document.getElementById("tenants").value;
-									alert(datetime);
 									AddOrder(skuID, stripeSkuID, datetime, term, tenants);
 								}
 							}
@@ -367,8 +379,16 @@ switch ($rent_period) {
 								numTenant: numTenant
 							},
 							success: function (result) {
+								document.getElementById("datepicker").disabled = true;
+								document.getElementById("datepicker").value = startDate.substring(0,10);
+								document.getElementById("term").disabled = true;
+								document.getElementById("term").value = term;
+								document.getElementById("tenants").disabled = true;
+								document.getElementById("tenants").value = numTenant;
 								document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
 								document.getElementById("BtnApply").innerHTML = "Check order status";
+								document.getElementById("note").innerHTML = "You've applied for the property successfully. We will send you a notification email once we get response from the landlord.";
+
 							}
 						});
 					}
