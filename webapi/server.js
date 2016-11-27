@@ -125,6 +125,10 @@ app.delete('/api/0/accounts/:id', api.deleteAccount);
  app.delete('/api/0/customers/:id/favor/:fid', api.delFavoriteElem);
  */
 
+//
+app.post('/api/0/sendMail', api.sendMail);
+
+
 db.once('open', ()=> {
     httpServer.listen(port);
 });

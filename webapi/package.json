@@ -34,11 +34,13 @@
     "mongoose": "^4.4.20",
     "nib": "^1.1.x",
     "node-uuid": "1.4.x",
+    "nodemailer": "2.6.4",
     "serve-static": "1.10.x",
     "socket.io": "1.4.x",
     "socket.io-client": "1.4.x",
     "stripe": "^4.7.0",
     "superagent": "1.8.x",
+    "xoauth2": "^1.2.0",
     "xss": "0.2.x"
   },
   "devDependencies": {

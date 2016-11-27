@@ -100,6 +100,27 @@ function materialwp_scripts() {
 
 	//wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
 
+	wp_enqueue_style( 'datepicker-styles', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+
+	wp_enqueue_script( 'datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js');
+
+	wp_enqueue_style( 'datatable-1-styles', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css');
+
+	wp_enqueue_style( 'datatable-2-styles', 'https://cdn.datatables.net/1.10.12/css/dataTables.bootstrap4.min.css');
+
+	wp_enqueue_style( 'datatable-3-styles', 'https://cdn.datatables.net/select/1.2.0/css/select.bootstrap4.min.css');
+
+	wp_enqueue_style( 'datatable-4-styles', 'https://cdn.datatables.net/scroller/1.4.2/css/scroller.bootstrap4.min.css');
+
+
+	wp_enqueue_script( 'datatable-js', 'https://cdn.datatables.net/1.10.12/js/jquery.dataTables.min.js');
+
+	wp_enqueue_script( 'datatable-select-js', 'https://cdn.datatables.net/select/1.2.0/js/dataTables.select.min.js');
+
+	wp_enqueue_script( 'datatable-bootstrap-js', 'https://cdn.datatables.net/1.10.12/js/dataTables.bootstrap4.min.js');
+
+	wp_enqueue_script( 'datatable-scroller-js', 'https://cdn.datatables.net/scroller/1.4.2/js/dataTables.scroller.min.js');
+
 	wp_enqueue_style( 'rating-styles', 'http://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css',array(), false, 'all');
 
 	wp_enqueue_style( 'star-styles', get_template_directory_uri() .'/jquery-bar-rating-master/dist/themes/bootstrap-stars.css');
@@ -253,6 +274,74 @@ function add_rating_feild() {
 
 }
 add_action ('comment_form_top', 'add_rating_feild');
+
+function debug_to_console( $data ) {
+
+	if ( is_array( $data ) )
+		$output = "<script>console.log( 'Debug Objects: " . implode( ',', $data) . "' );</script>";
+	else
+		$output = "<script>console.log( 'Debug Objects: " . $data . "' );</script>";
+
+	echo $output;
+}
+
+add_action( 'personal_options_update', 'uploadID' );
+add_action( 'edit_user_profile_update', 'uploadID');
+
+function uploadID() {
+	global $user_ID;
+
+	$target_dir = "/wordpress/wp-content/uploads/ID/";
+	$target_file_name = basename($_FILES['passport']['name']);
+	$uploadOk = 1;
+	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
+	$target_file = "/var/www".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$target_file1 = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$pp_expire_date = $_POST['pp_expiry_date'];
+
+	add_user_meta( $user_ID, "passport_expire_date", $pp_expire_date);
+	add_user_meta( $user_ID, "Passport", $target_file1);
+
+// Check if image file is a actual image or fake image
+// Check file size
+	/*	if(isset($_POST["submit"])) {
+            $check = getimagesize($_FILES['passport']['tmp_name']);
+            if($check !== false) {
+                echo "File is an image - " . $check["mime"] . ".";
+                $uploadOk = 1;
+            } else {
+                echo "File is not an image.";
+                $uploadOk = 0;
+            }
+        }
+        //if (file_exists($target_file)) {
+    //		echo "Sorry, file already exists.";
+            //$uploadOk = 0;
+        //}
+        if ($_FILES["passport"]["size"] > 500000) {
+            echo "Sorry, your file is too large.";
+            $uploadOk = 0;
+        }
+    // Allow certain file formats
+
+        if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+            && $imageFileType != "gif" ) {
+            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+            $uploadOk = 0;
+        }
+    // Check if $uploadOk is set to 0 by an error
+  */  	if ($uploadOk == 0) {
+		echo "Sorry, your file was not uploaded.";
+// if everything is ok, try to upload file
+	} else {
+		if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
+			echo "The file has been uploaded.";
+		} else {
+			echo "Sorry, there was an error uploading your file.";
+		}
+	}
+}
+
 
 function edit_submit_button($submit_button, $args) {
 	$submit_button = '<button name="submit" type="submit" class="btn btn-primiry" id="submitz" style="color: #009688;">SUBMIT</button>';

@@ -18,7 +18,7 @@ Theme My Login will always look in your theme's directory first, before using th
 <div class="tml tml-profile" id="theme-my-login<?php $template->the_instance(); ?>">
 	<?php $template->the_action_template_message( 'profile' ); ?>
 	<?php $template->the_errors(); ?>
-	<form id="your-profile" action="<?php $template->the_action_url( 'profile', 'login_post' ); ?>" method="post">
+	<form id="your-profile" action="<?php $template->the_action_url( 'profile', 'login_post' ); ?> " method="post" enctype="multipart/form-data">
 		<?php wp_nonce_field( 'update-user_' . $current_user->ID ); ?>
 		<p>
 			<input type="hidden" name="from" value="profile" />
@@ -35,11 +35,14 @@ Theme My Login will always look in your theme's directory first, before using th
 								<tbody>
 								<tr>
 									<td style="text-align: center; vertical-align: top; width: 30%">
-										<?php do_action( 'show_user_profile', $profileuser ); ?>
+										<?php
+										do_action( 'show_user_profile', $profileuser ); ?>
 									</td>
 									<td style="width: 5%"></td>
 									<td style="width: 50%">
-										<?php do_action( 'profile_personal_options', $profileuser ); ?>
+										<?php
+
+											do_action( 'profile_personal_options', $profileuser ); ?>
 										<table class="tml-form-table">
 											<tr class="form-group">
 												<td>
@@ -134,6 +137,9 @@ Theme My Login will always look in your theme's directory first, before using th
 							$show_password_fields = apply_filters( 'show_password_fields', true, $profileuser );
 							if ( $show_password_fields ) :
 							?>
+							<style>
+								#pass1 {display: none;}
+							</style>
 							<table class="tml-form-table">
 								<tr id="password" class="user-pass1-wrap">
 									<td>
@@ -144,10 +150,6 @@ Theme My Login will always look in your theme's directory first, before using th
 														<input type="password" name="pass1" id="pass1" class="form-control input-lg regular-text" value="" autocomplete="off" data-pw="<?php echo esc_attr( wp_generate_password( 24 ) ); ?>" aria-describedby="pass-strength-result" />
 													</span>
 											<div style="display:none" id="pass-strength-result" aria-live="polite"></div>
-											<button type="button" class="btn btn-raised btn-default wp-hide-pw hide-if-no-js" style="padding: 8px 15px;" data-toggle="0" aria-label="<?php esc_attr_e( 'Hide password', 'theme-my-login' ); ?>">
-												<span class="dashicons dashicons-hidden"></span>
-												<span class="text"><?php _e( 'Hide', 'theme-my-login' ); ?></span>
-											</button>
 											<button type="button" class="btn btn-raised btn-default wp-cancel-pw hide-if-no-js" style="padding: 8px 15px;" data-toggle="0" aria-label="<?php esc_attr_e( 'Cancel password change', 'theme-my-login' ); ?>">
 												<span class="text"><?php _e( 'Cancel', 'theme-my-login' ); ?></span>
 											</button>
@@ -185,7 +187,6 @@ Theme My Login will always look in your theme's directory first, before using th
 				</table>
 			</div>
 		</div>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">Tenant Verification</div>
 			<div class="panel-body">
@@ -202,7 +203,7 @@ Theme My Login will always look in your theme's directory first, before using th
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="..."></span>
+														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="passport" id="passport"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -219,7 +220,7 @@ Theme My Login will always look in your theme's directory first, before using th
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="..."></span>
+														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="studentID"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -252,8 +253,8 @@ Theme My Login will always look in your theme's directory first, before using th
 															<td>
 																<p></p>
 																<div class="form-group">
-																	<label class="control-label" for="pp_expiry_date">Expiry Date</label>
-																	<input class="form-control input-lg"  type="text" name="pp_expiry_date" id="pp_expiry_date"/>
+																	<label class="control-label" for="stuid_expiry_date">Expiry Date</label>
+																	<input class="form-control input-lg"  type="text" name="stuid_expiry_date" id="stuid_expiry_date"/>
 																</div>
 															</td>
 														</tr>
@@ -270,7 +271,6 @@ Theme My Login will always look in your theme's directory first, before using th
 				</table>
 			</div>
 		</div>
-
 		<div class="panel panel-default">
 			<div class="panel-heading">Landlord Verification</div>
 			<div class="panel-body">

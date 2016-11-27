@@ -7,6 +7,7 @@ get_header();
 ?>
 <?php
 global $user_ID, $wpdb;
+
 $ch = curl_init("http://localhost:3000/api/0/favorites/user/".$user_ID);
 
 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -21,12 +22,11 @@ foreach($res as $x => $x_value) {
     }
 }
 
-
 $query = 'SELECT id, post_title, guid FROM `wp_posts` WHERE post_author='.$user_ID.' and ID in ('.$post_list_str.') ORDER by id desc';
 $query2 = 'SELECT meta_key,meta_value FROM `wp_postmeta` '.
-    ' WHERE post_id in ('.$post_list_str.') and meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
+    ' WHERE post_id in ('.$post_list_str.') and (meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
     'meta_key=\'property_address_country\' or meta_key=\'property_address_street\' or meta_key=\'property_address_suburb\' '.
-    'or meta_key=\'property_address_street_number\''.
+    'or meta_key=\'property_address_street_number\')'.
     'ORDER by post_id desc, meta_key asc';
 $query3 ='SELECT p1.id, p3.meta_value, p1.id from wp_posts as p1, wp_posts as p2, wp_postmeta as p3'.
     ' where p1.id = p2.post_parent and p2.id = p3.post_id and p1.id in ('.$post_list_str.') and p3.meta_key = \'_wp_attached_file\''.
@@ -59,7 +59,6 @@ for($i = 0; $i < count($post_arr); $i++){
 curl_close($ch);
 ?>
 
-
 <div class="container">
     <div class="row">
         <div id="primary" class="col-md-12 col-lg-12">
@@ -70,10 +69,10 @@ curl_close($ch);
                         <p></p>
                         <div>
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-                                <li><a href="http://localhost/wordpress/?page_id=118">Profile</a></li>
-                                <li class="active"><a href="http://localhost/wordpress/?page_id=138">Wish List</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=136">Your Listings</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=140 ">Orders</a></li>
+                                <li><a href="/wordpress/?page_id=118">Profile</a></li>
+                                <li class="active"><a href="/wordpress/?page_id=138">Wish List</a></li>
+                                <li><a href="/wordpress/?page_id=136">Your Listings</a></li>
+                                <li><a href="/wordpress/?page_id=140 ">Orders</a></li>
                             </ul>
                         </div>
                         <div class="panel panel-default">
