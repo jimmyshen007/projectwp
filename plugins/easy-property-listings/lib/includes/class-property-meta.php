@@ -909,4 +909,29 @@ class EPL_Property_Meta {
 		$lng = $this->get_property_meta("property_coordinate_lng");
 		return $lng;
 	}
+
+	public function get_property_rent_term(){
+		$rent_term = $this->get_property_meta("property_rent_term");
+		return $rent_term;
+	}
+
+	public function get_property_available_date(){
+		$ava_date = $this->get_property_meta("property_available_date");
+		return $ava_date;
+	}
+
+	public function get_property_min_stay(){
+		$min_stay = $this->get_property_meta("property_min_stay");
+		return $min_stay;
+	}
+
+	public function get_property_rent_type(){
+		$rent_type = $this->get_property_meta("property_rent_type");
+		return $rent_type;
+	}
+
+	public function get_property_post_status(){
+		$post_status = $this->get_property_meta("property_post_status");
+		return $post_status;
+	}
 }

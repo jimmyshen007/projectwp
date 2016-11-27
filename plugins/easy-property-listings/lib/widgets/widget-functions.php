@@ -82,6 +82,12 @@
 				'type'			=>	'checkbox',
 			),
 			array(
+				'key'			=>	'search_rent_term',
+				'label'			=>	__('Rent Term','epl'),
+				'default'		=>	'on',
+				'type'			=>	'checkbox',
+			),
+			array(
 				'key'			=>	'search_house_category',
 				'label'			=>	__('Category','epl'),
 				'default'		=>	'on',
@@ -252,6 +258,17 @@
 				'options'		=>	epl_get_unique_post_meta_values('property_address_country', $post_type ),
 				'query'			=>	array('query'	=>	'meta'),
 				'class'			=>	'epl-search-row-half',
+			),
+			array(
+				'key'			=>	'search_rent_term',
+				'meta_key'		=>	'property_rent_term',
+				'label'			=>	__('Rent Term','epl'),
+				'options'		=>	array('long_term' => 'Long Term',
+										  'short_term' => 'Short Term'),
+				'type'			=>	'select',
+				'query'			=>	array('query'	=>	'meta'),
+				'class'			=>	'epl-search-row-full',
+				'exclude'		=>	array('rural','land','commercial','commercial_land','business'),
 			),
 			array(
 				'key'			=>	'search_house_category',
@@ -430,7 +447,7 @@
 									'multiple'	=>	true,
 									'query'		=>	'meta',
 									'relation'	=>	'OR',
-									'sub_queries'	=> array( 
+									'sub_queries'	=> array(
 										array(
 											'key'		=>	'property_carport',
 											'type'		=>	'numeric',
@@ -540,7 +557,35 @@
 				'query'			=>	array('query'	=>	'meta'),
 				'wrap_end'		=>	true
 			),
-
+			array(
+				'key'			=>	'search_other',
+				'meta_key'		=>	'property_rent_type',
+				'label'			=>	__('Rent Type', 'epl'),
+				'class'			=>	'epl-search-row-half',
+				'type'			=>	'checkbox',
+				'exclude'		=>	array('land'),
+				'query'			=>	array(
+					'multiple'	=>	true,
+					'same_key'  =>  true,
+					'query'		=>	'meta',
+					'sub_queries'	=> array(
+						array(
+							'key'		=>	'property_rent_type',
+							'label'			=>	__('Entire House', 'epl'),
+							'value'		=>  'entire_house',
+							'compare'	=>	'IN' //because this one has the same key for both sub queries,
+												 //value will be merged into an array, so we need to use IN
+							                     //for compare.
+						),
+						array(
+							'key'		=>	'property_rent_type',
+							'label'			=>	__('Private Room', 'epl'),
+							'value'		=>  'private_room',
+							'compare'	=>	'IN'
+						)
+					)
+				)
+			),
 			array(
 				'key'			=>	'search_other',
 				'meta_key'		=>	'property_air_conditioning',
@@ -880,11 +925,12 @@ function epl_search_pre_get_posts( $query ) {
 					if( isset($epl_search_form_field['query']['multiple']) && $epl_search_form_field['query']['multiple'] == true) {
 					
 						if( isset(${$epl_search_form_field['meta_key']}) && !empty(${$epl_search_form_field['meta_key']}) ) {
-						
-							$this_meta_query['relation'] = 
-								isset($epl_search_form_field['query']['relation']) ?
-								$epl_search_form_field['query']['relation'] : 'OR';
-							
+							$same_key = isset($epl_search_form_field['query']['same_key']) && $epl_search_form_field['query']['same_key'];
+							if(!$same_key) {
+								$this_meta_query['relation'] =
+									isset($epl_search_form_field['query']['relation']) ?
+										$epl_search_form_field['query']['relation'] : 'OR';
+							}
 							foreach($epl_search_form_field['query']['sub_queries'] as $sub_query) {
 						
 								$this_sub_query = array(
@@ -893,6 +939,10 @@ function epl_search_pre_get_posts( $query ) {
 									'type'		=>	$sub_query['type'],
 									'compare'	=>	$sub_query['compare']
 								);
+								if($same_key) {
+									$this_meta_query = $this_sub_query;
+									break;
+								}
 								$this_meta_query[] = $this_sub_query;
 							}
 							$epl_meta_query[] = $this_meta_query;
@@ -1459,6 +1509,30 @@ function epl_filter_search_widget_fields_frontend($fields) {
 add_filter('epl_search_widget_fields_frontend','epl_filter_search_widget_fields_frontend');
  **/
 
+
+function single_checkbox($field, $value, $i_val='', $lb_val=''){
+	$i_val_set = isset($i_val) && !empty($i_val);
+	?>
+	<div class="checkbox" <?php if($i_val_set) {echo 'style="float: left; margin-left: 15px; padding-top: 0px"';} ?> >
+		<label>
+			<input type="checkbox" name="<?php
+				if(isset($lb_val) && !empty($lb_val)){
+					$actual_label = $lb_val;
+				}else{
+					$actual_label = $field['label'];
+				}
+			    if($i_val_set){
+					echo $field['meta_key'] . '[]';
+				}else{
+					echo $field['meta_key']; }?>" id="<?php echo $field['meta_key']; ?>"
+				<?php if(isset($value) && !empty($value)) { echo 'checked="checked"'; }
+				    if($i_val_set) { echo ' value="' . $i_val . '"'; }
+				?> />
+			<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'], $actual_label,  __( 'epl') ); ?>
+		</label>
+	</div>
+<?php }
+
 /**
  * render custom frontend field blocks -- for front-end form
  * @since 2.2
@@ -1479,17 +1553,25 @@ function epl_custom_render_frontend_fields($field,$config='',$value='',$post_typ
 
 	switch ($field['type']) {
 		// checkbox
-		case "checkbox": ?>
-			<div class="col-md-offset-2 col-md-10">
-				<div class="checkbox">
-					<label>
-            			<input type="checkbox" name="<?php echo $field['meta_key']; ?>" id="<?php echo $field['meta_key']; ?>"
-							<?php if(isset($value) && !empty($value)) { echo 'checked="checked"'; } ?> />
-						<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'],__($field['label'], 'epl') ); ?>
-          			</label>
-          		</div>
-          	</div>
+		case "checkbox":
+			if(isset($field['query']['multiple'])){ ?>
+				<div class="form-group">
+					<label for="<?php echo $field['meta_key']; ?>" class="col-md-3 control-label">
+						<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'], $field['label'] ); ?>
+					</label>
+				<?php
+					foreach($field['query']['sub_queries'] as $f) {
+						single_checkbox($field, $value, $i_val = $f['value'], $lb_val = $f['label']);
+					}	?>
+				</div>
 			<?php
+			} else { ?>
+				<div class="col-md-offset-2 col-md-10">
+					<?php
+					single_checkbox($field, $value)
+					?>
+				</div>
+			<?php }
 			break;
 
 		// text

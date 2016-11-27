@@ -37,9 +37,13 @@ function epl_am_enqueue_scripts() {
 	$cs_path = plugins_url('custom_support');
 	wp_enqueue_style( 'mapbox-style', $cs_path . '/mapbox/mapbox.css', array(), null);
 	wp_enqueue_script( 'mapbox', $cs_path . '/mapbox/mapbox.js', array(), null);
+	wp_enqueue_script( 'geopoint', $cs_path . '/geopoint.js', array(), null);
+	wp_enqueue_script( 'osm_data', $cs_path . '/leaflet-osm.js');
 	wp_enqueue_script('mapbox-plugins', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js');
 	wp_enqueue_style('mapbox-plugins-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css');
 	wp_enqueue_style('mapbox-plugins-default-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css');
+
+	wp_enqueue_script('js-cookie', $cs_path . '/js.cookie.js', array(), null);
 
 	//}
 	wp_enqueue_script( 'epl-am-gmap', EPL_AM_PLUGIN_URL . 'js/gmap3.min.js', array('epl-am-map-api') ,EPL_AM_VERSION);

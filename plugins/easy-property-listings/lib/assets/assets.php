@@ -10,6 +10,7 @@
  */
 
 require_once($_SERVER['DOCUMENT_ROOT'] . '/wordpress/wp-content/plugins/custom_support/checkip.php');
+require_once($_SERVER['DOCUMENT_ROOT'] . '/wordpress/wp-content/plugins/custom_support/index.php');
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;

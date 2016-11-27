@@ -105,6 +105,64 @@ function epl_am_get_default_tab_list() {
 	);
 }
 
+function default_POI_tabs() {
+	$icon_root_url = '';
+	return array(
+		'osm_food'	        =>	array(
+			                    'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/City/restaurant_building-24.png',
+			                    'label' => __('Food','epl-am'),
+								'POI_tags' => array('amenity' => array('restaurant',
+													'fast_food', 'food_court'))
+							),
+		'osm_supermarket'		=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Business/shop-24.png',
+								'label' => __('Supermarket','epl-am'),
+								'POI_tags' => array('shop'=> array('supermarket'))
+							),
+		'osm_school'			=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Science/school-24.png',
+								'label' => __('School','epl-am'),
+								'POI_tags' => array('amenity'=> array('school', 'college', 'university',
+																	  'music_school', 'kindergarten'))
+							),
+		'osm_bank'				=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/City/bank-24.png',
+								'label' => __('Bank / ATM','epl-am'),
+								'POI_tags' => array('amenity'=> array('bank', 'atm'))
+							),
+		'osm_police'			=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/City/police_station-24.png',
+								'label' => __('Police','epl-am'),
+								'POI_tags' => array('amenity'=> array('police'))
+							),
+	    'osm_bus'				=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Transport/bus-24.png',
+								'label' => __('Bus Stop','epl-am'),
+								'POI_tags' => array('highway'=> array('bus_stop'))
+							),
+		'osm_railway'			=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/City/city_railway_station-24.png',
+								'label' => __('Railway Station','epl-am'),
+								'POI_tags' => array('railway'=> array('station', 'halt', 'platform'))
+							),
+		'osm_gym'		    =>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Sports/barbell-24.png',
+								'label' => __('Gym','epl-am'),
+								'POI_tags' => array('leisure' => array('fitness_centre'))
+							),
+		'osm_hospital'		=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/City/hospital_2-24.png',
+								'label' => __('Hospital','epl-am'),
+								'POI_tags' => array('amenity' => array('hospital', 'clinic', 'doctors'))
+							),
+		'osm_laundry'	=>	array(
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Household/washing_machine-24.png',
+								'label' => __('Laundry','epl-am'),
+								'POI_tags' => array('shop' => array('laundry'))
+							)
+	);
+}
+
 function epl_am_tabbed_map_bottom($tablocation='bottom',$width='100%', $zoom=16) {
 
 	global $epl_settings;
@@ -168,8 +226,36 @@ function epl_am_tabbed_map_bottom($tablocation='bottom',$width='100%', $zoom=16)
 	<?php
 	}else{ ?>
         <div class="panel panel-info">
-          <div class="panel-header"><h5 class="epl-tab-title epl-tab-title-property-features tab-title">
-              <?php echo __('Map', 'custom_sp') ?></div></h5>
+          <div class="panel-header"><!--<h5 class="epl-tab-title epl-tab-title-property-features tab-title">
+              <\?php echo __('Map', 'custom_sp') ?></h5>-->
+			  <ul>
+			  <?php
+			  	$serv_root = 'http://www.overpass-api.de/api/xapi?node';
+				$POI_tabs = default_POI_tabs();
+				foreach($POI_tabs as $tab_key 	=>	$tab_array) {
+					$combo_key = '';
+					$combo_val = '';
+					$tv = '';
+					foreach($tab_array['POI_tags'] as $tag_key => $tag_vals){
+						// So far, multiple tag_key is not supported. So $combo_key = $tag_key.
+						$combo_key = $tag_key;
+						foreach($tag_vals as $tag_val){
+							if($tag_val != $tv) {
+								$tv = $tag_val;
+								if (empty($combo_val)) {
+									$combo_val .= $tag_val;
+								} else {
+									$combo_val .= '|' . $tag_val;
+								}
+							}
+						}
+					}
+					$req_url = $serv_root . '[' . $combo_key . '=' . $combo_val .']';
+					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'">' . $tab_array['label'] . '</a></li>';
+				}
+			  ?>
+			  </ul>
+		  </div>
           <div class="panel-body">
 	    <div id="map-alt"></div>
           </div>
@@ -247,7 +333,34 @@ function epl_am_tabbed_map_top($tablocation='top',$width='100%',$zoom=16) {
 	<div class="panel panel-info">
           <div class="panel-header"><h5 class="epl-tab-title epl-tab-title-property-features tab-title">
               <?php echo __('Map', 'custom_sp') ?></div></h5>
-
+			<ul>
+				<?php
+				$serv_root = 'http://www.overpass-api.de/api/xapi?node';
+				$POI_tabs = default_POI_tabs();
+				$req_array = array();
+				foreach($POI_tabs as $tab_key 	=>	$tab_array) {
+					$combo_key = '';
+					$combo_val = '';
+					$tv = '';
+					foreach($tab_array['POI_tags'] as $tag_key => $tag_vals){
+						// So far, multiple tag_key is not supported. So $combo_key = $tag_key.
+						$combo_key = $tag_key;
+						foreach($tag_vals as $tag_val){
+							if($tag_val != $tv) {
+								$tv = $tag_val;
+								if (empty($combo_val)) {
+									$combo_val .= $tag_val;
+								} else {
+									$combo_val .= '|' . $tag_val;
+								}
+							}
+						}
+					}
+					$req_url = $serv_root . '[' . $combo_key . '=' . $combo_val .']';
+					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'">' . $tab_array['label'] . '</a></li>';
+				}
+				?>
+			</ul>
           <div class="panel-body">
 	    <div id="map-alt"></div>
           </div>
@@ -668,54 +781,109 @@ function alt_inline_js_tabbed_map() {
 		#map-alt { position:relative; top:0; bottom:0;height:400px; max-width:800px; width:100%; }
 	</style>
 	<script>
+		var LeafIcon = L.Icon.extend({
+			options: {
+				//shadowUrl: 'leaf-shadow.png',
+				iconSize:     [24, 24],
+				//shadowSize:   [24, 24],
+				iconAnchor:   [0, 0],
+				//shadowAnchor: [4, 62],
+				popupAnchor:  [0, 0]
+			}
+		});
         jQuery(document).ready(function(){
-	      L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
-          var latStr = <?php echo '"' . $property_coordinate_lat . '"' ?>;
-		  var lngStr = <?php echo '"' . $property_coordinate_lng . '"' ?>;
-          var lat = 0;
-          var lng = 0;
-          if(latStr){
-              lat = parseFloat(latStr);
-              lng = parseFloat(lngStr);
-          }
-	  var map = L.mapbox.map('map-alt', null, {
-	      maxZoom: 18
-	  }).setView([lat, lng], 16);
-	
-	  var layers = {
-	      Satellite: L.mapbox.tileLayer('mapbox.streets-satellite'),
-	      Streets: L.mapbox.tileLayer('mapbox.streets'),
-	      Outdoors: L.mapbox.tileLayer('mapbox.outdoors')
-	  };
-	  featureLayer = L.mapbox.featureLayer({
-    	      // this feature is in the GeoJSON format: see geojson.org
-              // for the full specification
-              type: 'Feature',
-              geometry: {
-                 type: 'Point',
-                 // coordinates here are in longitude, latitude order because
-                 // x, y is the standard for GeoJSON and many formats
-                 coordinates: [
-		             lng,
-                     lat
-                 ]
-              },
-              properties: {
-                 title: <?php echo '"' . $title . '"' ?>,
-                 //description: '',
-                 // one can customize markers by adding simplestyle properties
-                 // https://www.mapbox.com/guides/an-open-platform/#simplestyle
-                 'marker-size': 'large',
-                 'marker-color': '#BE9A6B',
-                 'marker-symbol': 'building'
-              }
-          }).addTo(map);
-	  layers.Satellite.addTo(map);
-	  L.control.layers(layers).addTo(map);
-          L.control.scale().addTo(map);
-          featureLayer.on('click', function(e) {
-              map.panTo(e.layer.getLatLng());
-          });
+			  if($('#map-alt').length <= 0){
+				  return;
+			  }
+			  L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+			  var latStr = <?php echo '"' . $property_coordinate_lat . '"' ?>;
+			  var lngStr = <?php echo '"' . $property_coordinate_lng . '"' ?>;
+			  var lat = 0;
+			  var lng = 0;
+			  if(latStr){
+				  lat = parseFloat(latStr);
+				  lng = parseFloat(lngStr);
+			  }
+			  var map = L.mapbox.map('map-alt', null, {
+				  maxZoom: 18
+			  }).setView([lat, lng], 16);
+
+			  var layers = {
+				  Satellite: L.mapbox.tileLayer('mapbox.streets-satellite'),
+				  Streets: L.mapbox.tileLayer('mapbox.streets'),
+				  Outdoors: L.mapbox.tileLayer('mapbox.outdoors')
+			  };
+			  featureLayer = L.mapbox.featureLayer({
+				  // this feature is in the GeoJSON format: see geojson.org
+				  // for the full specification
+				  type: 'Feature',
+				  geometry: {
+					 type: 'Point',
+					 // coordinates here are in longitude, latitude order because
+					 // x, y is the standard for GeoJSON and many formats
+					 coordinates: [
+						 lng,
+						 lat
+					 ]
+				  },
+				  properties: {
+					 title: <?php echo '"' . $title . '"' ?>,
+					 //description: '',
+					 // one can customize markers by adding simplestyle properties
+					 // https://www.mapbox.com/guides/an-open-platform/#simplestyle
+					 'marker-size': 'large',
+					 'marker-color': '#BE9A6B',
+					 'marker-symbol': 'building'
+				  }
+			  }).addTo(map);
+			  layers.Satellite.addTo(map);
+			  L.control.layers(layers).addTo(map);
+			  L.control.scale().addTo(map);
+			  featureLayer.on('click', function(e) {
+				  map.panTo(e.layer.getLatLng());
+			  });
+
+			  <?php //Construct tab_keys array for js.
+				$POI_tabs = default_POI_tabs();
+			    $icon_urls = 'var icon_urls = {';
+
+			    foreach($POI_tabs as $tab_key 	=>	$tab_array){
+					$icon_urls .= $tab_key . ': "' . $tab_array['icon'] . '",';
+				}
+			    $icon_urls .= '};';
+				echo $icon_urls;
+			  ?>
+			  var geopoint = new GeoPoint(lat, lng);
+			  // Search surrounding dist in Km.
+			  var surround_dist = 2.5;
+			  var bcoords = geopoint.boundingCoordinates(surround_dist, true);
+			  var cur_layer = null;
+			  for (var tkey in icon_urls){
+				  $('a#' + tkey).on('click', function(e){
+					  e.preventDefault();
+					  var marker_icon = new LeafIcon({iconUrl: icon_urls[$(this).attr('id')]});
+					  var req_url = $(this).attr('href') + '[bbox=' + bcoords[0].longitude() + ','
+						  + bcoords[0].latitude() + ','
+						  + bcoords[1].longitude() + ','
+						  + bcoords[1].latitude() + ']';
+					  $.ajax({
+						  url: req_url,
+						  dataType: "xml"}).done(
+						  function (xml) {
+							  // Remove any previously stored layer.
+							  if(cur_layer){
+								  map.removeLayer(cur_layer);
+							  }
+							  cur_layer = new L.OSM.DataLayer(xml, {styles: {node: {icon: marker_icon}
+								  }}).addTo(map);
+							  if(cur_layer && !$.isEmptyObject(cur_layer._layers)) {
+								  map.fitBounds(cur_layer.getBounds());
+							  }
+						  }).fail(function(err){
+						  	  console.log(err);
+					      });
+			  		});
+			  }
         });
 	</script> 
 
