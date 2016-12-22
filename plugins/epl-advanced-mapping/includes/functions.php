@@ -146,7 +146,7 @@ function default_POI_tabs() {
 								'POI_tags' => array('railway'=> array('station', 'halt', 'platform'))
 							),
 		'osm_gym'		    =>	array(
-								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Sports/barbell-24.png',
+								'icon' => 'https://maxcdn.icons8.com/Color/PNG/24/Sports/dumbbell-24.png',
 								'label' => __('Gym','epl-am'),
 								'POI_tags' => array('leisure' => array('fitness_centre'))
 							),
@@ -331,9 +331,9 @@ function epl_am_tabbed_map_top($tablocation='top',$width='100%',$zoom=16) {
 	<?php }else{
 	?>
 	<div class="panel panel-info">
-          <div class="panel-header"><h5 class="epl-tab-title epl-tab-title-property-features tab-title">
-              <?php echo __('Map', 'custom_sp') ?></div></h5>
-			<ul>
+          <div class="panel-header"><!--<h5 class="epl-tab-title epl-tab-title-property-features tab-title">
+              <php echo __('Map', 'custom_sp') ?></div></h5> -->
+			<ul class="nav nav-tabs" style="margin-left: 0px">
 				<?php
 				$serv_root = 'http://www.overpass-api.de/api/xapi?node';
 				$POI_tabs = default_POI_tabs();
@@ -357,11 +357,12 @@ function epl_am_tabbed_map_top($tablocation='top',$width='100%',$zoom=16) {
 						}
 					}
 					$req_url = $serv_root . '[' . $combo_key . '=' . $combo_val .']';
-					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'">' . $tab_array['label'] . '</a></li>';
+					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'"><img src="'
+						. $tab_array['icon'] . '"/> ' . $tab_array['label'] . '</a></li>';
 				}
 				?>
 			</ul>
-          <div class="panel-body">
+          <div class="panel-body" style="padding: 0px">
 	    <div id="map-alt"></div>
           </div>
         </div>
@@ -855,7 +856,7 @@ function alt_inline_js_tabbed_map() {
 			  ?>
 			  var geopoint = new GeoPoint(lat, lng);
 			  // Search surrounding dist in Km.
-			  var surround_dist = 2.5;
+			  var surround_dist = 3;
 			  var bcoords = geopoint.boundingCoordinates(surround_dist, true);
 			  var cur_layer = null;
 			  for (var tkey in icon_urls){
@@ -874,8 +875,8 @@ function alt_inline_js_tabbed_map() {
 							  if(cur_layer){
 								  map.removeLayer(cur_layer);
 							  }
-							  cur_layer = new L.OSM.DataLayer(xml, {styles: {node: {icon: marker_icon}
-								  }}).addTo(map);
+							  cur_layer = new L.OSM.DataLayer(xml, {styles: {node: {icon: marker_icon},
+								  }, targetPoint: geopoint, mapObj: map}).addTo(map);
 							  if(cur_layer && !$.isEmptyObject(cur_layer._layers)) {
 								  map.fitBounds(cur_layer.getBounds());
 							  }

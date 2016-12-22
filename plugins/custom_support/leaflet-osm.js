@@ -64,14 +64,18 @@ L.OSM.HOT = L.OSM.TileLayer.extend({
   }
 });
 
+var curRouteControl= null; //Current route layer on the map.
 L.OSM.DataLayer = L.FeatureGroup.extend({
   options: {
     categoryTags: ['amenity', 'shop', 'highway', 'railway', 'leisure', 'public_transport'],
     areaTags: ['area', 'building', 'leisure', 'tourism', 'ruins', 'historic', 'landuse', 'military', 'natural', 'sport'],
     uninterestingTags: ['source', 'source_ref', 'source:ref', 'history', 'attribution', 'created_by', 'tiger:county', 'tiger:tlid', 'tiger:upload_uuid'],
-    styles: {}
+    styles: {},
+    targetPoint: null, //The point to search around by.
+    mapObj: null //Main map object constructed before.
   },
 
+  layerSelf: this,
   initialize: function (xml, options) {
     L.Util.setOptions(this, options);
 
@@ -83,10 +87,42 @@ L.OSM.DataLayer = L.FeatureGroup.extend({
   },
 
   addData: function (features) {
+    var self = this;
+    function routing(e){
+      e.preventDefault();
+      var profile = $(this).data('profile'); //profile for routing, such as car, foot or bike.
+      var options = $(this).data('options');
+      var suffixID = options.sfxid;
+      if (self.options.mapObj && curRouteControl) {
+        curRouteControl.removeFrom(self.options.mapObj);
+      }
+      curRouteControl = L.Routing.control({
+        waypoints: [
+          L.latLng(options.coords[0], options.coords[1]),
+          L.latLng(options.coords[2], options.coords[3])],
+        fitSelectedRoutes: true,
+        router: L.Routing.mapbox('pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg',
+            {profile: profile}),
+        collapsible: true,
+        show: false
+      });
+      if (self.options.mapObj) {
+        curRouteControl.addTo(self.options.mapObj);
+      }
+      curRouteControl.on('routesfound', function(e) {
+        if (e.routes && e.routes.length > 0) {
+          var summary = e.routes[0].summary;
+          var totalTime = summary.totalTime / 60;
+          var totalDistance = summary.totalDistance / 1000;
+          $('div#display_' + suffixID).text(totalDistance.toFixed(1) + ' km, '
+              + totalTime.toFixed(1) + ' mins');
+        }
+      });
+    }
+
     if (!(features instanceof Array)) {
       features = this.buildFeatures(features);
     }
-
     for (var i = 0; i < features.length; i++) {
       var feature = features[i], layer;
 
@@ -94,23 +130,51 @@ L.OSM.DataLayer = L.FeatureGroup.extend({
         layer = L.rectangle(feature.latLngBounds, this.options.styles.changeset);
       } else if (feature.type === "node") {
         layer = L.marker(feature.latLng, this.options.styles.node);
-        var tag = "";
-        var suffix = "";
-        if(feature.tags.name){
-          tag = feature.tags.name;
-        }else if(feature.tags.operator){
-          tag = feature.tags.operator;
-        }
-        for(var ct of this.options.categoryTags){
-          if(feature.tags.hasOwnProperty(ct)){
-            if(tag){
-              suffix = " - ";
+        layer.bindPopup("");
+        layer._tags = feature.tags;
+        layer._featureID = feature.id;
+        layer.on('popupopen', function () {
+            var tag = "";
+            var suffix = "";
+            var tags = this._tags;
+            var fid = this._featureID;
+            if(tags.name){
+              tag = tags.name;
+            }else if(tags.operator){
+              tag = tags.operator;
             }
-            suffix += feature.tags[ct];
-            break;
-          }
-        }
-        layer.bindPopup("<b>" + tag + suffix  + "</b>").openPopup();
+            for(var ct of self.options.categoryTags){
+              if(tags.hasOwnProperty(ct)){
+                if(tag){
+                  suffix = " - ";
+                }
+                suffix += tags[ct].replace(/_/g, " ");
+                break;
+              }
+            }
+            var POILat = this.getLatLng().lat;
+            var POILng = this.getLatLng().lng;
+            var POIPoint = new GeoPoint(POILat, POILng);
+            var distance = POIPoint.distanceTo(self.options.targetPoint, true);
+            var dataOptions = 'data-options=\'{"sfxid": ' + fid + ', "coords": ['
+                + self.options.targetPoint.latitude() + ','
+                + self.options.targetPoint.longitude() + ','
+                + POILat + ','
+                + POILng + ']}\'';
+            var routeConsole = {
+                driveHtml: '<a id="drive_' + fid + '" data-profile="mapbox/driving" ' + dataOptions + ' class="btn btn-raised btn-info btn-xs">Drive</a>',
+                walkHtml: '<a id="walk_' + fid + '" data-profile="mapbox/walking" ' + dataOptions + ' class="btn btn-raised btn-info btn-xs">Walk</a>',
+                bikeHtml: '<a id="bike_' + fid + '" data-profile="mapbox/cycling" ' + dataOptions + ' class="btn btn-raised btn-info btn-xs">Bike</a>',
+                display: '<div style="text-align: center" id="display_' + fid + '"></div>'};
+            this.setPopupContent('<b>' + tag + suffix + '<br>'
+                + routeConsole.driveHtml + routeConsole.walkHtml + routeConsole.bikeHtml + '<br>'
+                + routeConsole.display);
+
+          $('a#drive_' + fid).on('click', routing);
+          $('a#walk_' + fid).on('click', routing);
+          $('a#bike_' + fid).on('click', routing);
+        });
+
       } else {
         var latLngs = new Array(feature.nodes.length);
 

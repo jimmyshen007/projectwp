@@ -1,6 +1,6 @@
 import * as service from './service';
 import stripe from 'stripe';
-let sapi = stripe('sk_test_tpFrMjZ9ivdUjnEeEXDiqq98');
+let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
 
 function handle_response(res, data, err, errmsg){
     if(!err) {
@@ -50,6 +50,34 @@ export function testReturnOrder(req, res){
         handle_response(res, data, null, null);
     }, (err) => {
         handle_response(res, null, err, "Return Order by ID Error");
+    });
+}
+
+export function testCreateCharge(req, res){
+    sapi.tokens.create({
+        email: 'maidongxi1@example.com',
+        card: {
+            "number": '4242424242424242',
+            "exp_month": 12,
+            "exp_year": 2017,
+            "cvc": '123'
+        }
+    }, function(err, token) {
+        // asynchronously called
+        let ret = service.addCharge({
+            amount: 2000,
+            currency: "usd",
+            source: token.id, // obtained with Stripe.js
+            description: "Charge for maidongxi1",
+            capture: false,
+            metadata: {postID: 'fakep', userID: 'fakeu',
+                postAuthorID: 'fakepa', stripeAccID: 'acct_18m2ZBLUxBeddbgv'}
+        });
+        ret.then((data) => {
+            handle_response(res, data, null, null);
+        }, (err) => {
+            handle_response(res, null, err, "Creat Charge Error");
+        });
     });
 }
 
@@ -464,6 +492,36 @@ export function editWOrder(req, res) {
     handleRet(ret, res, "Edit WOrder Error");
 }
 
+export function getWCharges(req, res) {
+    let ret = service.getWCharges();
+    handleRet(ret, res, "Get WCharges Error");
+}
+
+export function getWChargeByID(req, res){
+    let ret = service.getWChargeByID(req.params.id);
+    handleRet(ret, res, "Get WCharge By ID Error");
+}
+
+export function getWChargesByUserID(req, res){
+    let ret = service.getWChargesByUserID(req.params.uid);
+    handleRet(ret, res, "Get WCharges By UserID Error");
+}
+
+export function getWChargesByPostID(req, res){
+    let ret = service.getWChargesByPostID(req.params.pid);
+    handleRet(ret, res, "Get WCharges By PostID Error");
+}
+
+export function getWChargesByPostAuthorID(req, res){
+    let ret = service.getWChargesByPostAuthorID(req.params.paid);
+    handleRet(ret, res, "Get WCharges By PostAuthorID Error");
+}
+
+export function editWCharge(req, res){
+    let ret = service.editWCharge(req.params.id, req.body);
+    handleRet(ret, res, "Edit WCharge Error");
+}
+
 /*
  * function to add and attach a stripe order to a wrap order object.
  * This provides a shortcut to create stripe order after wrapper order
@@ -743,6 +801,137 @@ export function deleteSku(req, res) {
     }, (err) => {
         handle_response(res, null, err, "Delete Sku Error");
     });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges with json: {
+            amount: 2000,
+            currency: "usd",
+            source: token.id, // obtained with Stripe.js
+            description: "Charge for maidongxi1",
+            metadata: {postID: 'fakep', userID: 'fakeu',
+                postAuthorID: 'fakepa', stripeAccID: 'acct_18m2ZBLUxBeddbgv'}
+        }
+ * Sample data response:
+ * {"data":{"__v":0,"stripeChargeID":"ch_19TVPBLUxBeddbgvhe3nrxMg","postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"585bc2c18fbafb740637f7aa"}}
+ */
+export function addCharge(req, res) {
+    let ret = service.addCharge(req.body);
+    handleRet(ret, res, "Add Charge Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/post/fakep
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}]}
+ *
+ */
+export function getChargesByPostID(req, res) {
+    let ret = service.getChargesByPostID(req.params.pid);
+    handleRet(ret, res, "Get Charges by postID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/postAuthor/fakepa
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}]}
+ */
+export function getChargesByPostAuthorID(req, res) {
+    let ret = service.getChargesByPostAuthorID(req.params.paid);
+    handleRet(ret, res, "Get Charges by postAuthorID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/users/fakeu
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}]}
+ */
+export function getChargesByUserID(req, res) {
+    let ret = service.getChargesByUserID(req.params.uid);
+    handleRet(ret, res, "Get Charges by UserID Error");
+}
+
+/**
+ *
+ * Sample input: API_INITIAL_PATH/charges
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,
+ */
+export function getCharges(req, res){
+    let ret = service.getCharges();
+    handleRet(ret, res, "Get Charges Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/stripe/ch_19TVPBLUxBeddbgvhe3nrxMg
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY",
+ */
+export function getChargeByStripeID(req, res){
+    let ret = service.getChargeByStripeID(req.params.id);
+    handleRet(ret, res, "Get Charge by StripeID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/585bc2c18fbafb740637f7aa
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,
+ */
+export function getChargeByID(req, res){
+    let ret = service.getChargeByID(req.params.id);
+    handleRet(ret, res, "Get Charge by ID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/stripeAcc/acct_18m2ZBLUxBeddbgv
+ * Sample data response:
+ * {"data":[{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}]}
+ */
+export function getChargesByStripeAccID(req, res){
+    let ret = service.getChargesByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Charges By StripeAccID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/stripe/ch_19TVPBLUxBeddbgvhe3nrxMg with json: {"metadata": {"random": "1234"}}
+ * Sample data response:
+ * {"data":{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"1234"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}}
+ */
+export function editChargeByStripeID(req, res){
+    let ret = service.editChargeByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Charge By StripeID Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/xxx with json: {"metadata": {"random": "4321"}}
+ * Sample data response:
+ * {"data":{"id":"ch_19TVPBLUxBeddbgvhe3nrxMg","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TVPBLUxBeddbgvWcisftgY","captured":true,"created":1482408641,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"4321"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TVPBLUxBeddbgvhe3nrxMg/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TVPBLUxBeddbgvwjAgidwh","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}}
+ */
+export function editCharge(req, res) {
+    let ret = service.editCharge(req.params.id, req.body);
+    handleRet(ret, res, "Edit Charge Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/capture/ with json: {}
+ * Sample data response:
+ * {"data":{"id":"ch_19TXVTLUxBeddbgvfArLKkzn","object":"charge","amount":2000,"amount_refunded":0,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TXYBLUxBeddbgvqtyjjxtN","captured":true,"created":1482416719,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/charges/ch_19TXVTLUxBeddbgvfArLKkzn/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TXVTLUxBeddbgv2K3ERjxa","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}}
+ */
+export function captureCharge(req, res) {
+    let ret = service.captureCharge(req.params.id, req.body);
+    handleRet(ret, res, "Capture Charge Error");
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges/capture/stripe/ch_19TXBxLUxBeddbgvdbrlPe18 with json: {"amount":, 1000}
+ * Sample data response:
+ * {"data":{"id":"ch_19TXBxLUxBeddbgvdbrlPe18","object":"charge","amount":2000,"amount_refunded":1000,"application":"ca_90MuxhKCrlTjRee2x8ZqxATL39DtL9E1","application_fee":null,"balance_transaction":"txn_19TXCLLUxBeddbgvFoCGKHph","captured":true,"created":1482415509,"currency":"usd","customer":null,"description":"Charge for maidongxi1","destination":null,"dispute":null,"failure_code":null,"failure_message":null,"fraud_details":{},"invoice":null,"livemode":false,"metadata":{"postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv"},"order":null,"outcome":{"network_status":"approved_by_network","reason":null,"seller_message":"Payment complete.","type":"authorized"},"paid":true,"receipt_email":null,"receipt_number":null,"refunded":false,"refunds":{"object":"list","data":[{"id":"re_19TXCLLUxBeddbgvLfRY2UHs","object":"refund","amount":1000,"balance_transaction":"txn_19TXCLLUxBeddbgvfyiQAhqS","charge":"ch_19TXBxLUxBeddbgvdbrlPe18","created":1482415533,"currency":"usd","metadata":{},"reason":null,"receipt_number":null,"status":"succeeded"}],"has_more":false,"total_count":1,"url":"/v1/charges/ch_19TXBxLUxBeddbgvdbrlPe18/refunds"},"review":null,"shipping":null,"source":{"id":"card_19TXBwLUxBeddbgvN14nFzv6","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":null,"cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"kjhhM6WHBuCzoDPH","funding":"credit","last4":"4242","metadata":{},"name":null,"tokenization_method":null},"source_transfer":null,"statement_descriptor":null,"status":"succeeded"}}
+ * Note: the interesting part is if amount capture is less than the initial amount, "amount_refunded"
+ * is set to 1000.
+ */
+export function captureChargeByStripeID(req, res) {
+    let ret = service.captureChargeByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Capture Charge By StripeID Error");
 }
 
 /**

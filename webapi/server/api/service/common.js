@@ -5,9 +5,9 @@ import m from 'mongoose';
 import config from 'config';
 import xss from 'xss';
 import stripe from 'stripe';
-import {db, orderSchema, favoriteSchema, productSchema, skuSchema, accountSchema} from '../db';
+import {db, orderSchema, favoriteSchema, productSchema, skuSchema, accountSchema, chargeSchema} from '../db';
 
-let sapi = stripe('sk_test_tpFrMjZ9ivdUjnEeEXDiqq98');
+let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
 function chooseSchema(serviceName){
     switch(serviceName){
         case 'orders':
@@ -24,6 +24,9 @@ function chooseSchema(serviceName){
             break;
         case 'accounts':
             return accountSchema;
+            break;
+        case 'charges':
+            return chargeSchema;
             break;
         default:
             undefined;
@@ -636,6 +639,139 @@ function callStripeAPI(params){
                         });
             }
             break;
+        case 'charges':
+            switch(params.action) {
+                case 'create':
+                    return sapi.charges.create(params.serviceObj,
+                        {stripe_account: params.serviceObj.metadata.stripeAccID}).then(
+                        (charge) => {
+                            let servObj = {"stripeChargeID": charge.id,
+                                "postID": charge.metadata.postID,
+                                "userID": charge.metadata.userID,
+                                "postAuthorID": charge.metadata.postAuthorID,
+                                "stripeAccID": charge.metadata.stripeAccID};
+                            let newInstance = new service(servObj);
+                            return newInstance.save();
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'retrieve':
+                    return service.find(
+                        constructJSONHelper(params.serviceAttrName,
+                            params.serviceAttrValue)).then((data) => {
+                        let chargePs = [];
+                        for (let d of data) {
+                            if(d.stripeChargeID) {
+                                chargePs.push(sapi.charges.retrieve(d.stripeChargeID,
+                                    {stripe_account: d.stripeAccID}).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeChargeID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                chargePs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(chargePs.length > 0) {
+                            return Promise.all(chargePs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+                case 'update':
+                    return service.findOne(constructJSONHelper(params.serviceAttrName,
+                        params.serviceAttrValue)).then(
+                        (data) => {
+                            return sapi.charges.update(data.stripeChargeID,
+                                params.serviceObj, {stripe_account: data.stripeAccID});
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'list':
+                    return service.find().then((data)=> {
+                        let chargePs = [];
+                        for (let d of data) {
+                            if(d.stripeChargeID) {
+                                chargePs.push(sapi.charges.retrieve(d.stripeChargeID,
+                                    {stripe_account: d.stripeAccID}).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeChargeID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                chargePs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(chargePs.length > 0) {
+                            return Promise.all(chargePs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+                case 'capture':
+                    return service.findOne(constructJSONHelper(params.serviceAttrName,
+                        params.serviceAttrValue)).then((data) => {
+                            return sapi.charges.capture(data.stripeChargeID, params.serviceObj,
+                                {stripe_account: data.stripeAccID});
+                    }, (err) => {
+                        throw err;
+                    });
+            }
+            break;
         case 'accounts':
             switch(params.action) {
                 case 'create':
@@ -815,5 +951,12 @@ export function rejectStripeAccount(serviceName, serviceId, serviceObj, direct=f
     preprocessRoute(serviceName, serviceObj);
     let params = {'serviceName': serviceName, 'serviceId': serviceId, 'serviceObj': serviceObj,
         'direct': direct, 'action': 'reject'};
+    return callStripeAPI(params);
+}
+
+export function captureStripeCharge(serviceName, serviceAttrName, serviceAttrValue, serviceObj){
+    preprocessRoute(serviceName, serviceObj);
+    let params = {'serviceName': serviceName, 'serviceAttrName': serviceAttrName,
+        'serviceAttrValue': serviceAttrValue, 'serviceObj': serviceObj, 'action': 'capture'};
     return callStripeAPI(params);
 }
