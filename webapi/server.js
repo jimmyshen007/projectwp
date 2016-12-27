@@ -53,6 +53,13 @@ app.get('/api/0/waccounts', api.getWAccounts);
 app.get('/api/0/waccounts/:id', api.getWAccountsByID);
 app.get('/api/0/waccounts/user/:uid', api.getWAccountsByUserID);
 app.post('/api/0/waccounts/:id', api.editWAccount);
+
+app.get('/api/0/wcharges', api.getWCharges);
+app.get('/api/0/wcharges/:id', api.getWChargeByID);
+app.get('/api/0/wcharges/user/:uid', api.getWChargesByUserID);
+app.get('/api/0/wcharges/post/:pid', api.getWChargesByPostID);
+app.get('/api/0/wcharges/postAuthor/:paid', api.getWChargesByPostAuthorID);
+app.post('/api/0/wcharges/:id', api.editWCharge);
 //*****
 
 app.get('/api/0/orders', api.getOrders);
@@ -95,12 +102,26 @@ app.get('/api/0/skus', api.getSkus);
 app.get('/api/0/skus/:id', api.getSkuByID);
 app.get('/api/0/skus/stripe/:id', api.getSkuByStripeID);
 app.get('/api/0/skus/post/:pid', api.getSkusByPostID);
-app.get('/api/0/skus/stripeAccID/:id', api.getSkusByStripeAccID);
+app.get('/api/0/skus/stripeAcc/:id', api.getSkusByStripeAccID);
 app.post('/api/0/skus', api.addSku);
 app.post('/api/0/skus/pas', api.addProductAndSku)
 app.post('/api/0/skus/:id', api.editSku);
 app.post('/api/0/skus/stripe/:id', api.editSkuByStripeID);
 app.delete('/api/0/skus/:id', api.deleteSku);
+
+app.get('/api/0/charges', api.getCharges);
+app.get('/api/0/charges/:id', api.getChargeByID);
+app.get('/api/0/charges/stripe/:id', api.getChargeByStripeID);
+app.get('/api/0/charges/post/:pid', api.getChargesByPostID);
+app.get('/api/0/charges/user/:uid', api.getChargesByUserID);
+app.get('/api/0/charges/postAuthor/:paid', api.getChargesByPostAuthorID);
+app.get('/api/0/charges/stripeAcc/:id', api.getChargesByStripeAccID);
+app.post('/api/0/charges', api.addCharge);
+app.post('/api/0/charges/:id', api.editCharge);
+app.post('/api/0/charges/stripe/:id', api.editChargeByStripeID);
+app.post('/api/0/charges/capture/:id', api.captureCharge);
+app.post('/api/0/charges/capture/stripe/:id', api.captureChargeByStripeID);
+app.post('/api/0/charges/test/create', api.testCreateCharge);
 
 app.get('/api/0/accounts', api.getAccounts);
 app.get('/api/0/accounts/:id', api.getAccountByID);

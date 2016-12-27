@@ -6,7 +6,7 @@ import config from 'config';
 import m from 'mongoose';
 
 m.Promise = promise;
-m.connect('mongodb://localhost:' + config.get('mongodb.port') + '/' + config.get('mongodb.db'));
+m.connect('mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.db'));
 export let db = m.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 process.on('SIGINT', function() {
@@ -23,6 +23,7 @@ export let orderSchema = new Schema({
     userID: String,
     skuID: String,
     stripeOrderID: String,
+    stripeChargeIDs: [String],
     appStatus: String,
     startDate: Date,
     term: String,
@@ -48,8 +49,16 @@ export let skuSchema = new Schema({
     stripeAccID: String
 });
 
-export let accountSchema = new Schema({
+export let chargeSchema = new Schema({
+    postID: String,
+    postAuthorID: String,
     userID: String,
+    stripeChargeID: String,
+    stripeAccID: String
+});
+
+export let accountSchema = new Schema({
+    userID: {type: String, index: true, unique: true},
     stripeAccID: String
 });
 

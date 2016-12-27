@@ -36,9 +36,14 @@ function epl_am_enqueue_scripts() {
 	// Custom support path.
 	$cs_path = plugins_url('custom_support');
 	wp_enqueue_style( 'mapbox-style', $cs_path . '/mapbox/mapbox.css', array(), null);
+	wp_enqueue_style( 'leaflet-routing-machine-style', $cs_path . '/leaflet-routing-machine/leaflet-routing-machine.css', array(), null);
 	wp_enqueue_script( 'mapbox', $cs_path . '/mapbox/mapbox.js', array(), null);
-	wp_enqueue_script( 'geopoint', $cs_path . '/geopoint.js', array(), null);
-	wp_enqueue_script( 'osm_data', $cs_path . '/leaflet-osm.js');
+	wp_register_script('geopoint', $cs_path . '/geopoint.js', array(), null);
+	wp_register_script( 'leaflet-routing-machine', $cs_path . '/leaflet-routing-machine/leaflet-routing-machine.js',
+		array(), null);
+	wp_enqueue_script( 'geopoint');
+	wp_enqueue_script( 'leaflet-routing-machine');
+	wp_enqueue_script( 'osm-data', $cs_path . '/leaflet-osm.js', array('geopoint', 'leaflet-routing-machine'), null);
 	wp_enqueue_script('mapbox-plugins', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/leaflet.markercluster.js');
 	wp_enqueue_style('mapbox-plugins-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.css');
 	wp_enqueue_style('mapbox-plugins-default-css', 'https://api.mapbox.com/mapbox.js/plugins/leaflet-markercluster/v0.4.0/MarkerCluster.Default.css');
