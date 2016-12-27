@@ -69,10 +69,10 @@ curl_close($ch);
                         <p></p>
                         <div>
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-                                <li><a href="/wordpress/?page_id=118">Profile</a></li>
-                                <li class="active"><a href="/wordpress/?page_id=138">Wish List</a></li>
-                                <li><a href="/wordpress/?page_id=136">Your Listings</a></li>
-                                <li><a href="/wordpress/?page_id=140 ">Orders</a></li>
+                                <li><a href="/your-profile/">Profile</a></li>
+                                <li class="active"><a href="/your-profile/wish-list/">Wish List</a></li>
+                                <li><a href="/your-profile/users-listings/">Your Listings</a></li>
+                                <li><a href="/your-profile/users-orders/">Orders</a></li>
                             </ul>
                         </div>
                         <div class="panel panel-default">

@@ -1,6 +1,6 @@
 <?php
 
-global $post, $wpdb;
+global $post, $wpdb, $user_ID;
 if($post->post_type != "rental" && $post->post_type != "property" && $post->post_type != "business")
 	return;
 
@@ -8,6 +8,9 @@ $query = 'SELECT meta_key,meta_value FROM `wp_postmeta` '.
 	' WHERE post_id = '.$post->ID.' and (meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
 	'meta_key=\'property_address_country\')'.
 	'ORDER by meta_key asc';
+
+$query2 = 'SELECT post_author, user_email FROM wp_posts, wp_users where wp_posts.post_author = wp_users.ID and wp_posts.ID='. $post->ID;
+
 
 $results = $wpdb->get_results( $query, ARRAY_A );
 /* results
@@ -39,6 +42,16 @@ switch ($rent_period) {
 		$deposit = 20000;
 		break;
 }
+
+$results2 = $wpdb->get_results( $query2, ARRAY_A );
+
+$authorID = $results2[0]['post_author'];
+$user_email = $results2[0]['user_email'];
+
+$query3 = 'SELECT meta_value FROM wp_usermeta WHERE meta_key = "Passport" and user_id='. $authorID;
+$results3 = $wpdb->get_results( $query3, ARRAY_A );
+
+$isVerified = ($results3[0] == null || $results3[0]['meta_value'] == "") ? 0 : 1;
 
 ?>
 
@@ -109,6 +122,64 @@ switch ($rent_period) {
 	</div>
 </div>
 
+<button id="uploadDocBtn" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#upload-dialog">Open dialog</button>
+<div id="upload-dialog" class="modal fade" tabindex="-1">
+	<div class="modal-dialog" style="width: 500px; height:400px;">
+		<div class="modal-content">
+			<div class="modal-header">
+				<table>
+					<tbody>
+					<tr>
+						<td><h3 class="modal-title">ID Verification</h3></td>
+						<td><button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="float: right">&times;</button></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-body">
+				<p class="text-muted">Please upload your passport and student card so we can verify your identification before you submit any application.</p>
+				<table>
+					<tbody>
+					<tr>
+						<td style="width: 8%"></td>
+						<td style="width: 77%">
+							<div class="fileinput fileinput-new" data-provides="fileinput">
+								<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
+								<div>
+									<span class="btn btn-raised btn-success btn-file" style="width: 200px;"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="ld_passport" id="ld_passport"></span>
+									<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
+								</div>
+							</div>
+						</td>
+						<td style="width: 15%"></td>
+					</tr>
+					<tr>
+						<td style="width: 8%"></td>
+						<td style="width: 77%">
+							<label class="control-label" for="pp_expiry_date">Passport Expiry Date</label>
+							<input class="form-control input-lg"  type="text" name="ldpp_expiry_date" id="ldpp_expiry_date"/>
+						</td>
+						<td style="width: 15%"></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="modal-footer">
+				<table>
+					<tbody>
+					<tr>
+						<td width="45%"></td>
+						<td width="20%" ><button id="BtnSubmit" type="button" class="btn btn-danger" data-dismiss="modal">Submit</button></td>
+						<td width="20%"><button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button></td>
+						<td width="15%"></td>
+					</tr>
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+</div>
+
 <div id="secondary" class="widget-area col-md-4 col-lg-4" role="complementary">
 	<div id="sidebar-1"class="panel panel-default">
 		<div class="panel-heading"><h4><?php echo '$'.$rent.' '.$currency.' Per '.strtoupper(substr($rent_period,0,1)).substr($rent_period,1) ?></h4></div>
@@ -123,9 +194,9 @@ switch ($rent_period) {
 								<th width="25%" style="text-align: center">Tenants</th>
 							</tr>
 							<tr>
-								<td><input type="text" class="form-control" id="datepicker" placeholder="yyyy-mm-dd"></td>
+								<td><input type="text" class="form-control" id="datepicker" placeholder="yyyy-mm-dd" onChange="CheckLogin()"></td>
 								<td><div class="col-md-10" style="width: 100%">
-										<select id="term" class="form-control">
+										<select id="term" class="form-control" onChange="CheckLogin()">
 											<option>3 months</option>
 											<option>6 months</option>
 											<option>12 months</option>
@@ -133,7 +204,7 @@ switch ($rent_period) {
 									</div>
 								</td>
 								<td><div class="col-md-10" style="width: 100%">
-										<select id="tenants" class="form-control">
+										<select id="tenants" class="form-control" onChange="CheckLogin()">
 											<option>1</option>
 											<option>2</option>
 											<option>3</option>
@@ -165,6 +236,7 @@ switch ($rent_period) {
 			<script>
 				var userID = <?php global $user_ID; echo $user_ID;?>;
 				var postID = <?php global $post; echo $post->ID;?>;
+				var authorUserID = <?php echo $authorID;?>;
 				var urlstr = "/api/0/favorites/user/";
 				var urlstr2 = "/api/0/worders/post/";
 				var favID;
@@ -173,6 +245,7 @@ switch ($rent_period) {
 				var action;
 				var stripeSkuID = "";
 				var skuID = "";
+				var stripeAccID = "";
 
 				$( function() {
 					$( "#datepicker" ).datepicker({ minDate:0});
@@ -181,7 +254,7 @@ switch ($rent_period) {
 
 				if (userID != 0) {
 					jQuery.ajax({
-						url: urlstr.concat(<?php global $user_ID; echo $user_ID;?>),
+						url: urlstr.concat(userID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
@@ -204,7 +277,7 @@ switch ($rent_period) {
 							deleteCookie('action');
 						});
 					jQuery.ajax({
-						url: urlstr2.concat(<?php global $post; echo $post->ID;?>),
+						url: urlstr2.concat(postID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
@@ -271,27 +344,68 @@ switch ($rent_period) {
 					createCookie('action', action,'0.1');
 
 				}
+				function CheckLogin() {
+					if (userID == 0) {
+						document.getElementById("hidelogin").click();
+					}
+				}
 				function CheckAndCreateSku() {
-					var urlstr = "/api/0/wskus/post/";
+					var urlstr3 = "/api/0/wskus/post/";
+					var urlstr4 = "/api/0/accounts/user/";
 					var sku;
 					var currency = "<?php echo $currency ?>";
 					var deposit  = <?php echo $deposit ?>;
+					var email = "<?php echo $user_email ?>";
+					var country = (currency == "AUD") ? "AU" : "US";
 					jQuery.ajax({
-						url: urlstr.concat(postID),
+						url: urlstr3.concat(postID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
 							sku = result.data;
 							if (sku == "") { /* Product&Sku do not exist. Create a new product and Sku*/
+								/* Check if stripe account exists or not. If not, create stripe account first */
 								jQuery.ajax({
-									url: '/api/0/skus/pas',
+									url: urlstr4.concat(authorUserID),
 									dataType: "json",
-									method: "POST",
-									data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":"acct_197bmLIw2qaoeMzL"}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":"acct_197bmLIw2qaoeMzL"}, "price": deposit}},
+									method: "Get",
 									success: function (result) {
-										stripeSkuID = result.data.stripeSkuID;
-										skuID = result.data._id;
+										stripeAccID = result.data[0].id;
+										if ( typeof stripeAccID != 'undefined' && stripeAccID != "") { // Stripe acc exists. Go ahead and create prod/sku.
+											jQuery.ajax({
+												url: '/api/0/skus/pas',
+												dataType: "json",
+												method: "POST",
+												data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":stripeAccID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":stripeAccID}, "price": deposit}},
+												success: function (result) {
+													stripeSkuID = result.data.stripeSkuID;
+													skuID = result.data._id;
+												}
+											});
+										}
+										else { // Stripe acc doesn't exist yet. Create account and prod/sku
+											jQuery.ajax({
+												url: '/api/0/accounts',
+												dataType: "json",
+												method: "POST",
+												data: {"country": country, "managed": true, "email": email, "metadata": {"userID": authorUserID}},
+												success: function (result) {
+													stripeAccID = result.data.stripeAccID;
+													jQuery.ajax({
+														url: '/api/0/skus/pas',
+														dataType: "json",
+														method: "POST",
+														data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":stripeAccID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":stripeAccID}, "price": deposit}},
+														success: function (result) {
+															stripeSkuID = result.data.stripeSkuID;
+															skuID = result.data._id;
+														}
+													});
+												}
+											});
+										}
 									}
+
 								});
 							}
 							else { /* Product&Sku existed.*/
@@ -342,37 +456,42 @@ switch ($rent_period) {
 							document.getElementById("hidelogin").click();
 							action = 'apply';
 						} else { /* Create an order wrapper */
-							if (stripeSkuID != "") {
-								var date = document.getElementById("datepicker").value;
-								if (date == '')
-								{
-									document.getElementById("datepicker").focus();
-								} else {
-									var datetime = date.concat(" 15:00:00 UTC");
-									var term = document.getElementById("term").value;
-									var tenants = document.getElementById("tenants").value;
-									AddOrder(skuID, stripeSkuID, datetime, term, tenants);
+							var isVerified = "<?php echo $isVerified ?>";
+							if (isVerified == "0") {
+								document.getElementById("uploadDocBtn").click();
+							} else {
+								if (stripeSkuID != "") {
+									var date = document.getElementById("datepicker").value;
+									if (date == '')
+									{
+										document.getElementById("datepicker").focus();
+									} else {
+										var datetime = date.concat(" 15:00:00 UTC");
+										var term = document.getElementById("term").value;
+										var tenants = document.getElementById("tenants").value;
+										AddOrder(skuID, stripeSkuID, stripeAccID, datetime, term, tenants);
+									}
 								}
 							}
 						}
 					} else { //Already applied, go checking order status
-						window.location.replace("/wordpress/?page_id=140");
+						window.location.replace("/your-profile/users-orders/");
 					}
 				}
-				function AddOrder(skuID, stripeSkuID, startDate, term, numTenant) { /* Create an order wrapper */
+				function AddOrder(skuID, stripeSkuID, stripeAccID, startDate, term, numTenant) { /* Create an order wrapper */
 					var currency = "<?php echo $currency ?>";
-					if (stripeSkuID != null) {
+					if (stripeSkuID != "" && stripeAccID != "") {
 						jQuery.ajax({
 							url: '/api/0/worders',
 							dataType: "json",
 							method: "POST",
 							data: {
 								"postID": postID,
-								"postAuthorID": userID,
+								"postAuthorID": authorUserID,
 								"currency": currency,
 								"userID": userID,
 								"skuID": skuID,
-								"stripeAccID": "acct_197bmLIw2qaoeMzL",
+								"stripeAccID": stripeAccID,
 								"appStatus": "Waiting for approval",
 								"startDate": startDate,
 								term: term,

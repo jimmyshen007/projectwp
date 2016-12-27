@@ -291,7 +291,7 @@ add_action( 'edit_user_profile_update', 'uploadID');
 function uploadID() {
 	global $user_ID;
 
-	$target_dir = "/wordpress/wp-content/uploads/ID/";
+	$target_dir = "/wp-content/uploads/ID/";
 	$target_file_name = basename($_FILES['passport']['name']);
 	$uploadOk = 1;
 	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);

@@ -9,10 +9,10 @@ Theme My Login will always look in your theme's directory first, before using th
 		$( "h1" ).hide();
 	</script>
 	<ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-		<li class="active"><a href="http://localhost/wordpress/?page_id=118">Profile</a></li>
-		<li><a href="http://localhost/wordpress/?page_id=138">Wish List</a></li>
-		<li><a href="http://localhost/wordpress/?page_id=136">Your Listings</a></li>
-		<li><a href="http://localhost/wordpress/?page_id=140 ">Orders</a></li>
+		<li class="active"><a href="/your-profile/">Profile</a></li>
+		<li><a href="/your-profile/wish-list/">Wish List</a></li>
+		<li><a href="/your-profile/users-listings/">Your Listings</a></li>
+		<li><a href="/your-profile/users-orders/">Orders</a></li>
 	</ul>
 </div>
 <div class="tml tml-profile" id="theme-my-login<?php $template->the_instance(); ?>">
@@ -188,22 +188,24 @@ Theme My Login will always look in your theme's directory first, before using th
 			</div>
 		</div>
 		<div class="panel panel-default">
-			<div class="panel-heading">Tenant Verification</div>
+			<div class="panel-heading">Verification</div>
 			<div class="panel-body">
 				<table>
 					<tbody>
 						<tr>
 							<td style="width: 8%"></td>
 							<td style="width: 77%">
-								<table>
-									<tbody>
+								<p style="margin-bottom: 5px;">You’ll need to provide identification before you book, so get a head start by doing it now. </p>
+								<button type="button" class="btn btn-raised btn-default" style="width: 200px;" data-toggle="collapse" data-target="#idColl1">Add Passport</button>
+								<div id="idColl1" class="collapse">
+									<table>
+										<tbody>
 										<tr>
 											<td style="width: 40%">
-												<label class="control-label">Passport</label>
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="passport" id="passport"></span>
+														<span class="btn btn-raised btn-success btn-file" style="width: 200px;"><span class="fileinput-new">Upload Passport</span><span class="fileinput-exists">Change</span><input type="file" name="passport" id="passport"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -214,13 +216,21 @@ Theme My Login will always look in your theme's directory first, before using th
 												<input class="form-control input-lg"  type="text" name="pp_expiry_date" id="pp_expiry_date"/>
 											</td>
 										</tr>
+										</tbody>
+									</table>
+								</div>
+
+								<p style="margin-bottom: 5px; margin-top:20px">As a student tenant, providing student id or school offer helps building trust between you and hosts.</p>
+								<button type="button" class="btn btn-raised btn-default" style="width: 200px;" data-toggle="collapse" data-target="#idColl2">Add student id</button>
+								<div id="idColl2" class="collapse">
+									<table>
+										<tbody>
 										<tr>
 											<td style="width: 40%">
-												<label class="control-label">Student ID</label>
 												<div class="fileinput fileinput-new" data-provides="fileinput">
 													<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
 													<div>
-														<span class="btn btn-raised btn-success btn-file"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="studentID"></span>
+														<span class="btn btn-raised btn-success btn-file" style="width: 200px;"><span class="fileinput-new">Upload Student ID</span><span class="fileinput-exists">Change</span><input type="file" name="studentID"></span>
 														<a href="#" class="btn btn-raised btn-warning fileinput-exists" data-dismiss="fileinput">Remove</a>
 													</div>
 												</div>
@@ -229,51 +239,48 @@ Theme My Login will always look in your theme's directory first, before using th
 											<td style="width: 55%">
 												<table>
 													<tbody>
-														<tr>
-															<td>
-																<div class="form-group">
-																	<div class="col-md-10">
-																		<div class="radio radio-primary">
-																			<label>
-																				<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked="">
-																				Student Card
-																			</label>
-																		</div>
-																		<div class="radio radio-primary">
-																			<label>
-																				<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
-																				School Offer
-																			</label>
-																		</div>
+													<tr>
+														<td>
+															<div class="form-group">
+																<div class="col-md-10">
+																	<div class="radio radio-primary">
+																		<label>
+																			<input type="radio" name="optionsRadios" id="optionsRadios1" value="option1" checked="">
+																			Student Card
+																		</label>
+																	</div>
+																	<div class="radio radio-primary">
+																		<label>
+																			<input type="radio" name="optionsRadios" id="optionsRadios2" value="option2">
+																			School Offer
+																		</label>
 																	</div>
 																</div>
-															</td>
-														</tr>
-														<tr>
-															<td>
-																<p></p>
-																<div class="form-group">
-																	<label class="control-label" for="stuid_expiry_date">Expiry Date</label>
-																	<input class="form-control input-lg"  type="text" name="stuid_expiry_date" id="stuid_expiry_date"/>
-																</div>
-															</td>
-														</tr>
+															</div>
+														</td>
+													</tr>
+													<tr>
+														<td>
+															<p></p>
+															<div class="form-group">
+																<label class="control-label" for="stuid_expiry_date">Expiry Date</label>
+																<input class="form-control input-lg"  type="text" name="stuid_expiry_date" id="stuid_expiry_date"/>
+															</div>
+														</td>
+													</tr>
 													</tbody>
 												</table>
 											</td>
 										</tr>
-									</tbody>
-								</table>
+										</tbody>
+									</table>
+								</div>
+
 							</td>
 							<td style="width: 15%"></td>
 						</tr>
 					</tbody>
 				</table>
-			</div>
-		</div>
-		<div class="panel panel-default">
-			<div class="panel-heading">Landlord Verification</div>
-			<div class="panel-body">
 			</div>
 		</div>
 		<p class="tml-submit-wrap">

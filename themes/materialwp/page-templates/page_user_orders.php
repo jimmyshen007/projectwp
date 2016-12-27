@@ -55,6 +55,9 @@ for($i = 0; $i < count($post_arr); $i++){
 }
 curl_close($ch);
 ?>
+<script>
+
+</script>
 <div class="container">
     <div class="row">
         <div id="primary" class="col-md-12 col-lg-12">
@@ -65,10 +68,10 @@ curl_close($ch);
                         <p></p>
                         <div>
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-                                <li><a href="http://localhost/wordpress/?page_id=118">Profile</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=138">Wish List</a></li>
-                                <li><a href="http://localhost/wordpress/?page_id=136">Your Listings</a></li>
-                                <li class="active"><a href="http://localhost/wordpress/?page_id=140 ">Orders</a></li>
+                                <li><a href="/your-profile/">Profile</a></li>
+                                <li><a href="/your-profile/wish-list/">Wish List</a></li>
+                                <li><a href="/your-profile/users-listings/">Your Listings</a></li>
+                                <li class="active"><a href="/your-profile/users-orders/">Orders</a></li>
                             </ul>
                         </div>
                         <div class="panel panel-default">
@@ -123,7 +126,7 @@ curl_close($ch);
                                                                                         <tr align="middle">
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completing application")?"#03a9f4":"lightgrey"; ?>">Completing your application</span></td>
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Waiting for approval")?"#4caf50":"lightgrey"; ?>">Waiting for landloard's approval</span></td>
-                                                                                            <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Approved")?"#ff5722":"lightgrey"; ?>">Securing your next home</span></td>
+                                                                                            <td style="width: 25%"><?php echo ($status_arr[$i] == "Approved")?"<a href=\"/your-profile/payment/\" " : "<span "?> onclick="" style="color: <?php echo ($status_arr[$i] == "Approved")?"#ff5722":"lightgrey"; ?>">Securing your next home</a></td>
                                                                                             <td style="width: 25%"><span style="color: <?php echo ($status_arr[$i] == "Completed")?"#f44336":"lightgrey"; ?>">Hi5Fang! Get Ready to move!</span></td>
                                                                                         </tr>
                                                                                     </tbody>
