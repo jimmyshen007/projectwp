@@ -100,9 +100,9 @@ function materialwp_scripts() {
 
 	//wp_enqueue_script('mwp-jquery-migrate', '//code.jquery.com/jquery-migrate-1.2.1.min.js');
 
-	wp_enqueue_style( 'datepicker-styles', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
+	//wp_enqueue_style( 'datepicker-styles', 'https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css');
 
-	wp_enqueue_script( 'datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js');
+	//wp_enqueue_script( 'datepicker-js', 'https://code.jquery.com/ui/1.12.1/jquery-ui.js');
 
 	wp_enqueue_style( 'datatable-1-styles', 'https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha.2/css/bootstrap.css');
 
@@ -133,6 +133,8 @@ function materialwp_scripts() {
 
 	wp_enqueue_script('file-min-jquery', get_template_directory_uri() .'/jasny-bootstrap/js/jasny-bootstrap.js');
 
+	wp_enqueue_script( 'modernizr', get_template_directory_uri() . '/grid-effects/modernizr.custom.js');
+
 	wp_enqueue_style( 'mwp-bootstrap-styles', get_template_directory_uri() . '/bower_components/bootstrap/dist/css/bootstrap.min.css', array(), '3.3.4', 'all' );
 
 	wp_enqueue_style( 'mwp-roboto-styles', get_template_directory_uri() . '/bower_components/bootstrap-material-design/dist/css/roboto.min.css', array(), '', 'all' );
@@ -143,6 +145,8 @@ function materialwp_scripts() {
 
 	wp_enqueue_style( 'materialwp-style', get_stylesheet_uri() );
 
+	wp_enqueue_style( 'grid-effects-styles', get_template_directory_uri() . '/grid-effects/component.css', array(), '', 'all' );
+
 	wp_enqueue_script( 'mwp-bootstrap-js', get_template_directory_uri() . '/bower_components/bootstrap/dist/js/bootstrap.min.js', array('jquery'), '3.3.4', true );
 
 	wp_enqueue_script( 'mwp-ripples-js', get_template_directory_uri() . '/bower_components/bootstrap-material-design/dist/js/ripples.min.js', array('jquery'), '', true );
@@ -150,6 +154,20 @@ function materialwp_scripts() {
 	wp_enqueue_script( 'mwp-material-js', get_template_directory_uri() . '/bower_components/bootstrap-material-design/dist/js/material.min.js', array('jquery'), '', true );
 
 	wp_enqueue_script( 'main-js', get_template_directory_uri() . '/js/main.js', array('jquery'), '', true );
+
+	wp_enqueue_script( 'misc-js', get_template_directory_uri() . '/js/misc.js');
+
+	wp_enqueue_script( 'masonry', 'https://unpkg.com/masonry-layout@4/dist/masonry.pkgd.min.js', array(), '', true);
+
+	wp_enqueue_script( 'i18n-lp', 'http://www.localeplanet.com/api/auto/icu.js', array(), '', true);
+
+	wp_enqueue_script( 'trans-lp', 'http://www.localeplanet.com/api/translate.js', array(), '', true);
+
+	wp_enqueue_script( 'imageloaded', 'https://npmcdn.com/imagesloaded@4.1/imagesloaded.pkgd.min.js', array(), '', true);
+
+	wp_enqueue_script( 'classie', get_template_directory_uri() . '/grid-effects/classie.js', array(), '', true);
+
+	wp_enqueue_script( 'animOnScroll', get_template_directory_uri() . '/grid-effects/AnimOnScroll.js', array(), '', true);
 
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );

@@ -33,6 +33,7 @@
     "moment": "2.11.x",
     "mongoose": "^4.4.20",
     "nib": "^1.1.x",
+    "node-embedded-mongodb": "0.0.3",
     "node-uuid": "1.4.x",
     "nodemailer": "2.6.4",
     "serve-static": "1.10.x",

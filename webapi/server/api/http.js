@@ -24,6 +24,16 @@ function handleRet(ret, res, err_msg){
     });
 }
 
+export function getCities(req, res){
+    let ret = service.getCities();
+    handleRet(ret, res,  "Get Cities Error");
+}
+
+export function getSchools(req, res){
+    let ret = service.getSchools();
+    handleRet(ret, res,  "Get Schools Error");
+}
+
 export function testPayOrder(req, res){
     sapi.tokens.create({
         email: 'maidongxi1@example.com',
@@ -78,6 +88,37 @@ export function testCreateCharge(req, res){
         }, (err) => {
             handle_response(res, null, err, "Creat Charge Error");
         });
+    });
+}
+
+export function testCreateCustomerAndCard(req, res) {
+    service.addCustomer({
+        description: "aaa",
+        metadata: {userID: 'fakeu'}
+    }).then((cus) => {
+        sapi.tokens.create({
+            email: 'maidongxi1@example.com',
+            card: {
+                "number": '4242424242424242',
+                "exp_month": 12,
+                "exp_year": 2017,
+                "cvc": '123'
+            }
+        }, function (err, token) {
+            // asynchronously called
+            service.getCustomerByID(cus.id).then((scus) => {
+                let ret = service.addCard({source: token.id, metadata: {stripeCusID: scus[0].id}});
+                ret.then((data) => {
+                    handle_response(res, data, null, null);
+                }, (err) => {
+                    handle_response(res, null, err, "Creat Customer and Card Error");
+                });
+            }, (err) => {
+                console.log(err);
+            });
+        });
+    }, (err) => {
+        console.log(err);
     });
 }
 
@@ -318,29 +359,17 @@ export function getFavoritesByUserID(req, res){
 
 export function getFavorites(req, res) {
     let ret = service.getFavorites();
-    ret.then((data) => {
-        handle_response(res, data, null, null);
-    }, (err) => {
-        handle_response(res, null, err, "Get Favoriates Error");
-    });
+    handleRet(ret, res,  "Get Favoriates Error");
 }
 
 export function getFavoriteByID(req, res) {
     let ret = service.getFavoriteById(req.params.id);
-    ret.then((data) => {
-        handle_response(res, data, null, null);
-    }, (err) => {
-        handle_response(res, null, err, "Get Favorite Error");
-    });
+    handleRet(ret, res, "Get Favorite By ID Error");
 }
 
 export function addFavorite(req, res) {
     let ret = service.addFavorite(req.body);
-    ret.then((data) => {
-        handle_response(res, data, null, null);
-    }, (err) => {
-        handle_response(res, null, err, "Add Favorite Error");
-    });
+    handleRet(ret, res, "Add Favorite Error");
 }
 
 export function editFavorite(req, res) {
@@ -463,6 +492,21 @@ export function addWOrder(req, res){
     handleRet(ret, res, "Add WOrder Error");
 }
 
+/*
+ * function to add and attach a stripe order to a wrap order object.
+ * This provides a shortcut to create stripe order after wrapper order
+ * has been approved. S in front of Order in error msg is to hide architecture
+ * details.
+ *
+ * Sample input: API_INITIAL_PATH/worders/addSOrder/xxxxx with JSON: {"currency": "USD", "metadata": {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123"}, "items": [{"type": "sku", "parent": "sku_8xpkjNkOjKlb8D"}]}
+ * Sample output: {"data":{"ok":1,"nModified":1,"n":1}}
+ *
+ */
+export function addAttachSOrder(req, res){
+    let ret = service.addAttachSOrder(req.params.id, req.body);
+    handleRet(ret, res, "AddAttach SOrder Error");
+}
+
 export function getWAccounts(req, res){
     let ret = service.getWrapAccounts();
     handleRet(ret, res, "Get WAccounts Error");
@@ -522,22 +566,375 @@ export function editWCharge(req, res){
     handleRet(ret, res, "Edit WCharge Error");
 }
 
-/*
- * function to add and attach a stripe order to a wrap order object.
- * This provides a shortcut to create stripe order after wrapper order
- * has been approved. S in front of Order in error msg is to hide architecture
- * details.
- *
- * Sample input: API_INITIAL_PATH/worders/addSOrder/xxxxx with JSON: {"currency": "USD", "metadata": {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123"}, "items": [{"type": "sku", "parent": "sku_8xpkjNkOjKlb8D"}]}
- * Sample output: {"data":{"ok":1,"nModified":1,"n":1}}
- *
- */
-export function addAttachSOrder(req, res){
-    let ret = service.addAttachSOrder(req.params.id, req.body);
-    handleRet(ret, res, "AddAttach SOrder Error");
+export function getWCustomers(req, res) {
+    let ret = service.getWCustomers();
+    handleRet(ret, res, "Get WCustomers Error");
 }
+
+export function getWCustomerByID(req, res){
+    let ret = service.getWCustomersByID(req.params.id);
+    handleRet(ret, res, "Get WCustomers By ID Error");
+}
+
+export function getWCustomersByUserID(req, res){
+    let ret = service.getWCustomersByUserID(req.params.uid);
+    handleRet(ret, res, "Get WCustomers By UserID Error");
+}
+
+export function editWCustomer(req, res) {
+    let ret = service.editWCustomer(req.params.id, req.body);
+    handleRet(ret, res, "Edit WCustomers Error");
+}
+
+export function getWCards(req, res) {
+    let ret = service.getWCards();
+    handleRet(ret, res, "Get WCards Error");
+}
+
+export function getWCardByID(req, res){
+    let ret = service.getWCardByID(req.params.id);
+    handleRet(ret, res, "Get WCard By ID Error");
+}
+
+export function getWCardsByUserID(req, res){
+    let ret = service.getWCardsByUserID(req.params.uid);
+    handleRet(ret, res, "Get WCards By UserID Error");
+}
+
+export function editWCard(req, res) {
+    let ret = service.editWCard(req.params.id, req.body);
+    handleRet(ret, res, "Edit WCard Error");
+}
+
+export function getWRefunds(req, res) {
+    let ret = service.getWRefunds();
+    handleRet(ret, res, "Get WRefunds Error");
+}
+
+export function getWRefundByID(req, res){
+    let ret = service.getWRefundByID(req.params.id);
+    handleRet(ret, res, "Get WRefund By ID Error");
+}
+
+export function getWRefundsByUserID(req, res){
+    let ret = service.getWRefundsByUserID(req.params.uid);
+    handleRet(ret, res, "Get WRefunds By UserID Error");
+}
+
+export function editWRefund(req, res) {
+    let ret = service.editWRefund(req.params.id, req.body);
+    handleRet(ret, res, "Edit WRefund Error");
+}
+
+export function getWRefundsByPostID(req, res){
+    let ret = service.getWRefundsByPostID(req.params.pid);
+    handleRet(ret, res, "Get WRefunds By PostID Error");
+}
+
+export function getWRefundsByPostAuthorID(req, res){
+    let ret = service.getWRefundsByPostAuthorID(req.params.paid);
+    handleRet(ret, res, "Get WRefunds By PostAuthorID Error");
+}
+
 //*********************
 
+/*
+ * Sample input: api_init_path/customers/587cc25c73c0fe250d131b21
+ * Sample output:
+ * {"data":[{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}]}
+ */
+export function getCustomerByID(req, res){
+    let ret = service.getCustomerByID(req.params.id);
+    handleRet(ret, res, "Get Customer By ID Error");
+}
+
+/*
+ * Sample input: api_init_path/customers/user/uid
+ * Sample output:
+ * {"data":[{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}]}
+ */
+export function getCustomersByUserID(req, res){
+    let ret = service.getCustomersByUserID(req.params.uid);
+    handleRet(ret, res, "Get Customer By UserID Error");
+}
+
+export function getCustomersByStripeAccID(req, res){
+    let ret = service.getCustomersByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Customer By StripeAccID Error");
+}
+
+/*
+ * Sample input: api_init_path/customers/stripeAcc/xxx
+ *               Note: if no stripeAccID is set, we cannot use this function at the moment.
+ * Sample output:
+ * {"data":[{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}]}
+ */
+export function getCustomerByStripeID(req, res){
+    let ret = service.getCustomerByStripeID(req.params.id);
+    handleRet(ret, res, "Get Customer By Stripe ID Error");
+}
+
+/*
+ * Sample input: api_init_path/customers
+ * Sample output:
+ * {"data":[{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}]}
+ */
+export function getCustomers(req, res){
+    let ret = service.getCustomers();
+    handleRet(ret, res, "Get Customers Error");
+}
+
+/*
+ * Sample input: api_init_path/customers with json ﻿{"email": "email@a.b", "description": "whatever", "metadata": {"userID": "uid"}}
+ * Sample output:
+ * {"data":{"__v":0,"stripeCusID":"cus_9wSv1SiJ13RqYS","userID":"uid","_id":"587cc25c73c0fe250d131b21"}}
+ */
+export function addCustomer(req, res) {
+    let ret = service.addCustomer(req.body);
+    handleRet(ret, res, "Add Customer Error");
+}
+
+/*
+ * Sample input: api_init_path/customers/587cc25c73c0fe250d131b21 with json ﻿{"email": "change@a.b"}
+ * Sample output:
+ * {"data":{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}}
+ */
+export function editCustomerByStripeID(req, res) {
+    let ret = service.editCustomerByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Customer By StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/customers/stripe/cus_9wSv1SiJ13RqYS with json ﻿{"email": "change@a.b"}
+ * Sample output:
+ * {"data":{"id":"cus_9wSv1SiJ13RqYS","object":"customer","account_balance":0,"created":1484571228,"currency":null,"default_source":null,"delinquent":false,"description":"whatever","discount":null,"email":"change@a.b","livemode":false,"metadata":{"userID":"uid"},"shipping":null,"sources":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/sources"},"subscriptions":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/customers/cus_9wSv1SiJ13RqYS/subscriptions"}}}
+ */
+export function editCustomer(req, res) {
+    let ret = service.editCustomer(req.params.id, req.body);
+    handleRet(ret, res, "Edit Customer by StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/customers/587b938544c06d0cb7cbcb2a
+ * Sample output:
+ * {"data":{"n":1,"ok":1}}
+ */
+export function deleteCustomer(req, res) {
+    let ret = service.deleteCustomer(req.params.id);
+    handleRet(ret, res, "Delete Customer Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/587b938544c06d0cb7cbcb2a
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCardByID(req, res){
+    let ret = service.getCardByID(req.params.id);
+    handleRet(ret, res, "Get Card By ID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/user/xxx
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCardsByUserID(req, res){
+    let ret = service.getCardsByUserID(req.params.uid);
+    handleRet(ret, res, "Get Card By UserID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/stripeAcc/xxx
+ *              Note: if no stripeAccID is set, we cannot use this function at the moment.
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCardsByStripeAccID(req, res){
+    let ret = service.getCardsByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Card By StripeAccID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/stripe/card_19cHLrBfJLgIcXuMWBIXv1jx
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCardByStripeID(req, res){
+    let ret = service.getCardByStripeID(req.params.id);
+    handleRet(ret, res, "Get Card By Stripe ID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/stripeCus/card_19cHLrBfJLgIcXuMWBIXv1jx
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCardsByStripeCusID(req, res){
+    let ret = service.getCardsByStripeCusID(req.params.id);
+    handleRet(ret, res, "Get Card By StripeCusID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards
+ * Sample output:
+ * {"data":[{"id":"card_19cHLrBfJLgIcXuMWBIXv1jx","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9w9fTIRkglzZbW","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9w9fTIRkglzZbW"},"name":null,"tokenization_method":null}]}
+ */
+export function getCards(req, res){
+    let ret = service.getCards();
+    handleRet(ret, res, "Get Cards Error");
+}
+
+/*
+ * Pre-requisite: need to have card info either in an object or token returned by stripe.js.
+ * Sample input: api_init_path/cards
+ *               with json ﻿{"source": TOKEN_RETURNED_BY_STRIPE_DOT_JS, "metadata": {"stripeCusID": cus_xxxxxx}}
+ *               "stripeCusID" is important and must be provided. stripe API is using it for creating card source.
+ * Sample output:
+ * {"data":{"__v":0,"stripeCardID":"card_19ccrBBfJLgIcXuMmFCuFSV2","stripeCusID":"cus_9wVsrZPAalr6Z1","_id":"587ced5fa21e686807c2adef"}}
+ *
+ *  A complete test case to create a customer and a card is under api_path/cards/test/createCusAndCard.
+ */
+export function addCard(req, res) {
+    let ret = service.addCard(req.body);
+    handleRet(ret, res, "Add Card Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/stripe/card_19ccrBBfJLgIcXuMmFCuFSV2 with json ﻿{"name": "Apple Pie"}
+ * Sample output:
+ * {"data":{"id":"card_19ccrBBfJLgIcXuMmFCuFSV2","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9wVsrZPAalr6Z1","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9wVsrZPAalr6Z1"},"name":"Apple Pie","tokenization_method":null}}
+ */
+export function editCardByStripeID(req, res) {
+    let ret = service.editCardByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Card By StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/xxxxxxxxxx  with json ﻿{"name": "Apple Pie"}
+ * Sample output:
+ * {"data":{"id":"card_19ccrBBfJLgIcXuMmFCuFSV2","object":"card","address_city":null,"address_country":null,"address_line1":null,"address_line1_check":null,"address_line2":null,"address_state":null,"address_zip":null,"address_zip_check":null,"brand":"Visa","country":"US","customer":"cus_9wVsrZPAalr6Z1","cvc_check":"pass","dynamic_last4":null,"exp_month":12,"exp_year":2017,"fingerprint":"DJvFLGesJ7SrFA7c","funding":"credit","last4":"4242","metadata":{"stripeCusID":"cus_9wVsrZPAalr6Z1"},"name":"Apple Pie","tokenization_method":null}}
+ */
+export function editCard(req, res) {
+    let ret = service.editCard(req.params.id, req.body);
+    handleRet(ret, res, "Edit Card Error");
+}
+
+/*
+ * Sample input: api_init_path/cards/xxxxxxxxxx
+ * Sample output:
+ * {"data":{"n":1,"ok":1}}
+ */
+export function deleteCard(req, res) {
+    let ret = service.deleteCard(req.params.id);
+    handleRet(ret, res, "Delete Card Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/xxxxxxxxxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundByID(req, res){
+    let ret = service.getRefundByID(req.params.id);
+    handleRet(ret, res, "Get Refund By ID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/user/xxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundsByUserID(req, res){
+    let ret = service.getRefundsByUserID(req.params.uid);
+    handleRet(ret, res, "Get Refund By UserID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/post/xxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundsByPostID(req, res){
+    let ret = service.getRefundsByPostID(req.params.pid);
+    handleRet(ret, res, "Get Refund By PostID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/postAuthor/xxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundsByPostAuthorID(req, res){
+    let ret = service.getRefundsByPostAuthorID(req.params.paid);
+    handleRet(ret, res, "Get Refund By UserID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/stripeAcc/xxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundsByStripeAccID(req, res){
+    let ret = service.getRefundsByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Refund By StripeAccID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/stripe/xxx
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefundByStripeID(req, res){
+    let ret = service.getRefundByStripeID(req.params.id);
+    handleRet(ret, res, "Get Refund By Stripe ID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds
+ * Sample output:
+ * {"data":[{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}]}
+ */
+export function getRefunds(req, res){
+    let ret = service.getRefunds();
+    handleRet(ret, res, "Get Refunds Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds with
+ * json {"charge": "ch_19cG7DLUxBeddbgv9MzEtFWv", "metadata": {"userID": "fakeu", "postID": "fakep", postAuthorID: "fakepa", "stripeAccID": "acct_18m2ZBLUxBeddbgv"}}
+ *
+ * Sample output:
+ * {"data":{"__v":0,"stripeRefundID":"re_19cdsMLUxBeddbgvWvU9kasP","stripeAccID":"acct_18m2ZBLUxBeddbgv","stripeChargeID":"ch_19cG7DLUxBeddbgv9MzEtFWv","_id":"587cfcab244985773b7a7e4f"}}
+ */
+export function addRefund(req, res) {
+    let ret = service.addRefund(req.body);
+    handleRet(ret, res, "Add Refund Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/stripe/re_19cdsMLUxBeddbgvWvU9kasP with
+ * json {"metadata": {"random": "random"}}
+ *
+ * Sample output:
+ * {"data":{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}}
+ */
+export function editRefundByStripeID(req, res) {
+    let ret = service.editRefundByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Refund By StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/refunds/587cfcab244985773b7a7e4f with
+ * json {"metadata": {"random": "random"}}
+ *
+ * Sample output:
+ * {"data":{"id":"re_19cdsMLUxBeddbgvWvU9kasP","object":"refund","amount":2000,"balance_transaction":null,"charge":"ch_19cG7DLUxBeddbgv9MzEtFWv","created":1484586154,"currency":"usd","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","random":"random"},"reason":null,"receipt_number":null,"status":"succeeded"}}
+ */
+export function editRefund(req, res) {
+    let ret = service.editRefund(req.params.id, req.body);
+    handleRet(ret, res, "Edit Refund Error");
+}
 
 /**
  * Sample input: API_INITIAL_PATH/products with json: {"name": "testp111", "shippable": false, "metadata": {"postID": "1234", "stripeAccID": "acct_18m2ZBLUxBeddbgv"}}

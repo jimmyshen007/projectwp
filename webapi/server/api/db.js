@@ -6,7 +6,15 @@ import config from 'config';
 import m from 'mongoose';
 
 m.Promise = promise;
-m.connect('mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.db'));
+
+//Need to start connection later for the service to be ready.
+console.log("Wait for mongoose connection");
+setTimeout(function() {
+    m.connect('mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.db'),
+    {socketOptions: {connectTimeoutMS: 360000, soctMS: 360000}});
+    console.log("Mongoose connection ready!");
+}, 20000);
+
 export let db = m.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 process.on('SIGINT', function() {
@@ -17,50 +25,80 @@ process.on('SIGINT', function() {
 });
 
 let Schema = m.Schema;
-export let orderSchema = new Schema({
-    postID: String,
-    postAuthorID: String,
-    userID: String,
-    skuID: String,
-    stripeOrderID: String,
-    stripeChargeIDs: [String],
-    appStatus: String,
-    startDate: Date,
-    term: String,
-    numTenant: Number,
-    stripeAccID: String
-});
-
-export let favoriteSchema = new Schema({
-    fType: String,
-    fValue: String,
-    userID: String
-});
-
-export let productSchema = new Schema({
-    postID: String,
-    stripeProdID: String,
-    stripeAccID: String
-});
-
-export let skuSchema = new Schema({
-    postID: String,
-    stripeSkuID: String,
-    stripeAccID: String
-});
-
-export let chargeSchema = new Schema({
-    postID: String,
-    postAuthorID: String,
-    userID: String,
-    stripeChargeID: String,
-    stripeAccID: String
-});
-
-export let accountSchema = new Schema({
-    userID: {type: String, index: true, unique: true},
-    stripeAccID: String
-});
+export let schemas = {
+    orders: new Schema({
+        postID: String,
+        postAuthorID: String,
+        userID: String,
+        skuID: String,
+        stripeOrderID: String,
+        stripeChargeIDs: [String],
+        appStatus: String,
+        startDate: Date,
+        term: String,
+        numTenant: Number,
+        stripeAccID: String
+    }),
+    favorites: new Schema({
+        fType: String,
+        fValue: String,
+        userID: String
+    }),
+    products: new Schema({
+        postID: String,
+        stripeProdID: String,
+        stripeAccID: String
+    }),
+    skus: new Schema({
+        postID: String,
+        stripeSkuID: String,
+        stripeAccID: String
+    }),
+    charges: new Schema({
+        postID: String,
+        postAuthorID: String,
+        userID: String,
+        stripeChargeID: String,
+        stripeAccID: String
+    }),
+    refunds: new Schema({
+        stripeRefundID: String,
+        stripeChargeID: String,
+        stripeAccID: String,
+        userID: String
+    }),
+    cards: new Schema({
+        stripeCardID: String,
+        stripeAccID: String,
+        stripeCusID: String,
+        userID: String
+    }),
+    customers: new Schema({
+        stripeCusID: String,
+        stripeAccID: String,
+        userID: String
+    }),
+    accounts: new Schema({
+        userID: {type: String, index: true, unique: true},
+        stripeAccID: String
+    }),
+    cities:  new Schema({
+        name: String,
+        state: String,
+        country: String,
+        zh_name: String,
+        icon_id: String,
+        hits: Number
+    }),
+    schools: new Schema({
+        name: String,
+        state: String,
+        country: String,
+        zh_name: String,
+        icon_id: String,
+        hits: Number
+    }),
+}
 
 /*
  * Deprecated.

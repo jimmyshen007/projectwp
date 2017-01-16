@@ -103,7 +103,7 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                     ?>
                     <form id="my_epl_form" class="form-horizontal" method="get" action="<?php echo esc_url( home_url('/') ); ?>">
                         <fieldset>
-                            <input type="hidden" name="epl_action" value="epl_search" />
+                            <input id="epl_action" type="hidden" name="epl_action" value="epl_search" />
                             <div class="form-group">
                                 <label for="distance-scope" class="col-md-3 control-label">
                                     <?php echo __('Distance scope', 'epl') ?></label>
