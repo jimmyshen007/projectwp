@@ -77,6 +77,16 @@ app.get('/api/0/wrefunds/user/:uid', api.getWRefundsByUserID);
 app.get('/api/0/wrefunds/post/:pid', api.getWRefundsByPostID);
 app.get('/api/0/wrefunds/postAuthor/:paid', api.getWRefundsByPostAuthorID);
 app.post('/api/0/wrefunds/:id', api.editWRefund);
+
+app.get('/api/0/wtransfers', api.getWTransfers);
+app.get('/api/0/wtransfers/:id', api.getWTransferByID);
+app.get('/api/0/wtransfers/user/:uid', api.getWTransfersByUserID);
+app.post('/api/0/wtransfers/:id', api.editWTransfer);
+
+app.get('/api/0/wextaccounts', api.getWExtaccounts);
+app.get('/api/0/wextaccounts/:id', api.getWExtaccountByID);
+app.get('/api/0/wextaccounts/user/:uid', api.getWExtaccountsByUserID);
+app.post('/api/0/wextaccounts/:id', api.editWExtaccount);
 //*****
 
 app.get('/api/0/cards', api.getCards);
@@ -99,6 +109,25 @@ app.post('/api/0/customers', api.addCustomer);
 app.post('/api/0/customers/:id', api.editCustomer);
 app.post('/api/0/customers/stripe/:id', api.editCustomerByStripeID);
 app.delete('/api/0/customers/:id', api.deleteCustomer);
+
+app.get('/api/0/transfers', api.getTransfers);
+app.get('/api/0/transfers/:id', api.getTransferByID);
+app.get('/api/0/transfers/stripe/:id', api.getTransferByStripeID);
+app.get('/api/0/transfers/user/:uid', api.getTransfersByUserID);
+app.get('/api/0/transfers/stripeAcc/:id', api.getTransfersByStripeAccID);
+app.post('/api/0/transfers', api.addTransfer);
+app.post('/api/0/transfers/:id', api.editTransfer);
+app.post('/api/0/transfers/stripe/:id', api.editTransferByStripeID);
+
+app.get('/api/0/extaccounts', api.getExtaccounts);
+app.get('/api/0/extaccounts/:id', api.getExtaccountByID);
+app.get('/api/0/extaccounts/stripe/:id', api.getExtaccountByStripeID);
+app.get('/api/0/extaccounts/user/:uid', api.getExtaccountsByUserID);
+app.get('/api/0/extaccounts/stripeAcc/:id', api.getExtaccountsByStripeAccID);
+app.post('/api/0/extaccounts', api.addExtaccount);
+app.post('/api/0/extaccounts/:id', api.editExtaccount);
+app.post('/api/0/extaccounts/stripe/:id', api.editExtaccountByStripeID);
+app.delete('/api/0/extaccounts/:id', api.deleteExtaccount);
 
 app.get('/api/0/refunds', api.getRefunds);
 app.get('/api/0/refunds/:id', api.getRefundByID);
@@ -168,6 +197,8 @@ app.post('/api/0/charges/:id', api.editCharge);
 app.post('/api/0/charges/stripe/:id', api.editChargeByStripeID);
 app.post('/api/0/charges/capture/:id', api.captureCharge);
 app.post('/api/0/charges/capture/stripe/:id', api.captureChargeByStripeID);
+app.post('/api/0/charges/createPercentSKUCharge', api.createPercentSKUCharge);
+
 app.get('/api/0/accounts', api.getAccounts);
 app.get('/api/0/accounts/:id', api.getAccountByID);
 app.get('/api/0/accounts/stripe/:id', api.getAccountByStripeID);
@@ -185,6 +216,7 @@ app.post('/api/0/orders/test/pay/:id', api.testPayOrder);
 app.post('/api/0/orders/test/return/:id', api.testReturnOrder);
 app.post('/api/0/charges/test/create', api.testCreateCharge);
 app.post('/api/0/cards/test/createCusAndCard', api.testCreateCustomerAndCard);
+app.post('/api/0/charges/test/createPercentSKUCharge', api.testCreatePercentSKUCharge);
 
 // The following apis are deprecated.
 /*

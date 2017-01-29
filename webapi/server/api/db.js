@@ -13,14 +13,13 @@ setTimeout(function() {
     m.connect('mongodb://' + config.get('mongodb.host') + ':' + config.get('mongodb.port') + '/' + config.get('mongodb.db'),
     {socketOptions: {connectTimeoutMS: 360000, soctMS: 360000}});
     console.log("Mongoose connection ready!");
-}, 20000);
+}, 10000);
 
 export let db = m.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
 process.on('SIGINT', function() {
     m.connection.close(function () {
         console.log('Mongoose default connection disconnected through app termination');
-        process.exit(0);
     });
 });
 
@@ -76,11 +75,21 @@ export let schemas = {
     customers: new Schema({
         stripeCusID: String,
         stripeAccID: String,
-        userID: String
+        userID: {type: String, index: true, unique: true},
     }),
     accounts: new Schema({
         userID: {type: String, index: true, unique: true},
         stripeAccID: String
+    }),
+    transfers: new Schema({
+        stripeTransID: String,
+        stripeAccID: String,
+        userID: String
+    }),
+    extaccounts: new Schema({
+        stripeExtaccountID: String,
+        stripeAccID: String,
+        userID: String
     }),
     cities:  new Schema({
         name: String,
@@ -97,7 +106,7 @@ export let schemas = {
         zh_name: String,
         icon_id: String,
         hits: Number
-    }),
+    })
 }
 
 /*

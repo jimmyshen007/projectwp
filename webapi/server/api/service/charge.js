@@ -2,7 +2,7 @@
  * Created by root on 8/1/16.
  */
 import * as common from './common';
-
+import * as sku from './sku';
 //This is the mongodb collection name.
 let serviceName = 'charges';
 
@@ -80,4 +80,36 @@ export function captureCharge(id, charge) {
 
 export function captureChargeByStripeID(stripeID, charge) {
     return common.captureStripeCharge(serviceName, 'stripeChargeID', stripeID, charge);
+}
+
+let chargePercent = 0.06;
+let cutoff = 30;
+export function createPercentSKUCharge(infoObj){
+    let type = infoObj.metadata.type;
+    let days = infoObj.metadata.days;
+    let skuID = infoObj.metadata.stripeSkuID;
+    return sku.getSkuByStripeID(skuID).then( (data) => {
+        if(data && data[0]) {
+            let price = data[0].price;
+            let charge = 50;
+            if (type == "day") {
+                charge = days * price * chargePercent;
+                //TBD Landlord discount probably read from sku metadata.
+
+            } else if (type == "term") {
+                if (days >= cutoff) {
+                    charge = cutoff * price * chargePercent;
+                } else {
+                    charge = days * price * chargePercent;
+                }
+            }
+            infoObj['amount'] = charge;
+            return addCharge(infoObj);
+        }
+        else{
+            throw Error('No SKU available to be charge on');
+        }
+    }, (err) => {
+        throw err;
+    });
 }

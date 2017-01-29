@@ -16,9 +16,9 @@ function exitHandler(options, err) {
         console.log('Embedded mongodb stopped.');
     });
 
-    if (options.cleanup) console.log('clean');
-    if (err) console.log(err.stack);
-    if (options.exit) process.exit();
+    if (options.cleanup){ console.log('clean');}
+    else if (err) {console.log(err.stack);}
+    //else if(options.exit) {process.exit();}
 }
 
 //do something when app is closing

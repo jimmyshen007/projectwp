@@ -1263,6 +1263,272 @@ function callStripeAPI(params){
                     });
             }
             break;
+        case 'transfers':
+            switch(params.action) {
+                case 'create':
+                    return sapi.transfers.create(params.serviceObj,
+                        {stripe_account: params.serviceObj.metadata.stripeAccID}).then(
+                        (transfer) => {
+                            let servObj = {"stripeTransID": transfer.id,
+                                "userID": transfer.metadata.userID,
+                                "stripeAccID": transfer.metadata.stripeAccID
+                                };
+                            let newInstance = new service(servObj);
+                            return newInstance.save();
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'retrieve':
+                    return service.find(
+                        constructJSONHelper(params.serviceAttrName,
+                            params.serviceAttrValue)).sort([['_id', -1]]).then((data) => {
+                        let transferPs = [];
+                        for (let d of data) {
+                            if(d.stripeTransID) {
+                                transferPs.push(sapi.transfers.retrieve(d.stripeTransID,
+                                    {stripe_account: d.stripeAccID}).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeTransID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                transferPs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(transferPs.length > 0) {
+                            return Promise.all(transferPs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+                case 'update':
+                    return service.findOne(constructJSONHelper(params.serviceAttrName,
+                        params.serviceAttrValue)).then(
+                        (data) => {
+                            return sapi.transfers.update(data.stripeTransID,
+                                params.serviceObj, {stripe_account: data.stripeAccID});
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'list':
+                    return service.find().sort([['_id', -1]]).then((data)=> {
+                        let transferPs = [];
+                        for (let d of data) {
+                            if(d.stripeTransID) {
+                                transferPs.push(sapi.transfers.retrieve(d.stripeTransID,
+                                    {stripe_account: d.stripeAccID}).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeTransID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                transferPs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(transferPs.length > 0) {
+                            return Promise.all(transferPs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+            }
+            break;
+        case 'extaccounts':
+            switch(params.action) {
+                case 'create':
+                    return sapi.accounts.createExternalAccount(params.serviceObj.metadata.stripeAccID,
+                        params.serviceObj).then(
+                        (extaccount) => {
+                            let servObj = {"stripeExtaccountID": extaccount.id,
+                                "userID": extaccount.metadata.userID,
+                                "stripeAccID": extaccount.metadata.stripeAccID
+                            };
+                            let newInstance = new service(servObj);
+                            return newInstance.save();
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'retrieve':
+                    return service.find(
+                        constructJSONHelper(params.serviceAttrName,
+                            params.serviceAttrValue)).sort([['_id', -1]]).then((data) => {
+                        let extaccountPs = [];
+                        for (let d of data) {
+                            if(d.stripeExtaccountID) {
+                                extaccountPs.push(sapi.accounts.retrieveExternalAccount(d.stripeAccID,
+                                    d.stripeExtaccountID).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeExtaccountID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                extaccountPs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(extaccountPs.length > 0) {
+                            return Promise.all(extaccountPs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+                case 'update':
+                    return service.findOne(constructJSONHelper(params.serviceAttrName,
+                        params.serviceAttrValue)).then(
+                        (data) => {
+                            return sapi.accounts.updateExternalAccount(data.stripeAccID,
+                                data.stripeExtaccountID,
+                                params.serviceObj);
+                        }, (err) => {
+                            throw err;
+                        });
+                    break;
+                case 'list':
+                    return service.find().sort([['_id', -1]]).then((data)=> {
+                        let extaccountPs = [];
+                        for (let d of data) {
+                            if(d.stripeExtaccountID) {
+                                extaccountPs.push(sapi.accounts.retrieveExternalAccount(d.stripeAccID,
+                                    d.stripeExtaccountID).then(
+                                    (data) => {
+                                        return new Promise((resolve, reject) =>{
+                                            resolve(data);
+                                        });
+                                    }, (err) => {
+                                        console.log(err);
+                                        let fakeP = new Promise((resolve, reject) => {
+                                            resolve({});
+                                        });
+                                        return fakeP;
+                                    }
+                                ));
+                            }else{
+                                //This is a background task which we do not
+                                //expect when it is done. This is when the stripeExtaccountID
+                                //is undefined, then the wrapper is a invalid one, and
+                                //we need to remove it.
+                                let fakeP = new Promise((resolve, reject) => {
+                                    resolve({});
+                                });
+                                extaccountPs.push(service.remove({_id: d._id}).then(
+                                    (data) => {
+                                        return fakeP;
+                                    }, (err)=> {
+                                        return fakeP;
+                                    }));
+                            }
+                        }
+                        if(extaccountPs.length > 0) {
+                            return Promise.all(extaccountPs);
+                        }else {
+                            let p = new Promise((resolve, reject) => {
+                                resolve([{}]);
+                            });
+                            return p;
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+                    break;
+                case 'delete':
+                    return service.findOne({_id: params.serviceId}).then((data) => {
+                        let id = data._id;
+                        if(data.stripeExtaccountID) {
+                            return sapi.accounts.deleteExternalAccount(data.stripeAccID,
+                                data.stripeExtaccountID).then((confirm) => {
+                                return service.remove({_id: id});
+                            }, (err) => {
+                                console.log(err);
+                                return service.remove({_id: id});
+                            });
+                        }else{
+                            return service.remove({_id: id});
+                        }
+                    }, (err) => {
+                        throw err;
+                    });
+            }
+            break;
     }
 }
 

@@ -16,8 +16,11 @@ function handle_response(res, data, err, errmsg){
     }
 }
 
-function handleRet(ret, res, err_msg){
+function handleRet(ret, res, err_msg, scheduling=null){
     ret.then((data) => {
+        if(scheduling){
+            scheduling(data);
+        }
         handle_response(res, data, null, null);
     }, (err) => {
         handle_response(res, null, err, err_msg);
@@ -74,7 +77,7 @@ export function testCreateCharge(req, res){
         }
     }, function(err, token) {
         // asynchronously called
-        let ret = service.addCharge({
+        let ret = createPercentSKUCharge({
             amount: 2000,
             currency: "usd",
             source: token.id, // obtained with Stripe.js
@@ -90,6 +93,35 @@ export function testCreateCharge(req, res){
         });
     });
 }
+
+export function testCreatePercentSKUCharge(req, res){
+    sapi.tokens.create({
+        email: 'maidongxi1@example.com',
+        card: {
+            "number": '4242424242424242',
+            "exp_month": 12,
+            "exp_year": 2017,
+            "cvc": '123'
+        }
+    }, function(err, token) {
+        // asynchronously called
+        let ret = service.createPercentSKUCharge({
+            "currency": "usd",
+            "source": token.id, // obtained with Stripe.js
+            "description": "Charge for maidongxi1",
+            "metadata": {"postID": "fakep", "userID": "fakeu",
+                "postAuthorID": "fakepa", "stripeAccID": "acct_18m2ZBLUxBeddbgv",
+                "stripeSkuID" : "sku_A1OiEnD1Jjy146", "days": 5, "type": "day"
+            }
+        });
+        ret.then((data) => {
+            handle_response(res, data, null, null);
+        }, (err) => {
+            handle_response(res, null, err, "Creat Percent SKUCharge Error");
+        });
+    });
+}
+
 
 export function testCreateCustomerAndCard(req, res) {
     service.addCustomer({
@@ -489,7 +521,7 @@ export function getWOrdersBySkuID(req, res){
  */
 export function addWOrder(req, res){
     let ret = service.addWOrder(req.body);
-    handleRet(ret, res, "Add WOrder Error");
+    handleRet(ret, res, "Add WOrder Error", service.scheduling);
 }
 
 /*
@@ -533,7 +565,7 @@ export function editWAccount(req, res){
  */
 export function editWOrder(req, res) {
     let ret = service.editWOrder(req.params.id, req.body);
-    handleRet(ret, res, "Edit WOrder Error");
+    handleRet(ret, res, "Edit WOrder Error", service.scheduling);
 }
 
 export function getWCharges(req, res) {
@@ -636,6 +668,45 @@ export function getWRefundsByPostAuthorID(req, res){
     handleRet(ret, res, "Get WRefunds By PostAuthorID Error");
 }
 
+export function getWTransfers(req, res) {
+    let ret = service.getWTransfers();
+    handleRet(ret, res, "Get WTransfers Error");
+}
+
+export function getWTransferByID(req, res){
+    let ret = service.getWTransferByID(req.params.id);
+    handleRet(ret, res, "Get WTransfer By ID Error");
+}
+
+export function getWTransfersByUserID(req, res){
+    let ret = service.getWTransfersByUserID(req.params.uid);
+    handleRet(ret, res, "Get WTransfers By UserID Error");
+}
+
+export function editWTransfer(req, res) {
+    let ret = service.editWTransfer(req.params.id, req.body);
+    handleRet(ret, res, "Edit WTransfer Error");
+}
+
+export function getWExtaccounts(req, res) {
+    let ret = service.getWTransfers();
+    handleRet(ret, res, "Get WTransfers Error");
+}
+
+export function getWExtaccountByID(req, res){
+    let ret = service.getWTransferByID(req.params.id);
+    handleRet(ret, res, "Get WTransfer By ID Error");
+}
+
+export function getWExtaccountsByUserID(req, res){
+    let ret = service.getWTransfersByUserID(req.params.uid);
+    handleRet(ret, res, "Get WTransfers By UserID Error");
+}
+
+export function editWExtaccount(req, res) {
+    let ret = service.editWTransfer(req.params.id, req.body);
+    handleRet(ret, res, "Edit WTransfer Error");
+}
 //*********************
 
 /*
@@ -934,6 +1005,194 @@ export function editRefundByStripeID(req, res) {
 export function editRefund(req, res) {
     let ret = service.editRefund(req.params.id, req.body);
     handleRet(ret, res, "Edit Refund Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/5884c79ecad158d63089f04c
+ * Sample output:
+ * {"data":[{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}]}
+ */
+export function getTransferByID(req, res){
+    let ret = service.getTransferByID(req.params.id);
+    handleRet(ret, res, "Get Transfer By ID Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/user/xxx
+ * Sample output:
+ * {"data":[{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}]}
+ */
+export function getTransfersByUserID(req, res){
+    let ret = service.getTransfersByUserID(req.params.uid);
+    handleRet(ret, res, "Get Transfer By UserID Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/stripeAcc/acct_18m2ZBLUxBeddbgv
+ * Sample output:
+ * {"data":[{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}]}
+ */
+export function getTransfersByStripeAccID(req, res){
+    let ret = service.getTransfersByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Transfer By StripeAccID Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/stripe/tr_19emjZLUxBeddbgvwPC5H0di
+ * Sample output:
+ * {"data":[{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}]}
+ */
+export function getTransferByStripeID(req, res){
+    let ret = service.getTransferByStripeID(req.params.id);
+    handleRet(ret, res, "Get Transfer By Stripe ID Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers
+ * Sample output:
+ * {"data":[{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}]}
+ */
+export function getTransfers(req, res){
+    let ret = service.getTransfers();
+    handleRet(ret, res, "Get Transfers Error");
+}
+
+/*
+ * Pre-requisite: need to have account activated.
+ * Sample input: api_init_path/transfers
+ *   with json {"amount": 400, "currency": "aud", "destination": "default_for_currency",  "description": "Transfer for test@example.com", "metadata": {"stripeAccID": "acct_18m2ZBLUxBeddbgv"}}
+ * Sample output:
+ * {"data":{"__v":0,"stripeTransID":"tr_19emjZLUxBeddbgvwPC5H0di","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"5884c79ecad158d63089f04c"}}
+ *
+ *  A complete test case to create a customer and a card is under api_path/cards/test/createCusAndCard.
+ */
+export function addTransfer(req, res) {
+    let ret = service.addTransfer(req.body);
+    handleRet(ret, res, "Add Transfer Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/stripe/tr_19emjZLUxBeddbgvwPC5H0di with json {"description": "transfer edit"}
+ * Sample output:
+ * {"data":{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}}
+ */
+export function editTransferByStripeID(req, res) {
+    let ret = service.editTransferByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Transfer By StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/transfers/5884c79ecad158d63089f04c  with json {"description": "transfer edit"}
+ *
+ * Sample output:
+ * {"data":{"id":"tr_19emjZLUxBeddbgvwPC5H0di","object":"transfer","amount":400,"amount_reversed":0,"application_fee":null,"balance_transaction":"txn_19emjZLUxBeddbgvQk0k0HR4","bank_account":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","routing_number":"11 0000","status":"new"},"created":1485096861,"currency":"aud","date":1485129600,"description":"transfer edit","destination":"ba_19ekDELUxBeddbgvfA5XQdet","failure_code":null,"failure_message":null,"livemode":false,"metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv"},"method":"standard","recipient":null,"reversals":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/transfers/tr_19emjZLUxBeddbgvwPC5H0di/reversals"},"reversed":false,"source_transaction":null,"source_type":"card","statement_descriptor":null,"status":"paid","type":"bank_account"}}
+ */
+export function editTransfer(req, res) {
+    let ret = service.editTransfer(req.params.id, req.body);
+    handleRet(ret, res, "Edit Transfer Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/5884a1c0cad158d63089f049
+ * Sample output:
+ * {"data":[{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}]}
+ */
+export function getExtaccountByID(req, res){
+    let ret = service.getExtaccountByID(req.params.id);
+    handleRet(ret, res, "Get Extaccount By ID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/user/fakeu
+ * Sample output:
+ * {"data":[{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}]}
+ */
+export function getExtaccountsByUserID(req, res){
+    let ret = service.getExtaccountsByUserID(req.params.uid);
+    handleRet(ret, res, "Get Extaccount By UserID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/stripeAcc/acct_18m2ZBLUxBeddbgv
+ * Sample output:
+ * {"data":[{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}]}
+ */
+export function getExtaccountsByStripeAccID(req, res){
+    let ret = service.getExtaccountsByStripeAccID(req.params.id);
+    handleRet(ret, res, "Get Extaccount By StripeAccID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/stripe/ba_19ekDELUxBeddbgvfA5XQdet
+ * Sample output:
+ * {"data":[{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}]}
+ */
+export function getExtaccountByStripeID(req, res){
+    let ret = service.getExtaccountByStripeID(req.params.id);
+    handleRet(ret, res, "Get Extaccount By Stripe ID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts
+ * Sample output:
+ * {"data":[{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}]}
+ */
+export function getExtaccounts(req, res){
+    let ret = service.getExtaccounts();
+    handleRet(ret, res, "Get Extaccounts Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts with json {"external_account":
+ *      {"object": "bank_account", "account_number": "000123456", "country": "AU", "currency": "aud",
+ *      "routing_number": "110000"}, "metadata": {"stripeAccID": "acct_18m2ZBLUxBeddbgv",
+ *      "userID": "fakeu"}} or {"external_account": TOKEN_FROM_STRIPE_JS}
+ *
+ *      The first one is best for testing purpose, and the latter one is preferred, since user info
+ *      won't leak by going through our own server. Stripe.js takes care of converting the info into
+ *      a token.
+ *
+ *      Note: the above info is for testing Australian based accounts.
+ *      "routing_number" is actually the BSB number in Australia.
+ *      For complete testing account number or routing number, please refer to:
+ *      https://stripe.com/docs/testing#managed-accounts
+ *
+ * Sample output:
+ * {"data":{"__v":0,"stripeExtaccountID":"ba_19ekDELUxBeddbgvfA5XQdet","userID":"fakeu","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"5884a1c0cad158d63089f049"}}
+ */
+export function addExtaccount(req, res) {
+    let ret = service.addExtaccount(req.body);
+    handleRet(ret, res, "Add Extaccount Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/587cc25c73c0fe250d131b21 with json ﻿{"metadata": {"edit": "random"}}
+ * Sample output:
+ * {"data":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}}
+ */
+export function editExtaccountByStripeID(req, res) {
+    let ret = service.editExtaccountByStripeID(req.params.id, req.body);
+    handleRet(ret, res, "Edit Extaccount By StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/stripe/cus_9wSv1SiJ13RqYS with json ﻿{"metadata": {"edit": "random"}}
+ * Sample output:
+ * {"data":{"id":"ba_19ekDELUxBeddbgvfA5XQdet","object":"bank_account","account":"acct_18m2ZBLUxBeddbgv","account_holder_name":null,"account_holder_type":null,"bank_name":"STRIPE TEST BANK","country":"AU","currency":"aud","default_for_currency":true,"fingerprint":"ilYd0gjZFiyFWQwU","last4":"3456","metadata":{"stripeAccID":"acct_18m2ZBLUxBeddbgv","userID":"fakeu","edit":"random"},"routing_number":"11 0000","status":"new"}}
+ */
+export function editExtaccount(req, res) {
+    let ret = service.editExtaccount(req.params.id, req.body);
+    handleRet(ret, res, "Edit Extaccount by StripeID Error");
+}
+
+/*
+ * Sample input: api_init_path/extaccounts/5884a1c0cad158d63089f049
+ * Sample output:
+ * {"data":{"n":1,"ok":1}}
+ */
+export function deleteExtaccount(req, res) {
+    let ret = service.deleteExtaccount(req.params.id);
+    handleRet(ret, res, "Delete Extaccount Error");
 }
 
 /**
@@ -1428,6 +1687,14 @@ export function editAccountByStripeID(req, res) {
 /**
  *
  * Sample input: API_INITIAL_PATH/accounts/xxxx with JSON: {"email": "abc@a.com"}
+ *
+ *  * To active the test account, the following json can be used:
+ * {"legal_entity": {"dob": {"day": "01", "month": "01", "year": "1990"}, "first_name": "bob", "last_name": "dylan",
+ *  "type": "individual", "address": {"line1": "417 St kilda Rd", "city": "South Yarra",
+ *  "postal_code": "3141", "state": "Victoria"}}, "tos_acceptance": {"date": "1485095876", "ip": "10.134.12.134"}}
+ *
+ * date field is in secend. so one can use "new Date().getTime() / 1000" to get one.
+ *
  * Sample response:
  * {"data":{"id":"acct_18mQzLAClEnsczj2","object":"account","business_logo":null,"business_name":null,"business_url":null,"charges_enabled":true,"country":"AU","debit_negative_balances":false,"decline_charge_on":{"avs_failure":false,"cvc_failure":false},"default_currency":"aud","details_submitted":false,"display_name":null,"email":"abc@a.com","external_accounts":{"object":"list","data":[],"has_more":false,"total_count":0,"url":"/v1/accounts/acct_18mQzLAClEnsczj2/external_accounts"},"legal_entity":{"address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"business_name":null,"business_tax_id_provided":false,"dob":{"day":null,"month":null,"year":null},"first_name":null,"last_name":null,"personal_address":{"city":null,"country":"AU","line1":null,"line2":null,"postal_code":null,"state":null},"type":null,"verification":{"details":null,"details_code":null,"document":null,"status":"unverified"}},"managed":true,"metadata":{"userID":"123"},"product_description":null,"statement_descriptor":null,"support_email":null,"support_phone":null,"timezone":"Etc/UTC","tos_acceptance":{"date":null,"ip":null,"user_agent":null},"transfer_schedule":{"delay_days":2,"interval":"daily"},"transfers_enabled":false,"verification":{"disabled_reason":"fields_needed","due_by":null,"fields_needed":["external_account","legal_entity.dob.day","legal_entity.dob.month","legal_entity.dob.year","legal_entity.first_name","legal_entity.last_name","legal_entity.type","tos_acceptance.date","tos_acceptance.ip"]},"currencies_supported":["usd","aed","all","ang","ars","aud","awg","bbd","bdt","bif","bmd","bnd","bob","brl","bsd","bwp","bzd","cad","chf","clp","cny","cop","crc","cve","czk","djf","dkk","dop","dzd","egp","etb","eur","fjd","fkp","gbp","gip","gmd","gnf","gtq","gyd","hkd","hnl","hrk","htg","huf","idr","ils","inr","isk","jmd","jpy","kes","khr","kmf","krw","kyd","kzt","lak","lbp","lkr","lrd","ltl","mad","mdl","mnt","mop","mro","mur","mvr","mwk","mxn","myr","nad","ngn","nio","nok","npr","nzd","pab","pen","pgk","php","pkr","pln","pyg","qar","rub","sar","sbd","scr","sek","sgd","shp","sll","sos","std","svc","szl","thb","top","ttd","twd","tzs","uah","ugx","uyu","uzs","vnd","vuv","wst","xaf","xof","xpf","yer","zar"]}}
  */
@@ -1480,6 +1747,25 @@ export function rejectAccountByStripeID(req, res){
     }, (err) => {
         handle_response(res, null, err, "Reject Account By Stripe ID Error");
     });
+}
+
+/**
+ * Sample input: API_INITIAL_PATH/charges with json: {
+            "currency": "usd",
+            "source": token.id, // obtained with Stripe.js
+            "description": "Charge for maidongxi1",
+            "metadata": {"postID": "fakep", "userID": "fakeu",
+                "postAuthorID": "fakepa", "stripeAccID": "acct_18m2ZBLUxBeddbgv",
+                "stripeSkuID": "sku_A1OiEnD1Jjy146", "days": 5, "type": "day"
+                }
+        }
+   For an example, please see testCreatePercentSKUCharge function.
+ * Sample data response:
+ * {"data":{"__v":0,"stripeChargeID":"ch_19hMRJLUxBeddbgvz0HZRkBD","postID":"fakep","userID":"fakeu","postAuthorID":"fakepa","stripeAccID":"acct_18m2ZBLUxBeddbgv","_id":"588e25b22392cf6e693b0bb9"}}
+ */
+export function createPercentSKUCharge(req, res){
+    let ret = service.createPercentSKUCharge(req.body);
+    handleRet(ret, res, "Creat PercentSKUCharge Error.");
 }
 
 /* Email */
