@@ -1,5 +1,5 @@
 import * as common from './common';
-
+import schedule from 'node-schedule';
 //This is the mongodb collection name.
 let serviceName = 'orders';
 
@@ -112,4 +112,57 @@ export function payOrderByStripeID(id, servObject) {
 
 export function returnOrderByStripeID(id, servObject) {
     return common.returnStripeOrder(serviceName, 'stripeOrderID', id, servObject);
+}
+
+/*
+ * Construct a future date with n days after.
+ */
+function ndaysAfter(days){
+    let ndaysAfter = new Date(new Date().getTime() + days * 24 * 60 * 60 * 1000);
+    return ndaysAfter;
+}
+
+function createScheduleJob(delay, worderID, prevStatus){
+    var j = schedule.scheduleJob(delay, function(id, prevStatus){
+        //If the worder still exists.
+        getWOrderByID(id).then((data) => {
+            if(data){
+                let inactive = false;
+                // This indicates landlord did not approve the app in time.
+                if(data.appStatus == 'init' && prevStatus == 'init'){
+                    inactive = true;
+                }
+                // This indicates tenant did not pay for the order in time.
+                else if(data.appStatus == 'approved' && prevStatus == 'approved'){
+                    inactive = true;
+                }
+                if(inactive) {
+                    editWOrder(worderID, {appStatus: 'inactive'}).then((data) => {
+                        console.log('Inactivated order: ' + data._id);
+                    }, (err) => {
+                        console.log(err);
+                    });
+                }
+            }
+        });
+    }.bind(null, worderID, prevStatus));
+}
+
+export function scheduling(worder){
+    getOrderById(worder._id).then((data) => {
+        // If we found the application i.e. the worder.
+        if(data && data[0]) {
+            let daysDelay = null;
+            switch (worder.appStatus) {
+                case 'init':
+                    daysDelay = ndaysAfter(1);
+                    createScheduleJob(daysDelay, worder._id, worder.appStatus);
+                    break;
+                case 'approved':
+                    daysDelay = ndaysAfter(2);
+                    createScheduleJob(daysDelay, worder._id, worder.appStatus);
+                    break;
+            }
+        }
+    });
 }

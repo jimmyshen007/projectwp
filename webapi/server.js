@@ -60,7 +60,85 @@ app.get('/api/0/wcharges/user/:uid', api.getWChargesByUserID);
 app.get('/api/0/wcharges/post/:pid', api.getWChargesByPostID);
 app.get('/api/0/wcharges/postAuthor/:paid', api.getWChargesByPostAuthorID);
 app.post('/api/0/wcharges/:id', api.editWCharge);
+
+app.get('/api/0/wcards', api.getWCards);
+app.get('/api/0/wcards/:id', api.getWCardByID);
+app.get('/api/0/wcards/user/:uid', api.getWCardsByUserID);
+app.post('/api/0/wcards/:id', api.editWCard);
+
+app.get('/api/0/wcustomers', api.getWCustomers);
+app.get('/api/0/wcustomers/:id', api.getWCustomerByID);
+app.get('/api/0/wcustomers/user/:uid', api.getWCustomersByUserID);
+app.post('/api/0/wcustomers/:id', api.editWCustomer);
+
+app.get('/api/0/wrefunds', api.getWRefunds);
+app.get('/api/0/wrefunds/:id', api.getWRefundByID);
+app.get('/api/0/wrefunds/user/:uid', api.getWRefundsByUserID);
+app.get('/api/0/wrefunds/post/:pid', api.getWRefundsByPostID);
+app.get('/api/0/wrefunds/postAuthor/:paid', api.getWRefundsByPostAuthorID);
+app.post('/api/0/wrefunds/:id', api.editWRefund);
+
+app.get('/api/0/wtransfers', api.getWTransfers);
+app.get('/api/0/wtransfers/:id', api.getWTransferByID);
+app.get('/api/0/wtransfers/user/:uid', api.getWTransfersByUserID);
+app.post('/api/0/wtransfers/:id', api.editWTransfer);
+
+app.get('/api/0/wextaccounts', api.getWExtaccounts);
+app.get('/api/0/wextaccounts/:id', api.getWExtaccountByID);
+app.get('/api/0/wextaccounts/user/:uid', api.getWExtaccountsByUserID);
+app.post('/api/0/wextaccounts/:id', api.editWExtaccount);
 //*****
+
+app.get('/api/0/cards', api.getCards);
+app.get('/api/0/cards/:id', api.getCardByID);
+app.get('/api/0/cards/stripe/:id', api.getCardByStripeID);
+app.get('/api/0/cards/user/:uid', api.getCardsByUserID);
+app.get('/api/0/cards/stripeAcc/:id', api.getCardsByStripeAccID);
+app.get('/api/0/cards/stripeCus/:id', api.getCardsByStripeCusID);
+app.post('/api/0/cards', api.addCard);
+app.post('/api/0/cards/:id', api.editCard);
+app.post('/api/0/cards/stripe/:id', api.editCardByStripeID);
+app.delete('/api/0/cards/:id', api.deleteCard);
+
+app.get('/api/0/customers', api.getCustomers);
+app.get('/api/0/customers/:id', api.getCustomerByID);
+app.get('/api/0/customers/stripe/:id', api.getCustomerByStripeID);
+app.get('/api/0/customers/user/:uid', api.getCustomersByUserID);
+app.get('/api/0/customers/stripeAcc/:id', api.getCustomersByStripeAccID);
+app.post('/api/0/customers', api.addCustomer);
+app.post('/api/0/customers/:id', api.editCustomer);
+app.post('/api/0/customers/stripe/:id', api.editCustomerByStripeID);
+app.delete('/api/0/customers/:id', api.deleteCustomer);
+
+app.get('/api/0/transfers', api.getTransfers);
+app.get('/api/0/transfers/:id', api.getTransferByID);
+app.get('/api/0/transfers/stripe/:id', api.getTransferByStripeID);
+app.get('/api/0/transfers/user/:uid', api.getTransfersByUserID);
+app.get('/api/0/transfers/stripeAcc/:id', api.getTransfersByStripeAccID);
+app.post('/api/0/transfers', api.addTransfer);
+app.post('/api/0/transfers/:id', api.editTransfer);
+app.post('/api/0/transfers/stripe/:id', api.editTransferByStripeID);
+
+app.get('/api/0/extaccounts', api.getExtaccounts);
+app.get('/api/0/extaccounts/:id', api.getExtaccountByID);
+app.get('/api/0/extaccounts/stripe/:id', api.getExtaccountByStripeID);
+app.get('/api/0/extaccounts/user/:uid', api.getExtaccountsByUserID);
+app.get('/api/0/extaccounts/stripeAcc/:id', api.getExtaccountsByStripeAccID);
+app.post('/api/0/extaccounts', api.addExtaccount);
+app.post('/api/0/extaccounts/:id', api.editExtaccount);
+app.post('/api/0/extaccounts/stripe/:id', api.editExtaccountByStripeID);
+app.delete('/api/0/extaccounts/:id', api.deleteExtaccount);
+
+app.get('/api/0/refunds', api.getRefunds);
+app.get('/api/0/refunds/:id', api.getRefundByID);
+app.get('/api/0/refunds/stripe/:id', api.getRefundByStripeID);
+app.get('/api/0/refunds/user/:uid', api.getRefundsByUserID);
+app.get('/api/0/refunds/post/:pid', api.getRefundsByPostID);
+app.get('/api/0/refunds/postAuthor/:pid', api.getRefundsByPostAuthorID);
+app.get('/api/0/refunds/stripeAcc/:id', api.getRefundsByStripeAccID);
+app.post('/api/0/refunds', api.addRefund);
+app.post('/api/0/refunds/:id', api.editRefund);
+app.post('/api/0/refunds/stripe/:id', api.editRefundByStripeID);
 
 app.get('/api/0/orders', api.getOrders);
 app.get('/api/0/orders/:id', api.getOrderByID);
@@ -78,8 +156,6 @@ app.post('/api/0/orders/return/:id', api.returnOrder);
 app.post('/api/0/orders/pay/stripe/:id', api.payOrderByStripeID);
 app.post('/api/0/orders/return/stripe/:id', api.returnOrderByStripeID);
 app.delete('/api/0/orders/:id', api.deleteOrder);
-app.post('/api/0/orders/test/pay/:id', api.testPayOrder);
-app.post('/api/0/orders/test/return/:id', api.testReturnOrder);
 
 app.get('/api/0/favorites', api.getFavorites);
 app.get('/api/0/favorites/:id', api.getFavoriteByID);
@@ -91,7 +167,7 @@ app.delete('/api/0/favorites/:id', api.deleteFavorite);
 app.get('/api/0/products', api.getProducts);
 app.get('/api/0/products/:id', api.getProductByID);
 app.get('/api/0/products/stripe/:id', api.getProductByStripeID);
-app.get('/api/0/products/post/:pid', api.getProductsByPostID);
+app.get('/api/0/products/post/:uid', api.getProductsByPostID);
 app.get('/api/0/products/stripeAcc/:id', api.getProductsByStripeAccID);
 app.post('/api/0/products', api.addProduct);
 app.post('/api/0/products/:id', api.editProduct);
@@ -121,7 +197,7 @@ app.post('/api/0/charges/:id', api.editCharge);
 app.post('/api/0/charges/stripe/:id', api.editChargeByStripeID);
 app.post('/api/0/charges/capture/:id', api.captureCharge);
 app.post('/api/0/charges/capture/stripe/:id', api.captureChargeByStripeID);
-app.post('/api/0/charges/test/create', api.testCreateCharge);
+app.post('/api/0/charges/createPercentSKUCharge', api.createPercentSKUCharge);
 
 app.get('/api/0/accounts', api.getAccounts);
 app.get('/api/0/accounts/:id', api.getAccountByID);
@@ -133,6 +209,14 @@ app.post('/api/0/accounts/stripe/:id', api.editAccountByStripeID);
 app.post('/api/0/accounts/reject/:id', api.rejectAccount);
 app.post('/api/0/accounts/reject/stripe/:id', api.rejectAccountByStripeID);
 app.delete('/api/0/accounts/:id', api.deleteAccount);
+
+
+// Test API
+app.post('/api/0/orders/test/pay/:id', api.testPayOrder);
+app.post('/api/0/orders/test/return/:id', api.testReturnOrder);
+app.post('/api/0/charges/test/create', api.testCreateCharge);
+app.post('/api/0/cards/test/createCusAndCard', api.testCreateCustomerAndCard);
+app.post('/api/0/charges/test/createPercentSKUCharge', api.testCreatePercentSKUCharge);
 
 // The following apis are deprecated.
 /*
@@ -149,6 +233,9 @@ app.delete('/api/0/accounts/:id', api.deleteAccount);
 //
 app.post('/api/0/sendMail', api.sendMail);
 
+// APIs for getting cities or schools.
+app.get('/api/0/schools', api.getSchools);
+app.get('/api/0/cities', api.getCities);
 
 db.once('open', ()=> {
     httpServer.listen(port);

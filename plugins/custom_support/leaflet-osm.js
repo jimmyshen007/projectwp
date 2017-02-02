@@ -72,12 +72,20 @@ L.OSM.DataLayer = L.FeatureGroup.extend({
     uninterestingTags: ['source', 'source_ref', 'source:ref', 'history', 'attribution', 'created_by', 'tiger:county', 'tiger:tlid', 'tiger:upload_uuid'],
     styles: {},
     targetPoint: null, //The point to search around by.
-    mapObj: null //Main map object constructed before.
+    mapObj: null, //Main map object constructed before.
+    lineStyles: {'mapbox/walking': [{color: 'black', opacity: 0.15, weight: 9}, {color: 'white', opacity: 0.8, weight: 6}, {color: 'red', opacity: 1, weight: 2}],
+        'mapbox/driving': [{color: 'black', opacity: 0.15, weight: 9}, {color: 'white', opacity: 0.8, weight: 6}, {color: 'blue', opacity: 1, weight: 2}],
+        'mapbox/cycling': [{color: 'black', opacity: 0.15, weight: 9}, {color: 'white', opacity: 0.8, weight: 6}, {color: 'yellow', opacity: 1, weight: 2}]
+    }
   },
 
-  layerSelf: this,
   initialize: function (xml, options) {
     L.Util.setOptions(this, options);
+
+    if (this.options.mapObj && curRouteControl) {
+      curRouteControl.removeFrom(this.options.mapObj);
+      curRouteControl = null;
+    }
 
     L.FeatureGroup.prototype.initialize.call(this);
 
@@ -104,7 +112,8 @@ L.OSM.DataLayer = L.FeatureGroup.extend({
         router: L.Routing.mapbox('pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg',
             {profile: profile}),
         collapsible: true,
-        show: false
+        show: false,
+        lineOptions: {styles: self.options.lineStyles[profile]}
       });
       if (self.options.mapObj) {
         curRouteControl.addTo(self.options.mapObj);

@@ -1,0 +1,14 @@
+{"name": "Melbourne", "state": "Victoria", "country": "Australia", "zh_name": "墨尔本", "icon_id": "cmel", "hits": 100}
+{"name": "Sydney", "state": "New South Wales", "country": "Australia", "zh_name": "悉尼", "icon_id": "csyd", "hits": 100}
+{"name": "Brisbane", "state": "Queensland", "country": "Australia", "zh_name": "布里斯班", "icon_id": "cbri", "hits": 100}
+{"name": "Canberra", "state": "Australian Capital Territory", "country": "Australia", "zh_name": "堪培拉", "icon_id": "ccan",  "hits": 100}
+{"name": "Perth", "state": "Western Australia", "country": "Australia", "zh_name": "珀斯", "icon_id": "cper", "hits": 100}
+{"name": "Adelaide", "state": "South Australia", "country": "Australia", "zh_name": "阿德莱德", "icon_id": "cade", "hits": 100}
+{"name": "Gold Coast", "state": "Queensland", "country": "Australia", "zh_name": "黄金海岸", "icon_id": "cgct", "hits": 100}
+
+{"name": "New York", "state": "New York", "country": "USA", "zh_name": "纽约", "icon_id": "cnyc", "hits": 100}
+{"name": "Los Angeles", "state": "California", "country": "USA", "zh_name": "洛杉矶", "icon_id": "clax", "hits": 100}
+{"name": "San Francisco", "state": "California", "country": "USA", "zh_name": "旧金山", "icon_id": "csfo", "hits": 100}
+{"name": "Chicago", "state": "Illinois", "country": "USA", "zh_name": "芝加哥", "icon_id": "cchi", "hits": 100}
+{"name": "Seattle", "state": "Washington", "country": "USA", "zh_name": "西雅图", "icon_id": "csea", "hits": 100}
+{"name": "San Diego", "state": "California", "country": "USA", "zh_name": "圣地亚哥", "icon_id": "csdo", "hits": 100}

@@ -10112,6 +10112,7 @@ var GeocoderControl = L.Control.extend({
 
     _chooseResult: function(result) {
     	var eplform = L.DomUtil.get('my_epl_form');
+    	var search_input = L.DomUtil.get('mb-search-input');
         if (result.bbox) {
             this._map.fitBounds(util.lbounds(result.bbox));
             // Remove center coodinates input fields.
@@ -10127,6 +10128,7 @@ var GeocoderControl = L.Control.extend({
         	var bbMinLat = L.DomUtil.get('my_epl_bb_min_lat');
         	if(!bbMinLat){
         		bbMinLat = L.DomUtil.create('input', '', eplform);
+        		bbMinLat.type = 'hidden';
         		bbMinLat.id = "my_epl_bb_min_lat";
         		bbMinLat.name = "my_epl_bb_min_lat";
         	}
@@ -10134,6 +10136,7 @@ var GeocoderControl = L.Control.extend({
         	var bbMaxLat = L.DomUtil.get('my_epl_bb_max_lat');
         	if(!bbMaxLat){
         		bbMaxLat = L.DomUtil.create('input', '', eplform);
+        		bbMaxLat.type = 'hidden';
         		bbMaxLat.id = "my_epl_bb_max_lat";
         		bbMaxLat.name = "my_epl_bb_max_lat";
         	}
@@ -10142,6 +10145,7 @@ var GeocoderControl = L.Control.extend({
         	var bbMinLng = L.DomUtil.get('my_epl_bb_min_lng');
         	if(!bbMinLng){
         		bbMinLng = L.DomUtil.create('input', '', eplform);
+        		bbMinLng.type = 'hidden';
         		bbMinLng.id = "my_epl_bb_min_lng";
         		bbMinLng.name = "my_epl_bb_min_lng";
         	}
@@ -10149,13 +10153,14 @@ var GeocoderControl = L.Control.extend({
         	var bbMaxLng = L.DomUtil.get('my_epl_bb_max_lng');
         	if(!bbMaxLng){
         		bbMaxLng = L.DomUtil.create('input', '', eplform);
+        		bbMaxLng.type = 'hidden';
         		bbMaxLng.id = "my_epl_bb_max_lng";
         		bbMaxLng.name = "my_epl_bb_max_lng";
         	}
         	bbMaxLng.value = result.bbox[2];
-            if(eplform){
-                $(eplform).submit();
-            }
+        	if(search_input){
+        		search_input.value = result.place_name;
+        	}
         } else if (result.center) {
         	// Remove bounding box coordinates input fields.
         	var bbMinLat = L.DomUtil.get('my_epl_bb_min_lat');
@@ -10179,6 +10184,7 @@ var GeocoderControl = L.Control.extend({
         	var inputLat = L.DomUtil.get('my_epl_input_lat');
         	if(!inputLat){
         		inputLat = L.DomUtil.create('input', '', eplform);
+        		inputLat.type = 'hidden';
         		inputLat.id = "my_epl_input_lat";
         		inputLat.name = "my_epl_input_lat";
         	}
@@ -10186,17 +10192,20 @@ var GeocoderControl = L.Control.extend({
             var inputLng = L.DomUtil.get('my_epl_input_lng');
             if(!inputLng){
             	inputLng = L.DomUtil.create('input', '', eplform);
+            	inputLng.type = 'hidden';
             	inputLng.id = "my_epl_input_lng";
             	inputLng.name = "my_epl_input_lng";
             }
             inputLng.value = result.center[0];
+            if(search_input){
+        		search_input.value = result.place_name;
+        	}
             this._map.setView([result.center[1], result.center[0]], (this._map.getZoom() === undefined) ?
                 this.options.pointZoom :
                 Math.max(this._map.getZoom(), this.options.pointZoom));
-
-            if(eplform){
-                $(eplform).submit();
-            }
+        }
+        if(L.DomUtil.get('epl_action')){
+        	$(eplform).submit();
         }
     },
 

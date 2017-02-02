@@ -1264,6 +1264,9 @@ class CustomSearchPageGenerator
 			echo $like_scrpit2;
 			// the Loop
 			while (have_posts()) : the_post();
+				if(!is_epl_post()){
+					continue;
+				}
 				//do_action('epl_property_blog');
 				$idx = $idx % $cols;
 
