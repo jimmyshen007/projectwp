@@ -1,6 +1,6 @@
 import * as service from './service';
 import stripe from 'stripe';
-let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
+let sapi = stripe('sk_test_tpFrMjZ9ivdUjnEeEXDiqq98');
 
 function handle_response(res, data, err, errmsg){
     if(!err) {

@@ -91,7 +91,7 @@ curl_close($ch);
                                                                 <tbody>
                                                                 <tr>
                                                                     <td width="40%">
-                                                                        <img style="height: 200px; width: 300px" src=<?php echo '/wordpress/wp-content/uploads/'.$pic_arr[$results[$i]['id']];?> alt="icon">
+                                                                        <img style="height: 200px; width: 300px" src=<?php echo '/wp-content/uploads/'.$pic_arr[$results[$i]['id']];?> alt="icon">
                                                                     </td>
                                                                     <td valign="top" width="52%">
                                                                         <ul style="list-style-type: none;margin-bottom: 0px;margin-left: 15px">
@@ -103,7 +103,7 @@ curl_close($ch);
                                                                                     <span style="color: grey">
                                                                                         <?php
                                                                                             if ($results2[$i*$subArraySz+2]['meta_value'] !='')
-                                                                                                echo $results2[$i*$subArraySz+2]['meta_value'].'/';
+                                                                                                echo $results2[$i*$subArraySz+2]['meta_value'].' ';
                                                                                             echo $results2[$i*$subArraySz+1]['meta_value'].', '.$results2[$i*$subArraySz+3]['meta_value']
                                                                                         ?>
                                                                                     </span>
