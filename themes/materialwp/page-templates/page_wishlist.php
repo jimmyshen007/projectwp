@@ -69,10 +69,10 @@ curl_close($ch);
                         <p></p>
                         <div>
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
-                                <li><a href="/wordpress/?page_id=118">Profile</a></li>
-                                <li class="active"><a href="/wordpress/?page_id=138">Wish List</a></li>
-                                <li><a href="/wordpress/?page_id=136">Your Listings</a></li>
-                                <li><a href="/wordpress/?page_id=140 ">Orders</a></li>
+                                <li><a href="/your-profile/">Profile</a></li>
+                                <li class="active"><a href="/your-profile/wish-list/">Wish List</a></li>
+                                <li><a href="/your-profile/users-listings/">Your Listings</a></li>
+                                <li><a href="/your-profile/users-orders/">Orders</a></li>
                             </ul>
                         </div>
                         <div class="panel panel-default">
@@ -91,7 +91,7 @@ curl_close($ch);
                                                                 <tbody>
                                                                 <tr>
                                                                     <td width="40%">
-                                                                        <img style="height: 200px; width: 300px" src=<?php echo '/wordpress/wp-content/uploads/'.$pic_arr[$results[$i]['id']];?> alt="icon">
+                                                                        <img style="height: 200px; width: 300px" src=<?php echo '/wp-content/uploads/'.$pic_arr[$results[$i]['id']];?> alt="icon">
                                                                     </td>
                                                                     <td valign="top" width="52%">
                                                                         <ul style="list-style-type: none;margin-bottom: 0px;margin-left: 15px">
@@ -103,7 +103,7 @@ curl_close($ch);
                                                                                     <span style="color: grey">
                                                                                         <?php
                                                                                             if ($results2[$i*$subArraySz+2]['meta_value'] !='')
-                                                                                                echo $results2[$i*$subArraySz+2]['meta_value'].'/';
+                                                                                                echo $results2[$i*$subArraySz+2]['meta_value'].' ';
                                                                                             echo $results2[$i*$subArraySz+1]['meta_value'].', '.$results2[$i*$subArraySz+3]['meta_value']
                                                                                         ?>
                                                                                     </span>

@@ -1,25 +1,32 @@
 <?php
 
-global $post, $wpdb;
+global $post, $wpdb, $user_ID;
 if($post->post_type != "rental" && $post->post_type != "property" && $post->post_type != "business")
 	return;
 
 $query = 'SELECT meta_key,meta_value FROM `wp_postmeta` '.
 	' WHERE post_id = '.$post->ID.' and (meta_key=\'property_rent\' or meta_key=\'property_rent_period\' or '.
-	'meta_key=\'property_address_country\')'.
+	'meta_key=\'property_address_country\' or meta_key= \'short_long_term\')'.
 	'ORDER by meta_key asc';
+
+$query2 = 'SELECT post_author, user_email FROM wp_posts, wp_users where wp_posts.post_author = wp_users.ID and wp_posts.ID='. $post->ID;
+
 
 $results = $wpdb->get_results( $query, ARRAY_A );
 /* results
  * 0: property_address_country
  * 1: property_rent
  * 2: property_rent_period
+ * 3: short_long_term
  * */
+
 $currency = ($results[0]['meta_key'] == 'property_address_country' && $results[0]['meta_value'] == 'Australia') ? "AUD" : "USD";
 if ($results[1]['meta_key'] == 'property_rent')
 	$rent = $results[1]['meta_value'];
 if ($results[2]['meta_key'] == 'property_rent_period')
 	$rent_period = $results[2]['meta_value'];
+
+$isShortTerm = ($results[3]['meta_key'] == 'short_long_term' && $results[3]['meta_value'] == 'short') ? true : false;
 
 switch ($rent_period) {
 	case 'day':
@@ -40,10 +47,35 @@ switch ($rent_period) {
 		break;
 }
 
-?>
+$service_fee = 50;
+if($isShortTerm == true) {
+	$rest_fee = $rent; 
+}
+else {
+	$total_fee = $deposit + $service_fee*100;
+	$preorder_depoist = round($total_fee*0.1, 0);
+	$rest_fee = $total_fee - $preorder_depoist;
+}
 
-<button id="hidelogin" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#complete-dialog">Open dialog</button>
-<div id="complete-dialog" class="modal fade" tabindex="-1">
+$results2 = $wpdb->get_results( $query2, ARRAY_A );
+
+$authorID = $results2[0]['post_author'];
+$user_email = $results2[0]['user_email'];
+
+$pp_value = get_user_meta( $user_ID, "Passport", false);
+$pp_exiry_value = get_user_meta( $user_ID, "passport_expire_date", false);
+
+if(count($pp_value) > 0 && count($pp_exiry_value)) {
+	$isVerified = 1;
+} else {
+	$isVerified = 0;
+}
+
+?>
+<script type="text/javascript" src="https://js.stripe.com/v2/"></script>
+
+<button id="hidelogin" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#login-dialog">Open dialog</button>
+<div id="login-dialog" class="modal fade" tabindex="-1">
 	<div class="modal-dialog" style="width: 500px; height:400px;">
 		<div class="modal-content">
 			<div class="modal-header">
@@ -96,7 +128,7 @@ switch ($rent_period) {
 							<tbody>
 								<tr>
 									<td style="vertical-align: middle"><span style="font-size: 16px;">Don't have an account?</span></td>
-									<td style="float: right"><a href="http://localhost/wordpress/?page_id=165" class="btn btn-default" style="border: 1px solid #009688; border-radius: 2px"><span style="color: #009688">Sign Up</span></a></td>
+									<td style="float: right"><a href="/your-profile/" class="btn btn-default" style="border: 1px solid #009688; border-radius: 2px"><span style="color: #009688">Sign Up</span></a></td>
 								</tr>
 							</tbody>
 						</table>
@@ -104,6 +136,296 @@ switch ($rent_period) {
 				</div>
 			</div>
 			<div class="modal-footer">
+			</div>
+		</div>
+	</div>
+</div>
+
+<button id="uploadDocBtn" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#upload-dialog">Open dialog</button>
+<script type="text/javascript">
+	// Expect input as y-m-d
+	function isValidDate(s) {
+		var bits = s.split('-');
+		var d = new Date(bits[1], bits[1] - 1, bits[2]);
+		return d && (d.getMonth() + 1) == bits[1];
+	}
+
+	$( function() {
+		var dateFormat = "yy-mm-dd";
+		$( "#pp_expiry_date" ).datepicker({
+				dateFormat: dateFormat,
+				minDate: 0
+			})
+			.on( "change", function() {
+				var pp_expiry = document.getElementById("pp_expiry_date").value;
+				if (pp_expiry != "") {
+					if (!isValidDate(pp_expiry)) {
+						document.getElementById("pp_expiry_date").value = "";
+					}
+				}
+			});
+	} );
+
+	function isValidForm()
+	{
+		var pp_expiry = document.getElementById("pp_expiry_date").value;
+
+		if(document.getElementById("passport").value == '')
+		{
+			document.getElementById("errorTxt").innerHTML="Error: Please upload your passport";
+			document.getElementById("errorTxt").style.visibility = "visible";
+			return false;
+		}
+		else
+		{
+			if (pp_expiry == "") {
+				document.getElementById("errorTxt").innerHTML="Error: Please provide expiry date of your passport.";
+				document.getElementById("errorTxt").style.visibility = "visible";
+				return false;
+			} else if (!isValidDate(pp_expiry)) {
+				document.getElementById("errorTxt").innerHTML="Error: Invalid expiry date of passport.";
+				document.getElementById("errorTxt").style.visibility = "visible";
+				return false;
+			}
+		}
+
+		document.getElementById("errorTxt").style.visibility = "hidden";
+		return true;
+	}
+
+	$(function() {
+		$('#passport').change(function () {
+
+			var file = this.files[0];
+			var name = file.name;
+			var size = file.size;
+			var type = file.type;
+
+			if (file.name.length < 1) {
+
+			}
+			else if (file.size > 500000) {
+				document.getElementById("errorTxt").innerHTML="File too large. Please make sure your file size is less than 500 KB.";
+				document.getElementById("errorTxt").style.visibility = "visible";
+				return false;
+			}
+			else if (file.type != 'image/png' && file.type != 'image/jpg' && file.type != 'image/gif' && file.type != 'image/jpeg') {
+				document.getElementById("errorTxt").innerHTML="Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
+				document.getElementById("errorTxt").style.visibility = "visible";
+				return false;
+			}
+			else {
+				clearError();
+				var $form = $('#upload-form');
+				$form.submit(function(event) {
+					if (!isValidForm())
+						return false;
+
+
+					// Disable the submit button to prevent repeated clicks:
+					/*$form.find('.submit').prop('disabled', true);
+					 document.getElementById("BtnSubmit").disabled = true;
+
+					 jQuery.ajax({
+					 url: '/wp-content/themes/materialwp/userinfo.php',
+					 dataType: "json",
+					 method: "POST",
+					 data: {"action": "uploadID", "form": $form},
+					 success: function (result) {
+					 alert(result['a']);
+					 }
+					 });*/
+				});
+			}
+		});
+	});
+
+	function  clearError() {
+		document.getElementById("errorTxt").style.visibility = "hidden";
+	}
+
+</script>
+<div id="upload-dialog" class="modal fade" tabindex="-1">
+	<div class="modal-dialog" style="width: 500px; height:400px;">
+		<div class="modal-content">
+			<div class="modal-body" style="padding: 0">
+				<div class="panel panel-default">
+					<div class="panel-heading"><h4>ID Verification</h4></div>
+					<div class="panel-body">
+						<p>Please upload your passport so we can verify your identification.</p>
+						<form action="/wp-content/themes/materialwp/userinfo.php" id="upload-form" method="post" enctype="multipart/form-data">
+						<table style="margin-bottom: 3px">
+							<tbody>
+							<tr>
+								<td style="width: 27%"></td>
+								<td style="width: 73%">
+									<div class="fileinput fileinput-new" data-provides="fileinput">
+										<div class="fileinput-preview thumbnail" data-trigger="fileinput" style="width: 200px; height: 150px;"></div>
+										<div>
+											<span class="btn btn-raised btn-default btn-file" style="width: 200px;border-radius: 3px;border: 1px solid #009688;"><span class="fileinput-new" style="color: #009688">Upload Passport</span><span class="fileinput-exists" style="color: #009688">Change</span><input type="file" name="passport" id="passport"></span>
+											<a href="#" class="btn btn-raised btn-default fileinput-exists" data-dismiss="fileinput" style="border-radius: 3px;border: 1px solid #ff5722;"><span style="color: #ff5722" onclick="clearError()">Remove</span></a>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<td style="width: 25%"></td>
+								<td style="width: 75%">
+									<label class="control-label" for="pp_expiry_date">Passport Expiry Date</label>
+									<input class="form-control input-lg"  style="width: 200px;" type="text" placeholder="yyyy-mm-dd" name="pp_expiry_date" id="pp_expiry_date"/>
+									<input type="hidden" name="action" value="uploadID"/>
+									<input type="hidden" name="userID" value="<?php echo $user_ID;?>"/>
+									<input type="hidden" name="prevURL" value="<?php echo $_SERVER['REQUEST_URI']; ?>"/>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+						<div>
+							<p id="errorTxt" class="text-danger" style="visibility: hidden">&nbsp;</p>
+						</div>
+						<table style="margin-top: -10px">
+							<tbody>
+							<tr>
+								<td width="33%"></td>
+								<td width="37%" ><input id="BtnSubmit" type="submit" style="width: 150px;height: 40px; border-radius: 3px;" class="btn btn-primary" name="submit" value="submit"/></td>
+								<td width="30%"></td>
+							</tr>
+							</tbody>
+						</table>
+						</form>
+						<hr>
+						<table style="margin-top: 5px">
+							<tbody>
+							<tr>
+								<td width="70%">
+									<p style="margin-top: 18px">You can also provide your student ID optionally in</p>
+								</td>
+								<td width="30%"><a href="/register/" class="btn btn-default" style="border-radius: 3px;border: 1px solid #009688;"><span style="color: #009688">Profile</span></a></td>
+							</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<button id="chargeform" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#charge-dialog">Open dialog</button>
+<div id="charge-dialog" class="modal fade" tabindex="-1">
+	<div class="modal-dialog" style="width: 500px; height:400px;">
+		<div class="modal-content">
+			<div class="modal-header">
+			</div>
+			<div class="modal-body">
+				<form action="" method="POST" id="payment-form">
+					<table>
+						<tr>
+							<td class="text-muted" width="33%">Start Date</td>
+							<?php if ($isShortTerm == true) {?>
+								<td class="text-muted" width="33%">End Date</td>
+							<?php }else { ?>
+								<td class="text-muted" width="33%">Term</td>
+							<?php } ?>
+							<td class="text-muted" width="33%">Tenants</td>
+						</tr>
+						<tr style="border-bottom:1pt solid #cccccc;">
+							<td width="33%" style="padding-bottom: 5px;padding-top: 5px"><span id="startDatelabel" style="font-size: 16px"></td>
+							<?php if ($isShortTerm == true) {?>
+								<td width="33%"><span style="font-size: 16px" id="endDatelabel"></span></td>
+							<?php }else { ?>
+								<td width="33%"><span style="font-size: 16px" id="termlabel"></span></td>
+							<?php } ?>
+							<td width="33%"><span style="font-size: 16px" id="tenantslabel"></span></td>
+						</tr>
+						<tr>
+							<?php if ($isShortTerm == true) {?>
+								<td class="text-muted" style="padding-bottom: 5px;padding-top: 5px"><span id="daysNumlabel"></span></td>
+							<?php }else { ?>
+								<td class="text-muted">Deposit</td>
+							<?php } ?>
+							<td class="text-muted">Service Fee</td>
+							<td class="text-muted">Total</td>
+						</tr>
+						<tr>
+							<td><span id="pricelabel" style="padding-bottom: 5px;padding-top: 5px;font-size: 16px"></span></td>
+							<td><span style="font-size: 16px" id="serviceFeelabel"></span></td>
+							<td><span style="font-size: 16px" id="totallabel"></span></td>
+						</tr>
+					</table>
+					<p class="text-muted" style="margin-bottom: 5px">To apply, you need to pay <strong style="color: black">$<span id="preorderDepositlabel" style="font-size: 18px"></span><?php echo ' '.$currency;?></strong> (10% of the total amount) first. Meanwhile, we will send a request to the owner for approval. If the owner didn't approve your application within 24 hours, we will refund you immediately. </p>
+					<table style="width: 90%">
+						<tbody>
+						<tr style="height: 50px">
+							<td style="width: 30%">
+								<label class="control-label" for="name" style="margin-bottom:0">Cardholder Name</label>
+							</td>
+							<td style="width: 70%">
+								<input class="form-control input-lg" width="80%" type="text" id="name" size="20" data-stripe="name" placeholder="cardholder name">
+							</td>
+						</tr>
+						<tr style="height: 50px">
+							<td style="width: 30%">
+								<label class="control-label" for="cardnum" style="margin-bottom:0">Card Number<span>&nbsp;*</span></label>
+							</td>
+							<td style="width: 70%">
+								<input class="form-control input-lg" width="80%" type="text" id="cardnum" size="20" data-stripe="number" placeholder="credit card number">
+							</td>
+						</tr>
+						<tr style="height: 50px">
+							<td style="width: 30%">
+								<label class="control-label" for="expire" style="margin-bottom: 0">Expiry (MM/YY)<span>&nbsp;*</span></label>
+							</td>
+							<td style="width: 70%">
+								<table style="width: 28%; margin-bottom: 0">
+									<tr>
+										<td >
+											<input class="form-control input-lg" style="width: 30px" type="text" size="2" data-stripe="exp_month" placeholder="MM">
+										</td>
+										<td><span> / </span></td>
+										<td>
+											<input class="form-control input-lg" style="width: 30px" type="text" size="2" data-stripe="exp_year" placeholder="YY">
+										</td>
+									</tr>
+								</table>
+							</td>
+						</tr>
+						<tr style="height: 50px">
+							<td style="width: 30%">
+								<label class="control-label" for="cvc" style="margin-bottom: 0">CVC<span>&nbsp;*</span></label>
+							</td>
+							<td style="width: 70%">
+								<input class="form-control input-lg" style="width: 70px" type="text" id="cvc" size="4" data-stripe="cvc" placeholder="CVC">
+							</td>
+						</tr>
+					</table>
+					<div style="margin-top:-15px;margin-bottom: 10px"><span>*&nbsp;Required fields</span></div>
+					<div id="TxtPolicyReminder"><label><strong style="color: #ffb400">Before booking, agree to the House Rules and Terms.</strong></label></div>
+					<table>
+						<tr>
+							<td>
+								<div class="checkbox" style="margin-top: -8px; margin-right: 10px">
+									<label><input id="policyCheckbox" type="checkbox" onclick="policyCheck()"></label>
+								</div>
+							</td>
+							<td><span>I agree to the House Rules, Cancellation Policy, and to the Guest Refund Policy. I also agree to pay the total amount shown.</span></td>
+						</tr>
+					</table>
+					<div><span class="payment-errors text-danger"></span></div>
+					<div><table>
+							<tr>
+								<td>
+									<input id="BtnPay" disabled="disabled" type="submit" class="btn btn-raised btn-info" value="Confirm & Pay">
+								</td>
+								<td width="30%"></td>
+								<td>
+								<td><button id="BtnDismissCharge" type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button></td>
+								</td>
+							</tr>
+						</table>
+
+					</div>
+				</form>
 			</div>
 		</div>
 	</div>
@@ -119,21 +441,31 @@ switch ($rent_period) {
 						<tbody>
 							<tr>
 								<th width="30%" style="text-align: center">Start Date</th>
+								<?php if ($isShortTerm == false) {?>
 								<th width="45%" style="text-align: center">Term</th>
+								<?php } else { ?>
+								<th width="45%" style="text-align: center">End Date</th>
+								<?php } ?>
 								<th width="25%" style="text-align: center">Tenants</th>
 							</tr>
 							<tr>
-								<td><input type="text" class="form-control" id="datepicker" placeholder="yyyy-mm-dd"></td>
+								<td><input type="text" class="form-control" id="datepickerStart" placeholder="yyyy-mm-dd" onChange="CheckLogin()"></td>
+								<?php if ($isShortTerm == false) {?>
 								<td><div class="col-md-10" style="width: 100%">
-										<select id="term" class="form-control">
+										<select id="term" class="form-control" onChange="CheckLogin()">
 											<option>3 months</option>
 											<option>6 months</option>
 											<option>12 months</option>
 										</select>
 									</div>
 								</td>
+								<?php } else { ?>
+									<td style="padding-left: 20px;padding-right: 20px">
+										<input type="text" class="form-control" id="datepickerEnd" placeholder="yyyy-mm-dd" onChange="CheckLogin()">
+									</td>
+								<?php } ?>
 								<td><div class="col-md-10" style="width: 100%">
-										<select id="tenants" class="form-control">
+										<select id="tenants" class="form-control" onChange="CheckLogin()">
 											<option>1</option>
 											<option>2</option>
 											<option>3</option>
@@ -146,6 +478,29 @@ switch ($rent_period) {
 						</tbody>
 					</table>
 					<p class="text-muted" id="note">Please be noted the date you pick for moving in is in local time of destination.</p>
+						<div id="summaryDiv" style="display: none">
+							<table  style="margin-top:30px;">
+								<tbody style="width: 100%">
+								<tr style="border-bottom:1pt solid #cccccc;">
+									<?php if ($isShortTerm == true) {?>
+										<td align="left" style="padding-bottom: 8px;padding-top:8px"><span id="daysnumlabel"></span></td>
+										<td align="right" style="padding-right: 10px;padding-bottom: 8px;padding-top:8px"><span id="dayspricelabel"></span></td>
+									<?php }else { ?>
+										<td align="left" style="padding-bottom: 8px;padding-top:8px">Deposit</td>
+										<td align="right" style="padding-right: 10px;padding-bottom: 8px;padding-top:8px"><span id="depositamountlabel"></span></td>
+									<?php } ?>
+								</tr>
+								<tr style="border-bottom:1pt solid #cccccc;">
+									<td align="left" style="padding-bottom: 8px;padding-top:8px">Service Fee</td>
+									<td align="right" style="padding-right: 10px;padding-bottom: 8px;padding-top:8px"><span id="servicefeelabel"></span></td>
+								</tr>
+								<tr style="border-bottom:1pt solid #cccccc;">
+									<td align="left" style="padding-bottom: 8px;padding-top:8px">Total</td>
+									<td align="right" style="padding-right: 10px;padding-bottom: 8px;padding-top:8px"><span id="totalpricelabel"></span></td>
+								</tr>
+								</tbody>
+							</table>
+						</div>
 					<fieldset id="fs1">
 						<a id="BtnApply" href="javascript:void(0)" class="btn btn-raised btn-default" onclick="Apply()" style="width: 100%; pointer-events: none"  >
 							<span style="font-size: 15px">Apply</span>
@@ -162,26 +517,156 @@ switch ($rent_period) {
 				</div>
 
 			<div id="div1"></div>
-			<script>
+			<script type="text/javascript">
 				var userID = <?php global $user_ID; echo $user_ID;?>;
 				var postID = <?php global $post; echo $post->ID;?>;
+				var authorUserID = <?php echo $authorID;?>;
 				var urlstr = "/api/0/favorites/user/";
 				var urlstr2 = "/api/0/worders/post/";
-				var favID;
+				var favID = "";
 				var liked = false;
 				var applied = false;
 				var action;
+				var stripeProductID = "";
+				var proID = "";
 				var stripeSkuID = "";
 				var skuID = "";
+				var stripeAccID = "";
+				var datetimeStart = "";
+				var datetimeEnd = "";
+				var term = 0;
+				var tenants = 0;
+
+				// Expect input as y-m-d
+				function isValidDate(s) {
+					var bits = s.split('-');
+					var d = new Date(bits[1], bits[1] - 1, bits[2]);
+					return d && (d.getMonth() + 1) == bits[1];
+				}
 
 				$( function() {
-					$( "#datepicker" ).datepicker({ minDate:0});
-					$( "#datepicker" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-				} );
+					var dateFormat = "yy-mm-dd";
+					var from = $( "#datepickerStart" )
+							.datepicker({
+								<?php if($isShortTerm == true) {?>
+								numberOfMonths: 2,
+								<?php } ?>
+								dateFormat: dateFormat,
+								minDate: 0,
+								onClose: function(dateText, inst) {
+									<?php if($isShortTerm == true) {?>
+									if(dateText != "")
+										document.getElementById("datepickerEnd").focus();
+									<?php } ?>
+								}
+							})
+							.on( "change", function() {
+								var checkFrom = document.getElementById("datepickerStart").value;
+								if(checkFrom != "") {
+									if(!isValidDate(checkFrom)) {
+										document.getElementById("datepickerStart").value = "";
+									}
+								}
+								<?php if($isShortTerm == true) {?>
+								var checkTo = document.getElementById("datepickerEnd").value;
+								if(checkTo != "") {
+									if(!isValidDate(checkTo)) {
+										document.getElementById("datepickerEnd").value = "";
+									}
+								}
+								var date2 = from.datepicker('getDate');
+								date2.setDate(date2.getDate()+1);
+								to.datepicker( "option", "minDate", date2 );
+								if(to.datepicker('getDate') == null) {
+									to.datepicker('setDate', date2);
+									var dateStart = document.getElementById("datepickerStart").value;
+									var dateEnd = document.getElementById("datepickerEnd").value;
+									term = getInterval(dateStart, dateEnd);
+									if(term > 0) {
+										var rent_unit = <?php echo $rent; ?>;
+										var rent = rent_unit * term;
+										var service_fee = <?php echo $service_fee; ?>;
+										var total_fee = rent + service_fee;
+										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+										document.getElementById("summaryDiv").style.display = 'block';
+									}
+								}
+								else {
+									var dateStart = document.getElementById("datepickerStart").value;
+									var dateEnd = document.getElementById("datepickerEnd").value;
+									term = getInterval(dateStart, dateEnd);
+									if(term > 0) {
+										var rent_unit = <?php echo $rent; ?>;
+										var rent = rent_unit * term;
+										var service_fee = 50;
+										var total_fee = rent + service_fee;
+										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+										document.getElementById("summaryDiv").style.display = 'block';
+									}
+								}
+								<?php }else { ?>
+								var deposit = <?php echo $deposit; ?>/100;
+								var service_fee = <?php echo $service_fee; ?>;
+								var total_fee = deposit + service_fee;
+								document.getElementById("depositamountlabel").innerHTML = '$'+deposit;
+								document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+								document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+								document.getElementById("summaryDiv").style.display = 'block';
+								<?php } ?>
+							});
+					<?php if($isShortTerm == true) {?>
+					var	to = $( "#datepickerEnd" ).datepicker({
+								numberOfMonths: 2,
+								dateFormat: dateFormat,
+								minDate : 0
+							})
+							.on( "change", function() {
+								var checkFrom = document.getElementById("datepickerStart").value;
+								if(checkFrom != "") {
+									if(!isValidDate(checkFrom)) {
+										document.getElementById("datepickerStart").value = "";
+									}
+								}
+								var checkTo = document.getElementById("datepickerEnd").value;
+								if(checkTo != "") {
+									if(!isValidDate(checkTo)) {
+										document.getElementById("datepickerEnd").value = "";
+									}
+								}
+
+								var date2 = to.datepicker('getDate');
+								date2.setDate(date2.getDate()-1);
+								from.datepicker( "option", "maxDate", date2 );
+								if(from.datepicker('getDate') != null) {
+									var dateStart = document.getElementById("datepickerStart").value;
+									var dateEnd = document.getElementById("datepickerEnd").value;
+									term = getInterval(dateStart, dateEnd);
+									if(term > 0) {
+										var rent_unit = <?php echo $rent; ?>;
+										var rent = rent_unit * term;
+										var service_fee = 50;
+										var total_fee = rent + service_fee;
+										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+										document.getElementById("summaryDiv").style.display = 'block';
+									}
+
+								}
+							});
+					<?php } ?>
+				});
 
 				if (userID != 0) {
 					jQuery.ajax({
-						url: urlstr.concat(<?php global $user_ID; echo $user_ID;?>),
+						url: urlstr.concat(userID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
@@ -204,19 +689,34 @@ switch ($rent_period) {
 							deleteCookie('action');
 						});
 					jQuery.ajax({
-						url: urlstr2.concat(<?php global $post; echo $post->ID;?>),
+						url: urlstr2.concat(postID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
 							for (var i = 0; i < result.data.length; i++) {
 								if (result.data[i].userID == userID) {
-									startDate = result.data[i].startDate.substring(0,10);
+									var startDate = result.data[i].startDate.substring(0,10);
 									term = result.data[i].term;
 									numTenant = result.data[i].numTenant;
-									document.getElementById("datepicker").disabled = true;
-									document.getElementById("datepicker").value = startDate;
+									document.getElementById("datepickerStart").disabled = true;
+									document.getElementById("datepickerStart").value = startDate;
+									<?php if($isShortTerm == true) { ?>
+									var endDate  = new Date(2000, 0, 1);
+									var startdate = new Date(startDate.concat("T15:00:00Z"));
+									var one_day = 1000*60*60*24;
+
+									endDate.setTime(startdate.getTime() + term * one_day);
+									document.getElementById("datepickerEnd").disabled = true;
+									document.getElementById("datepickerEnd").value = endDate.toISOString().substring(0,10);
+									<?php } else { ?>
 									document.getElementById("term").disabled = true;
-									document.getElementById("term").value = term;
+									if(term > 85 && term < 95) // =91
+										document.getElementById("term").value = "3 months";
+									else if(term > 175 && term < 185) // =182
+										document.getElementById("term").value = "6 months";
+									else if(term > 360 && term < 370) // =365
+										document.getElementById("term").value = "12 months";
+									<?php } ?>
 									document.getElementById("tenants").disabled = true;
 									document.getElementById("tenants").value = numTenant;
 									document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
@@ -271,34 +771,117 @@ switch ($rent_period) {
 					createCookie('action', action,'0.1');
 
 				}
+				function CheckLogin() {
+					if (userID == 0) {
+						document.getElementById("hidelogin").click();
+					}
+				}
 				function CheckAndCreateSku() {
-					var urlstr = "/api/0/wskus/post/";
+					var urlstr3 = "/api/0/wskus/post/";
+					var urlstr4 = "/api/0/accounts/user/";
 					var sku;
+					var product;
 					var currency = "<?php echo $currency ?>";
-					var deposit  = <?php echo $deposit ?>;
+					var fee  = <?php echo $rest_fee ?>;
+					var email = "<?php echo $user_email ?>";
+					var country = (currency == "AUD") ? "AU" : "US";
 					jQuery.ajax({
-						url: urlstr.concat(postID),
+						url: urlstr4.concat(authorUserID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
-							sku = result.data;
-							if (sku == "") { /* Product&Sku do not exist. Create a new product and Sku*/
+							stripeAccID = result.data[0].id;
+							if ( typeof stripeAccID != 'undefined' && stripeAccID != "") { // Stripe acc exists.
+								<?php if($isShortTerm == true) { ?>
+								//For short-term, only create product first. sku will create separately for each order
+								jQuery.ajax({ // Check if product existed
+										url: '/api/0/wproducts/post/'+ postID,
+									dataType: "json",
+									method: "Get",
+									success: function (result) {
+										product = result.data;
+										if (product == "") { /* Product does not exist. Create a new product*/
+											jQuery.ajax({
+												url: '/api/0/products',
+												dataType: "json",
+												method: "POST",
+												data: {"name": 'post'.concat(postID), "shippable": false, "attributes": ["timestamp"], "metadata": {"postID": postID, "stripeAccID":stripeAccID}},
+												success: function (result) {
+													stripeProductID = result.data.stripeProdID;
+													proID = result.data._id;
+												}
+											});
+										}
+										else { /* Product existed.*/
+											stripeProductID = result.data[0].stripeProdID;
+											proID = result.data[0]._id;
+										}
+									}
+								});
+								<?php }else {?>
+								jQuery.ajax({ // Check if product and sku existed
+									url: urlstr3.concat(postID),
+									dataType: "json",
+									method: "Get",
+									success: function (result) {
+										sku = result.data;
+										if (sku == "") { /* Product&Sku do not exist. Create a new product and Sku*/
+											jQuery.ajax({
+												url: '/api/0/skus/pas',
+												dataType: "json",
+												method: "POST",
+												data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":stripeAccID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":stripeAccID}, "price": fee}},
+												success: function (result) {
+													stripeSkuID = result.data.stripeSkuID;
+													skuID = result.data._id;
+												}
+											});
+										}
+										else { /* Product&Sku existed.*/
+											stripeSkuID = result.data[0].stripeSkuID;
+											skuID = result.data[0]._id;
+										}
+									}
+								});
+								<?php } ?>
+
+							}
+							else { // Stripe acc doesn't exist yet. Create account and prod/sku
 								jQuery.ajax({
-									url: '/api/0/skus/pas',
+									url: '/api/0/accounts',
 									dataType: "json",
 									method: "POST",
-									data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":"acct_197bmLIw2qaoeMzL"}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":"acct_197bmLIw2qaoeMzL"}, "price": deposit}},
+									data: {"country": country, "managed": true, "email": email, "metadata": {"userID": authorUserID}},
 									success: function (result) {
-										stripeSkuID = result.data.stripeSkuID;
-										skuID = result.data._id;
+										stripeAccID = result.data.stripeAccID;
+										<?php if($isShortTerm == true) { ?>
+										jQuery.ajax({
+											url: '/api/0/products',
+											dataType: "json",
+											method: "POST",
+											data: {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":stripeAccID}},
+											success: function (result) {
+												stripeProductID = result.data.stripeProdID;
+												proID = result.data._id;
+											}
+										});
+										<?php }else {?>
+										jQuery.ajax({
+											url: '/api/0/skus/pas',
+											dataType: "json",
+											method: "POST",
+											data: {"product": {"name": 'post'.concat(postID), "shippable": false, "metadata": {"postID": postID, "stripeAccID":stripeAccID}},"sku": {"currency": currency, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID,  "stripeAccID":stripeAccID}, "price": fee}},
+											success: function (result) {
+												stripeSkuID = result.data.stripeSkuID;
+												skuID = result.data._id;
+											}
+										});
+										<?php } ?>
 									}
 								});
 							}
-							else { /* Product&Sku existed.*/
-								stripeSkuID = result.data[0].stripeSkuID;
-								skuID = result.data[0]._id;;
-							}
 						}
+
 					});
 				}
 				function ChangeFav(){
@@ -307,7 +890,7 @@ switch ($rent_period) {
 						action = 'like';
 					}
 					else {
-						if (document.getElementById("BtnLike").className == "btn btn-raised btn-default") //Add to Wish List
+						if (document.getElementById("BtnLike").className == "btn btn-raised btn-default" && liked == false) //Add to Wish List
 						{
 							jQuery.ajax({
 								url: "/api/0/favorites",
@@ -318,6 +901,7 @@ switch ($rent_period) {
 									favID = result.data._id;
 									document.getElementById("BtnLike").className = 'btn btn-raised btn-danger';
 									document.getElementById("BtnLike").innerHTML = "Saved to Wish List";
+									liked = true;
 								}});
 						} else { //Remove from Wish List
 							var urldel = "/api/0/favorites/";
@@ -329,6 +913,7 @@ switch ($rent_period) {
 									if (result.data.ok == 1) {
 										document.getElementById("BtnLike").className = 'btn btn-raised btn-default';
 										document.getElementById("BtnLike").innerHTML = "Save to Wish List";
+										liked = false;
 									} else { //server error: failed to delete
 										alert("Oops, we are encountering some server issue. Please try it later.");
 									}
@@ -337,58 +922,303 @@ switch ($rent_period) {
 					}
 				}
 				function Apply() {
-					if (document.getElementById("BtnApply").className == "btn btn-raised btn-default") { // Apply
+					document.getElementById("errorTxt").style.visibility = "hidden";
+
+					if (document.getElementById("BtnApply").className == "btn btn-raised btn-default" && applied == false) { // Apply
 						if (userID == 0) {
 							document.getElementById("hidelogin").click();
 							action = 'apply';
 						} else { /* Create an order wrapper */
-							if (stripeSkuID != "") {
-								var date = document.getElementById("datepicker").value;
-								if (date == '')
+							var isVerified = "<?php echo $isVerified ?>";
+							if (isVerified == "0") {
+								document.getElementById("uploadDocBtn").click();
+							} else {
+								<?php if($isShortTerm == true) {?>
+								var dateStart = document.getElementById("datepickerStart").value;
+								var dateEnd = document.getElementById("datepickerEnd").value;
+								if (dateStart == '')
 								{
-									document.getElementById("datepicker").focus();
-								} else {
-									var datetime = date.concat(" 15:00:00 UTC");
-									var term = document.getElementById("term").value;
-									var tenants = document.getElementById("tenants").value;
-									AddOrder(skuID, stripeSkuID, datetime, term, tenants);
+									document.getElementById("datepickerStart").focus();
 								}
+								else if (dateEnd == '')
+								{
+									document.getElementById("datepickerEnd").focus();
+								}
+								else
+								{
+									datetimeStart = dateStart.concat(" 15:00:00 UTC");
+									datetimeEnd = dateEnd.concat(" 15:00:00 UTC");
+
+									term = getInterval(dateStart, dateEnd);
+									document.getElementById("endDatelabel").innerHTML = dateEnd;
+									var rent_unit = <?php echo $rent; ?>;
+									var rent = rent_unit * term;
+									var service_fee = <?php echo $service_fee; ?>;
+									var total_fee = rent + service_fee;
+									var preorder_deposit = Math.round(total_fee*10)/100;
+									document.getElementById("daysNumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+									document.getElementById("pricelabel").innerHTML = '$'+rent;
+									document.getElementById("serviceFeelabel").innerHTML = '$'+service_fee;
+									document.getElementById("totallabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+									document.getElementById("preorderDepositlabel").innerHTML = preorder_deposit;
+									
+									tenants = document.getElementById("tenants").value;
+									document.getElementById("startDatelabel").innerHTML = dateStart;
+									document.getElementById("tenantslabel").innerHTML = tenants;
+									if (datetimeStart != "" && term > 0 && tenants > 0)
+										document.getElementById("chargeform").click();
+								}
+								<?php } else {?>
+								if (stripeSkuID != "") {
+									var dateStart = document.getElementById("datepickerStart").value;
+									if (dateStart == '')
+									{
+										document.getElementById("datepickerStart").focus();
+									}
+									else
+									{
+										datetimeStart = dateStart.concat(" 15:00:00 UTC");
+										var deposit = <?php echo $deposit; ?>/100;
+										var service_fee = <?php echo $service_fee; ?>;
+										var total_fee = deposit + service_fee;
+										var preorder_deposit = Math.round(total_fee*10)/100;
+										if (document.getElementById("term").value == "3 months")
+											term = 91;
+										else if(document.getElementById("term").value == "6 months")
+											term = 182;
+										else if(document.getElementById("term").value == "12 months")
+											term = 365;
+										document.getElementById("termlabel").innerHTML = document.getElementById("term").value;
+										document.getElementById("pricelabel").innerHTML = '$'+deposit;
+										document.getElementById("serviceFeelabel").innerHTML = '$'+service_fee;
+										document.getElementById("totallabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+										document.getElementById("preorderDepositlabel").innerHTML = preorder_deposit;
+										tenants = document.getElementById("tenants").value;
+										document.getElementById("startDatelabel").innerHTML = dateStart;
+										document.getElementById("tenantslabel").innerHTML = tenants;
+										if (datetimeStart != "" && term > 0 && tenants > 0)
+											document.getElementById("chargeform").click();
+									}
+								}
+								<?php }?>
 							}
 						}
 					} else { //Already applied, go checking order status
-						window.location.replace("/wordpress/?page_id=140");
+						window.location.replace("/your-profile/users-orders/");
 					}
 				}
-				function AddOrder(skuID, stripeSkuID, startDate, term, numTenant) { /* Create an order wrapper */
+				Stripe.setPublishableKey('pk_test_JJCG8Qu51sXzY3sIRLhfU2sf');
+
+				$(function() {
+					var $form = $('#payment-form');
+					$form.submit(function(event) {
+						// Disable the submit button to prevent repeated clicks:
+						$form.find('.submit').prop('disabled', true);
+						document.getElementById("BtnPay").disabled = true;
+
+						// Request a token from Stripe:
+						Stripe.card.createToken($form, stripeResponseHandler);
+
+						// Prevent the form from being submitted:
+						return false;
+					});
+				});
+
+				function stripeResponseHandler(status, response) {
+					// Grab the form:
+					var $form = $('#payment-form');
+
+
+					if (response.error) { // Problem!
+
+						// Show the errors on the form:
+						$form.find('.payment-errors').text(response.error.message);
+						$form.find('.submit').prop('disabled', false); // Re-enable submission
+						document.getElementById("BtnPay").disabled = false;
+
+					} else { // Token was created!
+
+						$form.find('.payment-errors').text("");
+
+						// Get the token ID:
+						var token = response.id;
+
+						// Insert the token ID into the form so it gets submitted to the server:
+						//$form.append($('<input type="hidden" name="stripeToken">').val(token));
+
+						var desc = "Apply deposit from user ";
+						desc = desc.concat(userID).concat(" for post ").concat(postID);
+						var currency = "<?php echo $currency; ?>";
+						var amount = "";
+
+						<?php if($isShortTerm == true) {?>
+						var dateStart = document.getElementById("datepickerStart").value;
+						var dateEnd = document.getElementById("datepickerEnd").value;
+						datetimeStart = dateStart.concat(" 15:00:00 UTC");
+						datetimeEnd = dateEnd.concat(" 15:00:00 UTC");
+						term = getInterval(dateStart, dateEnd);
+						var rent_unit = <?php echo $rent; ?> * 100;
+						var rent = rent_unit * term;
+						var service_fee = <?php echo $service_fee; ?> * 100;
+						var total_fee = rent + service_fee;
+						amount = Math.round(total_fee*10)/100;
+						var fee = total_fee - amount;
+						<?php } else {?>
+						amount  = "<?php echo $preorder_depoist; ?>";
+						<?php } ?>
+
+						if(currency != "" && amount != "")
+						{
+							<?php if($isShortTerm == true) {?>
+							/* Create a sku for each order as for short-term each order has its own price.
+							 * Create the sku with an attribute value -- timestamp of current time so that each sku is
+							 * distinct (required by stripe) */
+							jQuery.ajax({
+								url: '/api/0/skus',
+								dataType: "json",
+								method: "POST",
+								data:  {"currency": currency, "attributes": {"timestamp": Date.now()}, "inventory": {"type": "finite", "quantity": 1}, "metadata": {"postID": postID, "stripeAccID": stripeAccID}, "price": fee, "product": stripeProductID},
+								success: function (result) {
+									stripeSkuID = result.data.stripeSkuID;
+									skuID = result.data._id;
+									/* If sku is created, go ahead and charge the 10% */
+									jQuery.ajax({
+										url: '/api/0/charges',
+										dataType: "json",
+										method: "post",
+										data: {
+											amount: amount,
+											currency: currency,
+											source: token,
+											description: desc,
+											capture: false,
+											metadata: {postID: postID, userID: userID, postAuthorID: authorUserID, stripeAccID: stripeAccID}
+										},
+										success: function (result) {
+											var stripeChargeID = result.data.stripeChargeID;
+											AddOrder(skuID, stripeSkuID, stripeAccID, datetimeStart, term, tenants, stripeChargeID);
+										},
+										error: function () {
+											$form.find('.payment-errors').text("Opps, The payment didn't go through. Please make sure your payment info is correct or try it later.");
+											document.getElementById("BtnPay").disabled = false;
+										}
+									});
+								},
+								error: function () {
+									$form.find('.payment-errors').text("Opps, The payment didn't go through. Please try it later.");
+									document.getElementById("BtnPay").disabled = false;
+								}
+							});
+							<?php } else {?>
+							jQuery.ajax({
+								url: '/api/0/charges',
+								dataType: "json",
+								method: "post",
+								data: {
+									amount: amount,
+									currency: currency,
+									source: token,
+									description: desc,
+									capture: false,
+									metadata: {postID: postID, userID: userID, postAuthorID: authorUserID, stripeAccID: stripeAccID}
+								},
+								success: function (result) {
+									var stripeChargeID = result.data.stripeChargeID;
+									AddOrder(skuID, stripeSkuID, stripeAccID, datetimeStart, term, tenants, stripeChargeID);
+								},
+								error: function () {
+									$form.find('.payment-errors').text("Opps, The payment didn't go through. Please make sure your payment info is correct or try it later.");
+									document.getElementById("BtnPay").disabled = false;
+								}
+							});
+							<?php } ?>
+						}
+						// Submit the form:
+						//$form.get(0).submit();
+					}
+				};
+
+				function policyCheck()
+				{
+					if (document.getElementById('policyCheckbox').checked)
+					{
+						document.getElementById("BtnPay").disabled = false;
+						document.getElementById("TxtPolicyReminder").style.display = 'none';
+					} else {
+						document.getElementById("BtnPay").disabled = true;
+						document.getElementById("TxtPolicyReminder").style.display = 'block';
+					}
+				}
+
+				function getInterval(dateStart, dateEnd)
+				{
+					//Get 1 day in milliseconds
+					var one_day=1000*60*60*24;
+					var startDate = new Date(dateStart.concat("T15:00:00Z"));
+					var endDate = new Date(dateEnd.concat("T15:00:00Z"));
+
+					// Convert both dates to milliseconds
+					var dateStart_ms = startDate.getTime();
+					var dateEnd_ms = endDate.getTime();
+
+					// Calculate the difference in milliseconds
+					var difference_ms = dateEnd_ms - dateStart_ms;
+
+					// Convert back to days and return
+					var interval =  Math.round(Math.abs(difference_ms)/one_day);
+					return interval;
+				}
+
+				function AddOrder(skuID, stripeSkuID, stripeAccID, startDate, term, numTenant, stripeChargeID) { /* Create an order wrapper */
 					var currency = "<?php echo $currency ?>";
-					if (stripeSkuID != null) {
+					if (stripeSkuID != "" && stripeAccID != "") {
 						jQuery.ajax({
 							url: '/api/0/worders',
 							dataType: "json",
 							method: "POST",
 							data: {
 								"postID": postID,
-								"postAuthorID": userID,
+								"postAuthorID": authorUserID,
 								"currency": currency,
 								"userID": userID,
 								"skuID": skuID,
-								"stripeAccID": "acct_197bmLIw2qaoeMzL",
+								"stripeAccID": stripeAccID,
 								"appStatus": "Waiting for approval",
 								"startDate": startDate,
-								term: term,
-								numTenant: numTenant
+								"stripeChargeIDs" : [stripeChargeID],
+								"term": term,
+								"numTenant": numTenant
 							},
 							success: function (result) {
-								document.getElementById("datepicker").disabled = true;
-								document.getElementById("datepicker").value = startDate.substring(0,10);
+								document.getElementById("datepickerStart").disabled = true;
+								var start = startDate.substring(0,10);
+								document.getElementById("datepickerStart").value = start;
+								<?php if($isShortTerm == true) {?>
+								var endDate  = new Date(2000, 0, 1);
+								var startdate  = new Date(start.concat("T15:00:00Z"));
+								var one_day = 1000*60*60*24;
+
+								endDate.setTime(startdate.getTime() + term * one_day);
+								document.getElementById("datepickerEnd").disabled = true;
+								document.getElementById("datepickerEnd").value = endDate.toISOString().substring(0,10);
+
+								<?php } else { ?>
 								document.getElementById("term").disabled = true;
-								document.getElementById("term").value = term;
+								if(term > 85 && term < 95) // =91
+									document.getElementById("term").value = "3 months";
+								else if(term > 175 && term < 185) // =182
+									document.getElementById("term").value = "6 months";
+								else if(term > 360 && term < 370) // =365
+									document.getElementById("term").value = "12 months";
+								<?php } ?>
 								document.getElementById("tenants").disabled = true;
 								document.getElementById("tenants").value = numTenant;
 								document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
 								document.getElementById("BtnApply").innerHTML = "Check order status";
 								document.getElementById("note").innerHTML = "You've applied for the property successfully. We will send you a notification email once we get response from the landlord.";
-
+								document.getElementById("BtnDismissCharge").click();
+								document.getElementById("summaryDiv").style.display = 'none';
+								applied = true;
 							}
 						});
 					}

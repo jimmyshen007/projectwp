@@ -303,63 +303,160 @@ function debug_to_console( $data ) {
 	echo $output;
 }
 
-add_action( 'personal_options_update', 'uploadID' );
-add_action( 'edit_user_profile_update', 'uploadID');
+add_action( 'personal_options_update', 'checkName' );
+add_action( 'edit_user_profile_update', 'checkName');
+add_action( 'personal_options_update', 'uploadPassport' );
+add_action( 'edit_user_profile_update', 'uploadPassport');
+add_action( 'personal_options_update', 'uploadStudentID' );
+add_action( 'edit_user_profile_update', 'uploadStudentID');
 
-function uploadID() {
+/*function modify_contact_methods($profile_fields) {
+	//$profile_fields['twitter'] = '';
+	$profile_fields['passport_expire_date'] = 'expire_date';
+	$profile_fields['Passport'] = 'passport_file';
+
+
+
+	return $profile_fields;
+}*/
+//add_filter('user_contactmethods', 'modify_contact_methods');
+
+function checkName() {
+	if (!isset($_POST['first_name']) || $_POST['first_name'] == '')
+		add_action( 'user_profile_update_errors', 'first_name_missing_error');
+	if (!isset($_POST['last_name']) || $_POST['last_name'] == '')
+		add_action( 'user_profile_update_errors', 'last_name_missing_error');
+}
+function uploadPassport() {
 	global $user_ID;
 
-	$target_dir = "/wordpress/wp-content/uploads/ID/";
+	//If no passport is uploaded, exit
+	if(!$_FILES['passport']['tmp_name'])
+		return;
+
+	$target_dir = "/wp-content/uploads/ID/";
 	$target_file_name = basename($_FILES['passport']['name']);
-	$uploadOk = 1;
+	$uploadOk = 0;
 	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
-	$target_file = "/var/www".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$target_file = "/var/www/wordpress".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
 	$target_file1 = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
 	$pp_expire_date = $_POST['pp_expiry_date'];
 
-	add_user_meta( $user_ID, "passport_expire_date", $pp_expire_date);
-	add_user_meta( $user_ID, "Passport", $target_file1);
-
-// Check if image file is a actual image or fake image
-// Check file size
-	/*	if(isset($_POST["submit"])) {
-            $check = getimagesize($_FILES['passport']['tmp_name']);
-            if($check !== false) {
-                echo "File is an image - " . $check["mime"] . ".";
-                $uploadOk = 1;
-            } else {
-                echo "File is not an image.";
-                $uploadOk = 0;
-            }
-        }
-        //if (file_exists($target_file)) {
-    //		echo "Sorry, file already exists.";
-            //$uploadOk = 0;
-        //}
-        if ($_FILES["passport"]["size"] > 500000) {
-            echo "Sorry, your file is too large.";
-            $uploadOk = 0;
-        }
-    // Allow certain file formats
-
-        if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
-            && $imageFileType != "gif" ) {
-            echo "Sorry, only JPG, JPEG, PNG & GIF files are allowed.";
-            $uploadOk = 0;
-        }
-    // Check if $uploadOk is set to 0 by an error
-  */  	if ($uploadOk == 0) {
-		echo "Sorry, your file was not uploaded.";
-// if everything is ok, try to upload file
-	} else {
-		if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
-			echo "The file has been uploaded.";
+	// Check if image file is a actual image or fake image
+	if(isset($_POST["submit"])) {
+		$check = getimagesize($_FILES['passport']['tmp_name']);
+		if($check !== false) {
+			$uploadOk = 1;
 		} else {
-			echo "Sorry, there was an error uploading your file.";
+			add_action( 'user_profile_update_errors', 'file_upload_error_not_image');
+			return;
+		}
+	}
+	// Check file size
+	if($_FILES["passport"]["size"] > 500000) {
+		add_action( 'user_profile_update_errors', 'file_upload_error_too_large');
+		return;
+	}
+    // Allow certain file formats
+	if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+		&& $imageFileType != "gif" )
+	{
+		add_action( 'user_profile_update_errors', 'file_upload_error_invalid_format');
+		return;
+	}
+	// if everything is ok, try to upload file
+	if ($uploadOk == 1) {
+		if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
+			update_user_meta( $user_ID, "passport_expire_date", $pp_expire_date);
+			update_user_meta( $user_ID, "Passport", $target_file1);
+		} else {
+			add_action( 'user_profile_update_errors', 'upload_passport_error');
 		}
 	}
 }
 
+function uploadStudentID() {
+	global $user_ID;
+
+	//If no passport is uploaded, exit
+	if(!$_FILES['studentID']['tmp_name'])
+		return;
+
+	$target_dir = "/wp-content/uploads/ID/";
+	$target_file_name = basename($_FILES['studentID']['name']);
+	$uploadOk = 0;
+	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
+	$target_file = "/var/www/wordpress".$target_dir . "user_" . $user_ID ."_studentID." . $imageFileType;
+	$target_file1 = $target_dir . "user_" . $user_ID ."_studentID." . $imageFileType;
+	$pp_expire_date = $_POST['stuid_expiry_date'];
+
+	// Check if image file is a actual image or fake image
+	if(isset($_POST["submit"])) {
+		$check = getimagesize($_FILES['studentID']['tmp_name']);
+		if($check !== false) {
+			$uploadOk = 1;
+		} else {
+			add_action( 'user_profile_update_errors', 'file_upload_error_not_image');
+			return;
+		}
+	}
+	// Check file size
+	if($_FILES["studentID"]["size"] > 500000) {
+		add_action( 'user_profile_update_errors', 'file_upload_error_too_large');
+		return;
+	}
+	// Allow certain file formats
+	if($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg"
+		&& $imageFileType != "gif" )
+	{
+		add_action( 'user_profile_update_errors', 'file_upload_error_invalid_format');
+		return;
+	}
+	// if everything is ok, try to upload file
+	if ($uploadOk == 1) {
+		if (move_uploaded_file($_FILES['studentID']['tmp_name'], $target_file)) {
+			update_user_meta( $user_ID, "stuid_expire_date", $pp_expire_date);
+			update_user_meta( $user_ID, "StudentID", $target_file1);
+		} else {
+			add_action( 'user_profile_update_errors', 'upload_student_id_error');
+		}
+	}
+}
+
+function first_name_missing_error($errors) {
+	$errors->add( 'user_login', __('<p><strong>ERROR</strong>: Please enter your first name.</p>') );
+
+}
+
+function last_name_missing_error($errors) {
+	$errors->add( 'user_login', __('<p><strong>ERROR</strong>: Please enter your last name.</p>') );
+
+}
+
+function file_upload_error_not_image($errors) {
+	$errors->add( 'user_login', __('<p><strong>ERROR</strong>: Sorry, your file is not an image.</p>') );
+
+}
+
+function file_upload_error_too_large($errors) {
+	$errors->add( 'user_login', __('<p><strong>ERROR</strong>: Sorry, your file is too large. Please make sure your file size is less than 500 KB.</p>') );
+
+}
+
+function file_upload_error_invalid_format($errors) {
+	$errors->add( 'user_login', __('<p><strong>ERROR</strong>: Sorry, only JPG, JPEG, PNG & GIF files are allowed.</p>') );
+
+}
+
+function upload_passport_error($errors) {
+	$errors->add( 'user_login', __('<p class="text-danger"><strong>ERROR</strong>: An error occurs to upload passport.</p>') );
+
+}
+
+function upload_student_id_error($errors) {
+	$errors->add( 'user_login', __('<p class="text-danger"><strong>ERROR</strong>: An error occurs to upload student id.</p>') );
+
+}
 
 function edit_submit_button($submit_button, $args) {
 	$submit_button = '<button name="submit" type="submit" class="btn btn-primiry" id="submitz" style="color: #009688;">SUBMIT</button>';
