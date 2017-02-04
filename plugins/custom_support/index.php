@@ -6,3 +6,4 @@
  * Time: 12:16 AM
  */
 require_once('custom-actions.php');
+require_once('custom-functions.php');

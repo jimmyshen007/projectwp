@@ -159,8 +159,8 @@ figure.effect-julia:hover p:nth-of-type(3) {
 
 figure.effect-julia:hover img {
 	opacity: 0.4;
-	-webkit-transform: scale3d(1.1,1.1,1);
-	transform: scale3d(1.1,1.1,1);
+	-webkit-transform: scale3d(1.01,1.01,1);
+	transform: scale3d(1.01,1.01,1);
 }
 
 figure.effect-julia:hover p {

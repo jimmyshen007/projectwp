@@ -2,5 +2,3 @@ webapi/node_modules/
 webapi/.idea/
 uploads/
 .Ds_Store
-webapi/test/data/db/*
-webapi/test/log/*

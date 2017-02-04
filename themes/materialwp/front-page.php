@@ -11,6 +11,11 @@
      -->
     <?php wp_head();
     echo '<script>window.jQuery = window.$ = jQuery;</script>';
+    // Dynamically create necessary redirection pages if not exist.
+    $schools = 'schools';
+    $cities = 'cities';
+    create_custom_page('popular-' . $cities, 'Popular Cities', '');
+    create_custom_page('popular-' . $schools, 'Popular Schools', '');
     ?>
     <!-- <php wp_enqueue_style('hover-effects-1', get_template_directory_uri()  . '/hover-effects/css/set1.css', array(), '', 'all' ); ?> -->
     <?php wp_enqueue_style('hover-effects-2', get_template_directory_uri()  . '/hover-effects/css/set2.css', array(), '', 'all' ); ?>
@@ -105,7 +110,7 @@
 <?php };
       /*
        * @$gid: grid id, same as the div id.
-       * @$service:
+       * @$service: name of the service. such as cities or schools.
        */
       function generateGrid($gid, $service){
           $tdir = get_template_directory_uri();
@@ -153,6 +158,13 @@
                               + '<a href="#">View more</a>'
                               + '</figcaption></figure></li>');
                       }
+                      var redirectAnchor = '<a href="/wordpress/popular-' + '<?php echo $service ?>">';
+                      $('#<?php echo $gid ?>').append('<li class="grid-item"><figure class="effect-julia">'
+                          + redirectAnchor + '<img src="'
+                          + <?php echo '"' . $tdir . '"' ?>  + '/images/' + 'm' + <?php echo '"' . $service . '"' ?>
+                          + '.jpg" /><figcaption><div>'
+                          + '<h3><span>More ' + <?php echo '"' . $service . '"' ?> + '</span></h3></div>'
+                          + '</figcaption></figure></li>');
                       $('.grid').masonry({
                           itemSelector: '.grid-item',
                           //columnWidth: 140
@@ -370,7 +382,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><?php echo __('Popular School', 'materialwp') ?></div>
             <div class="panel-body">
-                <?php generateGrid('homePageGrid1', 'schools') ?>
+                <?php generateGrid('homePageGrid1', $schools) ?>
             </div>
         </div>
         <!-- end popular school -->
@@ -379,7 +391,7 @@
         <div class="panel panel-default">
             <div class="panel-heading"><?php echo __('Popular City', 'materialwp') ?></div>
             <div class="panel-body">
-                <?php generateGrid('homePageGrid2', 'cities') ?>
+                <?php generateGrid('homePageGrid2', $cities) ?>
             </div>
         </div>
         <!-- end popular city -->

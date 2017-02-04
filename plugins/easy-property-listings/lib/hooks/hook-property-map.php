@@ -18,7 +18,9 @@ if ( ! defined( 'ABSPATH' ) ) exit;
  */
 function epl_property_map_default_callback() {
 	global $property;
-	
+	if(!$property){
+		return '';
+	}
 	// only show map if address display is set to true
 	if ( $property->get_property_meta('property_address_display') == 'yes' ) {
 	

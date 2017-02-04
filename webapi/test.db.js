@@ -18,7 +18,7 @@ function exitHandler(options, err) {
 
     if (options.cleanup){ console.log('clean');}
     else if (err) {console.log(err.stack);}
-    //else if(options.exit) {process.exit();}
+    else if(options.exit) {process.exit();}
 }
 
 //do something when app is closing

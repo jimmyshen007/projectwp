@@ -149,7 +149,7 @@ function createScheduleJob(delay, worderID, prevStatus){
 }
 
 export function scheduling(worder){
-    getOrderById(worder._id).then((data) => {
+    getWOrderByID(worder._id).then((data) => {
         // If we found the application i.e. the worder.
         if(data && data[0]) {
             let daysDelay = null;

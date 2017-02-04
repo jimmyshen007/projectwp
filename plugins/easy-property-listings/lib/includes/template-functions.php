@@ -457,7 +457,9 @@ function epl_property_the_address() {
 	
 	
 	global $property,$epl_settings;
-	
+	if(!$property){
+	    return;
+	}
 	?>
 	<?php if ( $property->get_property_meta('property_address_display') == 'yes' ) { ?>
 		<span class="item-street"><?php echo $property->get_formatted_property_address(); ?></span>
@@ -535,6 +537,9 @@ add_action('epl_property_price_content','epl_property_price');
 **/
 function epl_get_property_icons() {
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	return $property->get_property_bed().
 		$property->get_property_bath().
 		$property->get_property_parking().
@@ -548,6 +553,9 @@ add_action('epl_property_icons','epl_property_icons');
 
 function epl_get_property_bb_icons() {
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	return $property->get_property_bed().' '.
 		$property->get_property_bath();
 }
@@ -557,6 +565,9 @@ function epl_get_property_bb_icons() {
 **/
 function epl_property_land_category(){
 	global $property;
+		if(!$property){
+	    return '';
+	}
 	echo $property->get_property_land_category();
 }
 add_action('epl_property_land_category','epl_property_land_category');
@@ -592,6 +603,9 @@ add_action('epl_property_available_dates','epl_property_available_dates');
 **/
 function epl_property_inspection_times(){
 	global $property;
+		if(!$property){
+	    return '';
+	}
 	$property_inspection_times = $property->get_property_inspection_times();
 	$label_home_open = '';
 	if(trim($property_inspection_times) != '') {
@@ -623,6 +637,9 @@ add_action('epl_property_heading','epl_property_heading');
 **/
 function epl_property_secondary_heading() {
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	echo '<span class="epl-property-category">' . $property->get_property_category() . '</span> ';
 	if($property->get_property_meta('property_status') == 'sold'){
 		echo '<span class="sold-status">'.$property->label_sold.'</span>';
@@ -660,6 +677,9 @@ function epl_get_video_html($property_video_url='',$width=600) {
 function epl_property_video_callback( $width = 600 ) {
 
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	$video_width 		= $width != '' ? $width : 600;
 	$property_video_url	= $property->get_property_meta('property_video_url');
 	echo epl_get_video_html($property_video_url,$video_width);
@@ -673,6 +693,9 @@ add_action('epl_property_content_after','epl_property_video_callback' , 10 , 1);
 **/
 function epl_property_tab_section() {
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	$post_type = $property->post_type;
 	$the_property_feature_list = '';
 	
@@ -830,6 +853,9 @@ function epl_get_price_sticker() {
 
 function epl_get_property_price () {
 	global $property;
+	if(!$property){
+	    return '';
+	}
 	return $property->get_price();
 }
 
