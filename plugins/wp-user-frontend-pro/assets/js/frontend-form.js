@@ -547,7 +547,11 @@
         },
 
         markError: function(item) {
-            $(item).closest('li').addClass('has-error');
+            if(item.type == 'number'){
+                $(item).addClass('has-error');
+            }else {
+                $(item).closest('div').addClass('has-error');
+            }
             $(item).focus();
         },
 

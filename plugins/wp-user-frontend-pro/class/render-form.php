@@ -329,15 +329,22 @@ class WPUF_Render_Form {
         $el_name       = !empty( $form_field['name'] ) ? $form_field['name'] : '';
         $class_name    = !empty( $form_field['css'] ) ? ' ' . $form_field['css'] : '';
 
-        printf( '<li class="wpuf-el %s%s">', $el_name, $class_name );
-
+        if(WPUF_USETHEMECSS){
+            printf( '<div class="form-group %s%s">', $el_name, $class_name );
+        }else{
+            printf( '<li class="wpuf-el %s%s">', $el_name, $class_name );
+        }
         if ( isset( $form_field['input_type'] ) && !in_array( $form_field['input_type'], $label_exclude ) ) {
             $this->label( $form_field, $post_id );
         }
     }
 
     function render_item_after( $form_field ) {
-        echo '</li>';
+        if(WPUF_USETHEMECSS){
+            echo '</div>';
+        }else{
+            echo '</li>';
+        }
     }
 
     function conditional_logic( $form_field, $form_id ) {
@@ -528,8 +535,11 @@ class WPUF_Render_Form {
     }
 
     function submit_button( $form_id, $form_settings, $post_id ) {
-        ?>
-        <li class="wpuf-submit">
+        if(WPUF_USETHEMECSS){ ?>
+            <div class="form-group">
+        <?php } else { ?>
+            <li class="wpuf-submit">
+        <?php } ?>
             <div class="wpuf-label">
                 &nbsp;
             </div>
@@ -547,17 +557,22 @@ class WPUF_Render_Form {
                 <input type="hidden" name="post_date" value="<?php echo esc_attr( $cur_post->post_date ); ?>">
                 <input type="hidden" name="comment_status" value="<?php echo esc_attr( $cur_post->comment_status ); ?>">
                 <input type="hidden" name="post_author" value="<?php echo esc_attr( $cur_post->post_author ); ?>">
-                <input type="submit" name="submit" value="<?php echo $form_settings['update_text']; ?>" />
+                <input type="submit" class="btn btn-primary" name="submit" value="<?php echo $form_settings['update_text']; ?>" />
             <?php } else { ?>
-                <input type="submit" name="submit" value="<?php echo $form_settings['submit_text']; ?>" />
+                <input type="submit" class="btn btn-primary" name="submit" value="<?php echo $form_settings['submit_text']; ?>" />
+                </div>
                 <input type="hidden" name="wpuf_form_status" value="new">
             <?php } ?>
 
             <?php if ( isset( $form_settings['draft_post'] ) && $form_settings['draft_post'] == 'true' ) { ?>
                 <a href="#" class="btn" id="wpuf-post-draft"><?php _e( 'Save Draft', 'wpuf' ); ?></a>
-            <?php } ?>
-        </li>
-    <?php
+            <?php }
+        if(WPUF_USETHEMECSS){ ?>
+            </div>
+        <?php } else { ?>
+            </li>
+
+    <?php }
     }
 
 
@@ -624,7 +639,7 @@ class WPUF_Render_Form {
      */
     function required_mark( $attr ) {
         if ( isset( $attr['required'] ) && $attr['required'] == 'yes' ) {
-            return ' <span class="required">*</span>';
+            return ' <span class="required" style="color: #a94442">*</span>';
         }
     }
 
@@ -662,11 +677,16 @@ class WPUF_Render_Form {
         if ( $post_id && $attr['input_type'] == 'password') {
             $attr['required'] = 'no';
         }
+        if(WPUF_USETHEMECSS){ ?>
+            <div class=" wpuf-label">
+                <label for="wpuf-<?php echo isset( $attr['name'] ) ? $attr['name'] : 'cls'; ?>" class="control-label"><?php echo $attr['label'] . $this->required_mark( $attr ); ?></label>
+            </div>
+        <?php }else{
         ?>
         <div class="wpuf-label">
             <label for="wpuf-<?php echo isset( $attr['name'] ) ? $attr['name'] : 'cls'; ?>"><?php echo $attr['label'] . $this->required_mark( $attr ); ?></label>
         </div>
-        <?php
+        <?php }
     }
 
     /**
@@ -756,7 +776,14 @@ class WPUF_Render_Form {
         ?>
 
         <div class="wpuf-fields">
-            <input class="textfield<?php echo $this->required_class( $attr );  echo ' wpuf_'.$attr['name'].'_'.$form_id; ?>" id="<?php echo $attr['name']; ?>" type="text" data-required="<?php echo $attr['required'] ?>" data-type="text"<?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" <?php echo $username ? 'disabled' : ''; ?> />
+            <?php
+                if(WPUF_USETHEMECSS){ ?>
+                    <input class="form-control <?php echo 'wpuf_'.$attr['name'].'_'.$form_id; ?>" id="<?php echo $attr['name']; ?>" type="text" data-required="<?php echo $attr['required'] ?>" data-type="text"<?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" <?php echo $username ? 'disabled' : ''; ?> />
+            <?php
+                }else{
+            ?>
+                <input class="textfield<?php echo $this->required_class( $attr );  echo ' wpuf_'.$attr['name'].'_'.$form_id; ?>" id="<?php echo $attr['name']; ?>" type="text" data-required="<?php echo $attr['required'] ?>" data-type="text"<?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" <?php echo $username ? 'disabled' : ''; ?> />
+            <?php } ?>
             <span class="wpuf-help"><?php echo stripslashes( $attr['help'] ); ?></span>
 
             <?php if ( $taxonomy ) { ?>
@@ -938,8 +965,11 @@ class WPUF_Render_Form {
 
 
         <div class="wpuf-fields">
-            <select  <?php echo $css; ?> class="<?php echo 'wpuf_'. $attr['name'] .'_'. $form_id; ?>" name="<?php echo $attr['name']; ?>[]"<?php echo $multi; ?> data-required="<?php echo $attr['required'] ?>" data-type="<?php echo $data_type; ?>"<?php $this->required_html5( $attr ); ?>>
-
+            <?php if(WPUF_USETHEMECSS){ ?>
+                <select  <?php echo $css; ?> class="form-control <?php echo 'wpuf_'.$attr['name'].'_'.$form_id; ?>" name="<?php echo $attr['name']; ?>[]"<?php echo $multi; ?> data-required="<?php echo $attr['required'] ?>" data-type="<?php echo $data_type; ?>"<?php $this->required_html5( $attr ); ?>>
+            <?php } else { ?>
+                <select  <?php echo $css; ?> class="<?php echo 'wpuf_'. $attr['name'] .'_'. $form_id; ?>" name="<?php echo $attr['name']; ?>[]"<?php echo $multi; ?> data-required="<?php echo $attr['required'] ?>" data-type="<?php echo $data_type; ?>"<?php $this->required_html5( $attr ); ?>>
+            <?php } ?>
                 <?php if ( !empty( $attr['first'] ) ) { ?>
                     <option value=""><?php echo $attr['first']; ?></option>
                 <?php } ?>
@@ -1022,7 +1052,11 @@ class WPUF_Render_Form {
                     ?>
 
                     <label>
-                        <input type="checkbox" class="<?php echo 'wpuf_'.$attr['name']. '_'. $form_id; ?>" name="<?php echo $attr['name']; ?>[]" value="<?php echo esc_attr( $value ); ?>"<?php echo in_array( $value, $selected ) ? ' checked="checked"' : ''; ?> />
+                        <?php if(WPUF_USETHEMECSS){ ?>
+                            <input type="checkbox" class="<?php echo 'wpuf_'.$attr['name']. '_'. $form_id; ?>" name="<?php echo $attr['name']; ?>[]" value="<?php echo esc_attr( $value ); ?>"<?php echo in_array( $value, $selected ) ? ' checked="checked"' : ''; ?> />
+                        <?php } else {?>
+                            <input type="checkbox" class="<?php echo 'wpuf_'.$attr['name']. '_'. $form_id; ?>" name="<?php echo $attr['name']; ?>[]" value="<?php echo esc_attr( $value ); ?>"<?php echo in_array( $value, $selected ) ? ' checked="checked"' : ''; ?> />
+                        <?php } ?>
                         <?php echo $option; ?>
                     </label>
                     <?php
@@ -1087,7 +1121,11 @@ class WPUF_Render_Form {
         ?>
 
         <div class="wpuf-fields">
-            <input id="wpuf-<?php echo $attr['name']; ?>" type="email" class="email <?php echo ' wpuf_'.$attr['name'].'_'.$form_id; ?>" data-required="<?php echo $attr['required'] ?>" data-type="email" <?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" />
+            <?php if(WPUF_USETHEMECSS){ ?>
+                <input id="wpuf-<?php echo $attr['name']; ?>" type="email" class="form-control <?php echo ' wpuf_'.$attr['name'].'_'.$form_id; ?>" data-required="<?php echo $attr['required'] ?>" data-type="email" <?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" />
+            <?php } else{ ?>
+                <input id="wpuf-<?php echo $attr['name']; ?>" type="email" class="email <?php echo ' wpuf_'.$attr['name'].'_'.$form_id; ?>" data-required="<?php echo $attr['required'] ?>" data-type="email" <?php $this->required_html5( $attr ); ?> name="<?php echo esc_attr( $attr['name'] ); ?>" placeholder="<?php echo esc_attr( $attr['placeholder'] ); ?>" value="<?php echo esc_attr( $value ) ?>" size="<?php echo esc_attr( $attr['size'] ) ?>" />
+            <?php } ?>
             <span class="wpuf-help"><?php echo stripslashes( $attr['help'] ); ?></span>
         </div>
 
@@ -1397,7 +1435,7 @@ class WPUF_Render_Form {
         <div class="wpuf-fields">
             <div id="wpuf-<?php echo $attr['name']; ?>-upload-container">
                 <div class="wpuf-attachment-upload-filelist" data-type="file" data-required="<?php echo $attr['required']; ?>">
-                    <a id="wpuf-<?php echo $attr['name']; ?>-pickfiles" class="button file-selector <?php echo ' wpuf_' . $attr['name'] . '_' . $form_id; ?>" href="#"><?php _e( 'Select Image', 'wpuf' ); ?></a>
+                    <a id="wpuf-<?php echo $attr['name']; ?>-pickfiles" class="btn btn-primary button file-selector <?php echo ' wpuf_' . $attr['name'] . '_' . $form_id; ?>" href="#"><?php _e( 'Select Image', 'wpuf' ); ?></a>
 
                     <ul class="wpuf-attachment-list thumbnails">
                         <?php

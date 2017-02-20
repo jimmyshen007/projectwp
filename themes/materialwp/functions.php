@@ -492,6 +492,19 @@ function edit_submit_button($submit_button, $args) {
 
 }
 add_filter('comment_form_submit_button','edit_submit_button', 1, 2);
+
+function ajaxHelpers(){ ?>
+	<script>
+		function getAjaxData(url, callback) {
+			$.ajax({
+				type: "GET",
+				url: url,
+				dataType: 'json',
+				success: callback
+			});
+		}
+	</script> <?php
+}
 /**
  * Implement the Custom Header feature.
  */

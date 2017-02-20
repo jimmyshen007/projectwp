@@ -85,9 +85,16 @@ ul.wpuf-form li:after {
   content: "";
   display: table;
 }
-ul.wpuf-form li.has-error {
+div.form-group div.has-error {
   background: #FFE4E4;
+  background-color: #FFE4E4 !important;
 }
+
+input.has-error {
+  background: #FFE4E4;
+  background-color: #FFE4E4 !important;
+}
+
 ul.wpuf-form li .wp-editor-wrap {
   border: 1px solid #eeeeee;
 }

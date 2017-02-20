@@ -764,8 +764,10 @@ function alt_inline_js_tabbed_map() {
 		if(!empty($response)) {
 			update_post_meta($property->post->ID,'property_coordinate_lat', $response[0]->geometry->location->lat);
 			update_post_meta($property->post->ID,'property_coordinate_lng', $response[0]->geometry->location->lng);
-			$property_coordinate_lat = $property->get_property_meta('property_coordinate_lat');
-			$property_coordinate_lng = $property->get_property_meta('property_coordinate_lng');
+			//$property_coordinate_lat = $property->get_property_meta('property_coordinate_lat');
+			//$property_coordinate_lng = $property->get_property_meta('property_coordinate_lng');
+            $property_coordinate_lat = $response[0]->geometry->location->lat;
+			$property_coordinate_lng = $response[0]->geometry->location->lng;
 			$property_address_coordinates .= $property_coordinate_lat . ',' . $property_coordinate_lng;
 		}
 
@@ -796,8 +798,8 @@ function alt_inline_js_tabbed_map() {
 			  if($('#map-alt').length <= 0){
 				  return;
 			  }
-			  L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
-			  var latStr = <?php echo '"' . $property_coordinate_lat . '"' ?>;
+			  L.mapbox.accessToken = MAPBOX_TOKEN;
+              var latStr = <?php echo '"' . $property_coordinate_lat . '"' ?>;
 			  var lngStr = <?php echo '"' . $property_coordinate_lng . '"' ?>;
 			  var lat = 0;
 			  var lng = 0;

@@ -51,6 +51,11 @@ export function getServicesByAttribute(serviceName, attrName, attrValue){
     return service.find(constructJSONHelper(attrName, attrValue)).lean().exec();
 }
 
+export function getServiceByGreaterDate(serviceName, attrName, attrValue){
+    let service = m.model(serviceName, chooseSchema(serviceName));
+    return service.find(constructJSONHelper(attrName, {$gt: new Date(attrValue)})).lean().exec();
+}
+
 export function addService(serviceName, servObj){
     preprocessRoute(serviceName, servObj);
 

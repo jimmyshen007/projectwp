@@ -9,7 +9,7 @@
  * @package WP User Frontend
  */
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/custom_support/checkip.php'); ///wordpress
+require_once(WP_PLUGIN_DIR . '/custom_support' . '/checkip.php'); ///wordpress
 class WPUF_Admin_Posting extends WPUF_Render_Form {
 
     function __construct() {

@@ -3,7 +3,7 @@
  * Add License Key Option
  * @since 2.0
 **/
-require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/custom_support/checkip.php'); ///wordpress
+require_once(WP_PLUGIN_DIR . '/custom_support' . '/checkip.php'); ///wordpress
 
 function epl_am_license_options_filter($fields = null) {
 	$fields[] = array(

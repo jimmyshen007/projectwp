@@ -19,13 +19,14 @@ function exitHandler(options, err) {
     if (options.cleanup){ console.log('clean');}
     else if (err) {console.log(err.stack);}
     else if(options.exit) {process.exit();}
+    else if(options.ctrlc) {process.exit()}
 }
 
 //do something when app is closing
 process.on('exit', exitHandler.bind(null,{cleanup:true}));
 
 //catches ctrl+c event
-process.on('SIGINT', exitHandler.bind(null, {exit:true}));
+process.on('SIGINT', exitHandler.bind(null, {ctrlc:true}));
 
 //catches uncaught exceptions
 process.on('uncaughtException', exitHandler.bind(null, {exit:true}));
