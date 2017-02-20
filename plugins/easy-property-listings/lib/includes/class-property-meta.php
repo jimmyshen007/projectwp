@@ -413,7 +413,7 @@ class EPL_Property_Meta {
 				$price_rent_period = $this->get_property_meta('property_rent_period');
 				if($price_rent_period == 'day'){
 					$prp_display = __('day', 'epl');
-				}else if($price_rent_period == 'day'){
+				}else if($price_rent_period == 'week'){
 					$prp_display = __('week', 'epl');
 				}else{
 					$prp_display = __('month', 'epl');

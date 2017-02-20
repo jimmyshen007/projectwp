@@ -513,15 +513,16 @@ export function getWOrdersBySkuID(req, res){
 }
 
 /**
- * Sample input: API_INITPATH/worders/greaterEndDate/2017-02-17
+ * Get active (i.e. : approved or paid) orders by greaterEndDate.
+ * Sample input: API_INITPATH/worders/ActiveGreaterEndDate/2017-02-17
  * Sample output:
  * {"data":[{"_id":"58a99f9eec00b3a06874d8ef","paymentType":"stripe","rentalType":"daily","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-15T00:00:00.000Z","endDate":"2017-02-28T00:00:00.000Z","numTenant":2,"stripeChargeIDs":[],"__v":0},{"_id":"58a99fcaec00b3a06874d8f0","paymentType":"stripe","rentalType":"daily","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-15T00:00:00.000Z","endDate":"2017-03-01T00:00:00.000Z","numTenant":2,"stripeChargeIDs":[],"__v":0}]}
  * Note: 2017-02-17 is converted to Date object in backend.
  *
  */
-export function getWOrdersByGreaterEndDate(req, res){
-    let ret = service.getWOrdersByGreaterEndDate(req.params.edstr);
-    handleRet(ret, res, "Get WOrders By GreaterEndDate Error");
+export function getWOrdersActiveByGreaterEndDate(req, res){
+    let ret = service.getWOrdersActiveByGreaterEndDate(req.params.edstr);
+    handleRet(ret, res, "Get Active WOrders By GreaterEndDate Error");
 }
 
 /**

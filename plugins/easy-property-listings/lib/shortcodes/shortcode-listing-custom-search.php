@@ -104,15 +104,17 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                     ?>
                     <script>
                         $(document).ready(function(){
+                            $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
+                            $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
                             $('a#daily_rental').on('click', function(){
-                                $('input#search_end_date').show();
-                                $('select#property_min_stay').hide();
+                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).show();
+                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).hide();
                                 $('select#property_min_stay').val('');
                                 $('input#property_rent_period').val('day');
                             });
                             $('a#term_rental').on('click', function(){
-                                $('input#search_end_date').hide();
-                                $('select#property_min_stay').show();
+                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
+                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
                                 $('input#search_end_date').val('');
                                 $('input#property_rent_period').val('week|month');
                             });

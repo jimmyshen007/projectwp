@@ -307,7 +307,7 @@
 					'value_index'   =>  0,
 					'query'		=>	'meta',
 					'key'		=>	'property_available_date',
-					'type'		=>	'numeric',
+					'type'		=>	'date',
 					'compare'	=>	'<='
 				),
 				'class'			=>	'epl-search-row-half',
@@ -323,7 +323,7 @@
 					'value_index'   =>  1,
 					'query'		=>	'meta',
 					'key'		=>	'property_available_date',
-					'type'		=>	'numeric',
+					'type'		=>	'date',
 					'compare'	=>	'<='
 				),
 				'class'			=>	'epl-search-row-half',
