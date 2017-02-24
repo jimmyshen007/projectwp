@@ -62,6 +62,7 @@ function update_account()
     update_user_meta( $user, 'state', $state );
     update_user_meta( $user, 'postcode', $postcode );
     update_user_meta( $user, 'isBankAccCreated', true );
+    update_user_meta( $user, 'is_tenant', true );
 }
 
 if(!empty($_POST) && $_POST["action"] == "updateAccount") {

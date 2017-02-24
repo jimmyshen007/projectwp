@@ -51,6 +51,13 @@ export function getServicesByAttribute(serviceName, attrName, attrValue){
     return service.find(constructJSONHelper(attrName, attrValue)).lean().exec();
 }
 
+export function getActiveWOrderByGreaterDate(serviceName, attrName, attrValue){
+    let service = m.model(serviceName, chooseSchema(serviceName));
+    let jsonObj = constructJSONHelper(attrName, {$gt: new Date(attrValue)});
+    jsonObj['appStatus'] = { $in: [ 'approved', 'paid' ] };
+    return service.find(jsonObj).lean().exec();
+}
+
 export function addService(serviceName, servObj){
     preprocessRoute(serviceName, servObj);
 

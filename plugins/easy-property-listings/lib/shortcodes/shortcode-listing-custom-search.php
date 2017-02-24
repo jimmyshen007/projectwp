@@ -94,6 +94,7 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
             </ul>
             <div id="filters-collapse" class="panel-collapse collapse">
                 <div class="panel-body">
+
                     <?php
                     if( isset($show_title) && $show_title == 'true') {
                         if(!empty($title)) {
@@ -101,8 +102,30 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                         }
                     }
                     ?>
+                    <script>
+                        $(document).ready(function(){
+                            $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
+                            $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
+                            $('a#daily_rental').on('click', function(){
+                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).show();
+                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).hide();
+                                $('select#property_min_stay').val('');
+                                $('input#property_rent_period').val('day');
+                            });
+                            $('a#term_rental').on('click', function(){
+                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
+                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
+                                $('input#search_end_date').val('');
+                                $('input#property_rent_period').val('week|month');
+                            });
+                        });
+                    </script>
                     <form id="my_epl_form" class="form-horizontal" method="get" action="<?php echo esc_url( home_url('/') ); ?>">
                         <fieldset>
+                            <ul class="nav nav-tabs" style="color: white; margin-right: auto; margin-left: auto; margin-bottom: 10px">
+                                <li><a id="daily_rental" data-toggle="tab" class="btn">Daily Rental</a></li>
+                                <li><a id="term_rental" data-toggle="tab" class="btn">Term Rental</a></li>
+                            </ul>
                             <input id="epl_action" type="hidden" name="epl_action" value="epl_search" />
                             <div class="form-group">
                                 <label for="distance-scope" class="col-md-3 control-label">

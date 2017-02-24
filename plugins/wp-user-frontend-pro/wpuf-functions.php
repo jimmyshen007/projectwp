@@ -35,7 +35,7 @@ function wpuf_states_fields( $form_id, $post_id, $form_settings ) {
             <label>州 (USA)<span class="required">*</span></label>
         </div>
         <div id="state_field_USA" class="wpuf-fields">
-            <select id="state_field_select_USA" name="wpuf_address_state_field_USA" data-required="yes" data-type="select">
+            <select class="form-control" id="state_field_select_USA" name="wpuf_address_state_field_USA" data-required="yes" data-type="select">
                 <option value=""> - 选择 - </option>
                 <option value="AL"<?=setselect('AL', $value)?>>Alabama</option>
                 <option value="AK"<?=setselect('AK', $value)?>>Alaska</option>
@@ -94,7 +94,7 @@ function wpuf_states_fields( $form_id, $post_id, $form_settings ) {
             <label>州 (AU)<span class="required">*</span></label>
         </div>
         <div id="state_field_AU" class="wpuf-fields">
-            <select id="state_field_select_AU" name="wpuf_address_state_field_AU" data-required="yes" data-type="select">
+            <select class="form-control" id="state_field_select_AU" name="wpuf_address_state_field_AU" data-required="yes" data-type="select">
                 <option value=""> - 选择 - </option>
                 <option value="ACT"<?=setselect('ACT', $value)?>>Australian Capital Territory</option>
                 <option value="NSW"<?=setselect('NSW', $value)?>>New South Wales</option>

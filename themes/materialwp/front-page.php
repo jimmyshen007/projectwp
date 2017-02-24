@@ -149,22 +149,25 @@
               $(document).ready(function(){
                   function success_func(images){
                       var images = images.data;
+                      var listHtml = '';
                       for (var i = 0; i < images.length; i++) {
-                          $('#<?php echo $gid ?>').append('<li class="grid-item"><figure class="effect-julia"><img src="'
+                          listHtml += '<li class="grid-item"><figure class="effect-julia"><img src="'
                               + <?php echo '"' . $tdir . '"' ?>  + '/images/' + images[i].icon_id
                               + '.jpg" /><figcaption><div>'
                               + '<h3><span>' + images[i].name + '</span></h3>'
                               + '<p>' + images[i].state + ', ' + images[i].country  + '</p></div>'
                               + '<a href="#">View more</a>'
-                              + '</figcaption></figure></li>');
+                              + '</figcaption></figure></li>';
                       }
                       var redirectAnchor = '<a href="/wordpress/popular-' + '<?php echo $service ?>">';
-                      $('#<?php echo $gid ?>').append('<li class="grid-item"><figure class="effect-julia">'
+                      listHtml += '<li class="grid-item"><figure class="effect-julia">'
                           + redirectAnchor + '<img src="'
                           + <?php echo '"' . $tdir . '"' ?>  + '/images/' + 'm' + <?php echo '"' . $service . '"' ?>
                           + '.jpg" /><figcaption><div>'
                           + '<h3><span>More ' + <?php echo '"' . $service . '"' ?> + '</span></h3></div>'
-                          + '</figcaption></figure></li>');
+                          + '</figcaption></figure></li>';
+                      $('#<?php echo $gid ?>').append(listHtml);
+
                       $('.grid').masonry({
                           itemSelector: '.grid-item',
                           //columnWidth: 140
@@ -226,7 +229,7 @@
         <script>
             $(function() {
                 var ZOOM = 14;
-                L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+                L.mapbox.accessToken = MAPBOX_TOKEN;
                 var map = L.mapbox.map('general-map-container', 'mapbox.streets', {
                         minZoom: 2,
                         worldCopyJump: true
@@ -247,7 +250,7 @@
 
                 $( "#datepicker-s" ).datepicker({ minDate:0});
                 $( "#datepicker-s" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                $( "#search-tab-short").on('click', function(){
+                $( "#search-tab-daily").on('click', function(){
                     $('#end-date-block').html('<input type="text" name="departure" placeholder="End Date" id="datepicker-e"'
                       + ' style="text-align: center; position: relative; z-index: 10" class="form-control">');
                     $( "#datepicker-e" ).datepicker({ minDate:0});
@@ -302,8 +305,8 @@
                         border-collapse: separate; border-spacing: 10px;">
                         <tr><td colspan="5">
                                 <ul class="nav nav-tabs" style="margin-left: 0px">
-                                    <li class="active"><a id="search-tab-long" class="btn">Long Term</a></li>
-                                    <li><a id="search-tab-short" class="btn">Short Term</a></li>
+                                    <li class="active"><a id="search-tab-long" class="btn">Term Rental</a></li>
+                                    <li><a id="search-tab-daily" class="btn">Daily Rental</a></li>
                                 </ul>
                             </td>
                         </tr>

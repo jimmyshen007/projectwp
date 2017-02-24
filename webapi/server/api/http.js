@@ -1,6 +1,6 @@
 import * as service from './service';
 import stripe from 'stripe';
-let sapi = stripe('sk_test_tpFrMjZ9ivdUjnEeEXDiqq98');
+let sapi = stripe('sk_test_PPBb1cXlmXUWCFBUMUxrw6v9');
 
 function handle_response(res, data, err, errmsg){
     if(!err) {
@@ -513,8 +513,21 @@ export function getWOrdersBySkuID(req, res){
 }
 
 /**
- * Sample input: API_INITPATH/worders/addSOrder/5afareafagareaceaf with JSON:
- * {"postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123", "stripeAccID": "acct_18m2ZBLUxBeddbgv", "startDate": "2016-11-15", "term": "100", "numTenant": 2}
+ * Get active (i.e. : approved or paid) orders by greaterEndDate.
+ * Sample input: API_INITPATH/worders/ActiveGreaterEndDate/2017-02-17
+ * Sample output:
+ * {"data":[{"_id":"58a99f9eec00b3a06874d8ef","paymentType":"stripe","rentalType":"daily","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-15T00:00:00.000Z","endDate":"2017-02-28T00:00:00.000Z","numTenant":2,"stripeChargeIDs":[],"__v":0},{"_id":"58a99fcaec00b3a06874d8f0","paymentType":"stripe","rentalType":"daily","postID":"1234","postAuthorID":"a123","userID":"u123","skuID":"s123","stripeAccID":"acct_18m2ZBLUxBeddbgv","startDate":"2016-11-15T00:00:00.000Z","endDate":"2017-03-01T00:00:00.000Z","numTenant":2,"stripeChargeIDs":[],"__v":0}]}
+ * Note: 2017-02-17 is converted to Date object in backend.
+ *
+ */
+export function getWOrdersActiveByGreaterEndDate(req, res){
+    let ret = service.getWOrdersActiveByGreaterEndDate(req.params.edstr);
+    handleRet(ret, res, "Get Active WOrders By GreaterEndDate Error");
+}
+
+/**
+ * Sample input: API_INITPATH/worders with JSON:
+ * {"paymentType": "stripe", "rentalType": "term",  "postID": "1234", "postAuthorID": "a123", "userID": "u123", "skuID": "s123", "stripeAccID": "acct_18m2ZBLUxBeddbgv", "startDate": "2016-11-15", "term": "100", "numTenant": 2}
  *
  * Note: Date type variable such as startDate can be automatically constructed from string provided.
  * i.e. "2016-11-15" will be constructed as Date format automatically.
@@ -1750,7 +1763,7 @@ export function rejectAccountByStripeID(req, res){
 }
 
 /**
- * Sample input: API_INITIAL_PATH/charges with json: {
+ * Sample input: API_INITIAL_PATH/charges/createPercentSKUCharge with json: {
             "currency": "usd",
             "source": token.id, // obtained with Stripe.js
             "description": "Charge for maidongxi1",

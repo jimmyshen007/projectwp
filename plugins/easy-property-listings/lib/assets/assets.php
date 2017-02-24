@@ -9,8 +9,8 @@
  * @since       1.0
  */
 
-require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/custom_support/checkip.php'); ///wordpress
-require_once($_SERVER['DOCUMENT_ROOT'] . '/wp-content/plugins/custom_support/index.php');  ///wordpress
+require_once(WP_PLUGIN_DIR . '/custom_support' . '/checkip.php'); ///wordpress
+require_once(WP_PLUGIN_DIR . '/custom_support' . '/index.php');  ///wordpress
 
 // Exit if accessed directly
 if ( ! defined( 'ABSPATH' ) ) exit;

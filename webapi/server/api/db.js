@@ -26,6 +26,8 @@ process.on('SIGINT', function() {
 let Schema = m.Schema;
 export let schemas = {
     orders: new Schema({
+        paymentType: String,  // Stripe, Wechat, Alipay
+        rentalType: String,   // term or daily
         postID: String,
         postAuthorID: String,
         userID: String,
@@ -34,6 +36,7 @@ export let schemas = {
         stripeChargeIDs: [String],
         appStatus: String,
         startDate: Date,
+        endDate: Date,
         term: String,
         numTenant: Number,
         stripeAccID: String

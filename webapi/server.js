@@ -35,6 +35,7 @@ app.get('/api/0/worders/user/:uid', api.getWOrdersByUserID);
 app.get('/api/0/worders/post/:pid', api.getWOrdersByPostID);
 app.get('/api/0/worders/postAuthor/:paid', api.getWOrdersByPostAuthorID);
 app.get('/api/0/worders/sku/:kid', api.getWOrdersBySkuID);
+app.get('/api/0/worders/activeGreaterEndDate/:edstr', api.getWOrdersActiveByGreaterEndDate);
 app.post('/api/0/worders', api.addWOrder);
 app.post('/api/0/worders/:id', api.editWOrder);
 app.post('/api/0/worders/addSOrder/:id', api.addAttachSOrder);

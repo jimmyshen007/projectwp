@@ -708,6 +708,7 @@ function epl_property_tab_section() {
 	$the_property_feature_list .= $property->get_property_air_conditioning('l').' '.$property->get_property_pool('l');
 	$the_property_feature_list .= $property->get_property_security_system('l').' '.$property->get_property_land_value('l');
 	$the_property_feature_list .= $property->get_property_building_area_value('l').' '.$property->get_property_new_construction('l');
+
 	$common_features = array(
 				'property_toilet',
 				'property_garage',
@@ -751,13 +752,14 @@ function epl_property_tab_section() {
 
 	);
 	$additional_features = apply_filters('epl_property_additional_features_list',$additional_features);
-	
 	if ( 'property' == $property->post_type || 'rental' == $property->post_type || 'rural' == $property->post_type){
 		foreach($additional_features as $additional_feature){
 			$the_property_feature_list .= $property->get_additional_features_html($additional_feature);
 		}
 	}
-	
+	$the_property_feature_list .= $property->get_property_available_date_custom('l').' '.$property->get_property_minimum_term('l');
+	$the_property_feature_list .= $property->get_property_number_guests('l');
+
 	if ( $property->post_type != 'land' || $property->post_type != 'business') { ?>
 		<h5 class="epl-tab-title epl-tab-title-property-features tab-title"><?php _e('Property Features', 'epl'); ?></h5>
 			<div class="epl-tab-content tab-content">

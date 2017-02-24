@@ -541,6 +541,19 @@ function add_roles_user_register( $user_id ) {
 	}
 }
 
+function ajaxHelpers(){ ?>
+	<script>
+		function getAjaxData(url, callback) {
+			$.ajax({
+				type: "GET",
+				url: url,
+				dataType: 'json',
+				success: callback
+			});
+		}
+	</script> <?php
+}
+
 /**
  * Implement the Custom Header feature.
  */

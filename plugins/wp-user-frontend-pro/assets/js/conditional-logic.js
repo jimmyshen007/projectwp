@@ -91,11 +91,13 @@
 
                     if ( check != '-1') {
 
-                        $( '.' + prefix + item.name + '_' + item.form_id).closest('li').show();
+                        var a = $( '.' + prefix + item.name + '_' + item.form_id).parentsUntil('.wpuf-form');
+                        $(a[a.length - 1]).show();
 
                     } else {
 
-                        $( '.' + prefix + item.name + '_' + item.form_id).closest('li').hide();
+                        var a = $( '.' + prefix + item.name + '_' + item.form_id).parentsUntil('.wpuf-form');
+                            $(a[a.length - 1]).hide();
 
                     }
 
@@ -105,11 +107,13 @@
 
                     if ( check == '-1') {
 
-                        $( '.' + prefix + item.name + '_' + item.form_id).closest('li').show();
+                       var a = $( '.' + prefix + item.name + '_' + item.form_id).parentsUntil('.wpuf-form');
+                        $(a[a.length - 1]).show();
 
                     } else {
 
-                        $( '.' + prefix+item.name + '_' + item.form_id).closest('li').hide();
+                        var a= $( '.' + prefix+item.name + '_' + item.form_id).parentsUntil('.wpuf-form');
+                            $(a[a.length - 1]).hide();
                     }
 
                 }

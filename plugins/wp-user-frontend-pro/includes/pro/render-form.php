@@ -561,7 +561,7 @@ class WPUF_render_form_element extends WPUF_Render_Form {
                     ?>
                     <div class="wpuf-label">
                         <label><?php echo $field_array['label']; ?></label>
-                        <span class="required"><?php echo ( isset( $field_array['required'] ) && !empty($field_array['required']) ) ? '*' : ''; ?></span>
+                        <span class="required" style="color: #a94442"><?php echo ( isset( $field_array['required'] ) && !empty($field_array['required']) ) ? '*' : ''; ?></span>
                     </div>
 
                     <div class="wpuf-fields">

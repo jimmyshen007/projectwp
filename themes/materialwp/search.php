@@ -33,7 +33,7 @@ get_header(); ?>
 
 	$(document).ready(function() {
 		var ZOOM = 14;
-		L.mapbox.accessToken = 'pk.eyJ1IjoianNvbnd1IiwiYSI6ImNpa3YwZnpzMzAwZTN1YWtzYWcwNXg2ZzMifQ.v6YZ9axqDwZSlzbjmMOfTg';
+		L.mapbox.accessToken = MAPBOX_TOKEN;
 		var map = L.mapbox.map('general-map-container', 'mapbox.streets', {
 				minZoom: 2,
 				worldCopyJump: true

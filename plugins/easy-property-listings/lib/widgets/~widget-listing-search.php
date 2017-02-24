@@ -29,7 +29,6 @@ class EPL_Widget_Property_Search extends WP_Widget {
 			'search_state'			=>	'off',
 			'search_country'		=>	'off',
 			'search_postcode'		=>	'off',
-			'search_rent_term'      =>  'on',
 			'search_house_category'	=>	'on',
 			'search_price'			=>	'on',
 			'search_bed'			=>	'on',
@@ -40,6 +39,10 @@ class EPL_Widget_Property_Search extends WP_Widget {
 			'search_id'				=>	'off',
 			'search_land_area'		=>	'off',
 			'search_building_area'	=>	'off',
+			'search_max_guests'     =>  'on',
+			'search_start_date'     =>  'on',
+			'search_end_date'       =>  'on',
+			'search_term'           =>  'on',
 			'submit_label'			=>	__('Find me a Property!','epl')
 		);
 		$instance = wp_parse_args( (array) $instance, $defaults ); 
@@ -68,7 +71,7 @@ class EPL_Widget_Property_Search extends WP_Widget {
 		$instance['search_state'] 		= strip_tags($new_instance['search_state']);
 		$instance['search_country'] 		= strip_tags($new_instance['search_country']);
 		$instance['search_postcode'] 		= strip_tags($new_instance['search_postcode']);
-		$instance['search_rent_term'] 		= strip_tags($new_instance['search_rent_term']);
+		$instance['search_term'] 		= strip_tags($new_instance['search_term']);
 		$instance['search_house_category'] 	= strip_tags($new_instance['search_house_category']);
 		$instance['search_price'] 		= strip_tags($new_instance['search_price']);
 		$instance['search_bed'] 		= strip_tags($new_instance['search_bed']);
@@ -94,7 +97,10 @@ class EPL_Widget_Property_Search extends WP_Widget {
 			'search_state'			=>	'off',
 			'search_country'		=>	'off',
 			'search_postcode'		=>	'off',
-			'search_rent_term'      =>  'on',
+			'search_term'           =>  'on',
+			'search_start_date'     =>  'on',
+			'search_end_date'       =>  'on',
+			'search_max_guests'     =>  'on',
 			'search_house_category'	=>	'on',
 			'search_price'			=>	'on',
 			'search_bed'			=>	'on',
@@ -119,7 +125,11 @@ class EPL_Widget_Property_Search extends WP_Widget {
 		$search_state		=	esc_attr($instance['search_state']);
 		$search_country		=	esc_attr($instance['search_country']);
 		$search_postcode	=	esc_attr($instance['search_postcode']);
-		$search_rent_term   =   esc_attr($instance['search_rent_term']);
+		$search_term   =   esc_attr($instance['search_term']);
+		$search_max_guests   =   esc_attr($instance['search_max_guests']);
+		$search_start_date   =   esc_attr($instance['search_start_date']);
+		$search_end_date   =   esc_attr($instance['search_end_date']);
+
 		$search_house_category	=	esc_attr($instance['search_house_category']);
 		$search_price		=	esc_attr($instance['search_price']);
 		$search_bed		=	esc_attr($instance['search_bed']);
@@ -228,8 +238,20 @@ class EPL_Widget_Property_Search extends WP_Widget {
 			<label for="<?php echo $this->get_field_id('search_house_category'); ?>"><?php _e('House Category', 'epl'); ?></label>
 		</p>
 		<p>
-			<input id="<?php echo $this->get_field_id('search_rent_term'); ?>" name="<?php echo $this->get_field_name('search_rent_term'); ?>" type="checkbox" <?php if(isset($search_rent_term) && $search_rent_term == 'on') { echo 'checked="checked"'; } ?> />
-			<label for="<?php echo $this->get_field_id('search_rent_term'); ?>"><?php _e('Rent Term', 'epl'); ?></label>
+			<input id="<?php echo $this->get_field_id('search_max_guests'); ?>" name="<?php echo $this->get_field_name('search_max_guests'); ?>" type="checkbox" <?php if(isset($search_max_guests) && $search_max_guests == 'on') { echo 'checked="checked"'; } ?> />
+			<label for="<?php echo $this->get_field_id('search_max_guests'); ?>"><?php _e('Max Guests', 'epl'); ?></label>
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('search_start_date'); ?>" name="<?php echo $this->get_field_name('search_start_date'); ?>" type="checkbox" <?php if(isset($search_start_date) && $search_start_date == 'on') { echo 'checked="checked"'; } ?> />
+			<label for="<?php echo $this->get_field_id('search_start_date'); ?>"><?php _e('Start Date', 'epl'); ?></label>
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('search_end_date'); ?>" name="<?php echo $this->get_field_name('search_end_date'); ?>" type="checkbox" <?php if(isset($search_end_date) && $search_end_date == 'on') { echo 'checked="checked"'; } ?> />
+			<label for="<?php echo $this->get_field_id('search_end_date'); ?>"><?php _e('End Date', 'epl'); ?></label>
+		</p>
+		<p>
+			<input id="<?php echo $this->get_field_id('search_term'); ?>" name="<?php echo $this->get_field_name('search_term'); ?>" type="checkbox" <?php if(isset($search_term) && $search_term == 'on') { echo 'checked="checked"'; } ?> />
+			<label for="<?php echo $this->get_field_id('search_term'); ?>"><?php _e('Term', 'epl'); ?></label>
 		</p>
 		<p>
 			<input id="<?php echo $this->get_field_id('search_price'); ?>" name="<?php echo $this->get_field_name('search_price'); ?>" type="checkbox" <?php if(isset($search_price) && $search_price == 'on') { echo 'checked="checked"'; } ?> />

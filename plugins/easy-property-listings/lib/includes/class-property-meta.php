@@ -413,7 +413,7 @@ class EPL_Property_Meta {
 				$price_rent_period = $this->get_property_meta('property_rent_period');
 				if($price_rent_period == 'day'){
 					$prp_display = __('day', 'epl');
-				}else if($price_rent_period == 'day'){
+				}else if($price_rent_period == 'week'){
 					$prp_display = __('week', 'epl');
 				}else{
 					$prp_display = __('month', 'epl');
@@ -632,6 +632,33 @@ class EPL_Property_Meta {
 		$bed['i'] = '<span title="'.__('Bedrooms', 'epl').'" class="icon beds"><span class="icon-value">'. $this->get_property_meta('property_bedrooms') . '</span></span>'; 
 		$bed['d'] = $this->get_property_meta('property_bedrooms') . ' '.__('bed', 'epl').' ';
 		$bed['l'] = '<li class="bedrooms">' . $this->get_property_meta('property_bedrooms') . ' '.__('bed', 'epl').'</li>';
+		return $bed[$returntype];
+	}
+
+	public function get_property_available_date_custom($returntype = 'i') {
+		if($this->get_property_meta('property_available_date') == '')
+			return;
+		$bed['i'] = '<span title="'.__('Bedrooms', 'epl').'" class="icon beds"><span class="icon-value">'. $this->get_property_meta('property_available_date') . '</span></span>';
+		$bed['d'] = $this->get_property_meta('property_available_date') . ' '.__('available', 'epl').' ';
+		$bed['l'] = '<li class="bedrooms">' . $this->get_property_meta('property_available_date') . ' '.__('available', 'epl').'</li>';
+		return $bed[$returntype];
+	}
+
+	public function get_property_minimum_term($returntype = 'i') {
+		if($this->get_property_meta('property_min_stay') == '')
+			return;
+		$bed['i'] = '<span title="'.__('Bedrooms', 'epl').'" class="icon beds"><span class="icon-value">'. $this->get_property_meta('property_min_stay') . '</span></span>';
+		$bed['d'] = $this->get_property_meta('property_min_stay') . ' '.__('month(s) minimum', 'epl').' ';
+		$bed['l'] = '<li class="bedrooms">' . $this->get_property_meta('property_min_stay') . ' '.__('month(s) minimum', 'epl').'</li>';
+		return $bed[$returntype];
+	}
+
+	public function get_property_number_guests($returntype = 'i') {
+		if($this->get_property_meta('property_num_guests') == '')
+			return;
+		$bed['i'] = '<span title="'.__('Bedrooms', 'epl').'" class="icon beds"><span class="icon-value">'. $this->get_property_meta('property_num_guests') . '</span></span>';
+		$bed['d'] = $this->get_property_meta('property_num_guests') . ' '.__('guest(s) allowed', 'epl').' ';
+		$bed['l'] = '<li class="bedrooms">' . $this->get_property_meta('property_num_guests') . ' '.__('guest(s) allowed', 'epl').'</li>';
 		return $bed[$returntype];
 	}
 

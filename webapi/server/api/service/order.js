@@ -29,6 +29,10 @@ export function getWOrdersBySkuID(skuID){
     return common.getServicesByAttribute(serviceName, "skuID", skuID);
 }
 
+export function getWOrdersActiveByGreaterEndDate(endDate){
+    return common.getActiveWOrderByGreaterDate(serviceName, 'endDate', endDate);
+}
+
 export function addWOrder(order){
     return common.addService(serviceName, order);
 }

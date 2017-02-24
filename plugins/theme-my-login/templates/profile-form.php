@@ -14,6 +14,8 @@ $is_tenant_arr = get_user_meta( $user_ID, "is_tenant", false);
 $is_tenant = (count($is_tenant_arr) > 0) ? $is_tenant_arr[0] : 0;
 $is_host_arr = get_user_meta( $user_ID, "is_host", false);
 $is_host = (count($is_host_arr) > 0) ? $is_host_arr[0] : 0;
+$isBankAccCreated_arr = get_user_meta($user_ID, "isBankAccCreated", false);
+$isBankAccCreated = (count($isBankAccCreated_arr) > 0) ? $isBankAccCreated_arr[0] : "";
 
 if(count($pp_value) > 0 && count($pp_exiry_value)) {
 	$isPassportUploaded = true;
@@ -573,6 +575,47 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 				</table>
 			</div>
 		</div>
+		<?php if(!$is_host) {?>
+			<div class="panel panel-default">
+				<div class="panel-heading">Host your space on Ulieve</div>
+				<div class="panel-body">
+					<table>
+						<tbody>
+						<tr>
+							<td style="width: 8%"></td>
+							<td style="width: 77%">
+								<p class="text-muted" style="margin-bottom: 5px;">Host your space on Ulieve by two easy steps.</p>
+								<p class="text-muted" style="margin-bottom: 5px;">Step 1: Add your bank account</p>
+								<p class="text-muted" style="margin-bottom: 5px;">Step 2: Post your space</p>
+								<a href="/your-profile/account/" type="button" id="beHostBtn" class="btn btn-raised btn-info" style="width: 205px; border-radius: 2px; vertical-align: middle">become a host</a>
+							</td>
+							<td style="width: 15%"></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		<?php } else if(!$isBankAccCreated){ ?>
+			<div class="panel panel-default">
+				<div class="panel-heading">Host your space on Ulieve</div>
+				<div class="panel-body">
+					<table>
+						<tbody>
+						<tr>
+							<td style="width: 8%"></td>
+							<td style="width: 77%">
+								<p class="text-muted" style="margin-bottom: 5px;">As a host, you need to provide your personal information for verification as well as your bank details so that we can transfer</p>
+								<p class="text-muted" style="margin-bottom: 5px;">applicant's bond money to your bank account. Lack of bank details results in your listings not being able to be applied by</p>
+								<p class="text-muted" style="margin-bottom: 5px;">visitors.</p>
+								<a href="/your-profile/account/" type="button" id="beHostBtn" class="btn btn-raised btn-info" style="width: 205px; border-radius: 2px; vertical-align: middle">Add bank account</a>
+							</td>
+							<td style="width: 15%"></td>
+						</tr>
+						</tbody>
+					</table>
+				</div>
+			</div>
+		<?php }?>
 		<div>
 			<p id="errorTxt" class="text-danger" style="visibility: hidden"></p>
 		</div>
