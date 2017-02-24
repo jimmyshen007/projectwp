@@ -38,6 +38,7 @@ class Theme_My_Login_Custom_Passwords extends Theme_My_Login_Abstract {
 		add_action( 'register_form',       array( $this, 'password_fields' ) );
 		add_filter( 'registration_errors', array( $this, 'password_errors' ) );
 		add_filter( 'random_password',     array( $this, 'set_password'    ) );
+		//add_action( 'registration_errors',array( $this,'myplugin_registration_errors'));
 
 		add_action( 'signup_extra_fields',       array( $this, 'ms_password_fields'       ) );
 		add_action( 'signup_hidden_fields',      array( $this, 'ms_hidden_password_field' ) );
@@ -53,6 +54,16 @@ class Theme_My_Login_Custom_Passwords extends Theme_My_Login_Abstract {
 		add_filter( 'registration_redirect', array( $this, 'registration_redirect' ) );
 	}
 
+
+	function myplugin_registration_errors( $errors) {
+
+		if ( empty( $_POST['first_name'] ) || ! empty( $_POST['first_name'] ) && trim( $_POST['first_name'] ) == '' ) {
+			$errors->add( 'first_name_error', __( '<strong>ERROR</strong>: You must include a first name.', 'mydomain' ) );
+		}
+
+		return $errors;
+	}
+
 	/**
 	 * Outputs password fields to registration form
 	 *
@@ -65,14 +76,14 @@ class Theme_My_Login_Custom_Passwords extends Theme_My_Login_Abstract {
 	public function password_fields() {
 		$template = Theme_My_Login::get_object()->get_active_instance();
 		?>
-		<p class="tml-user-pass1-wrap">
-			<label for="pass1<?php $template->the_instance(); ?>"><?php _e( 'Password', 'theme-my-login' ); ?></label>
-			<input autocomplete="off" name="pass1" id="pass1<?php $template->the_instance(); ?>" class="input" size="20" value="" type="password" />
-		</p>
-		<p class="tml-user-pass2-wrap">
-			<label for="pass2<?php $template->the_instance(); ?>"><?php _e( 'Confirm Password', 'theme-my-login' ); ?></label>
-			<input autocomplete="off" name="pass2" id="pass2<?php $template->the_instance(); ?>" class="input" size="20" value="" type="password" />
-		</p>
+		<div class="form-group">
+			<label class="control-label" for="pass1<?php $template->the_instance(); ?>"><?php _e( 'Password', 'theme-my-login' ); ?></label>
+			<input class="form-control input-lg" autocomplete="off" name="pass1" id="pass1<?php $template->the_instance(); ?>" size="20" value="" type="password" />
+		</div>
+		<div class="form-group">
+			<label class="control-label" for="pass2<?php $template->the_instance(); ?>"><?php _e( 'Confirm Password', 'theme-my-login' ); ?></label>
+			<input class="form-control input-lg" autocomplete="off" name="pass2" id="pass2<?php $template->the_instance(); ?>" size="20" value="" type="password" />
+		</div>
 		<?php
 	}
 

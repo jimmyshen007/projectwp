@@ -10,6 +10,10 @@ $pp_value = get_user_meta( $user_ID, "Passport", false);
 $pp_exiry_value = get_user_meta( $user_ID, "passport_expire_date", false);
 $stuID_value = get_user_meta( $user_ID, "StudentID", false);
 $stuID_exiry_value = get_user_meta( $user_ID, "stuid_expire_date", false);
+$is_tenant_arr = get_user_meta( $user_ID, "is_tenant", false);
+$is_tenant = (count($is_tenant_arr) > 0) ? $is_tenant_arr[0] : 0;
+$is_host_arr = get_user_meta( $user_ID, "is_host", false);
+$is_host = (count($is_host_arr) > 0) ? $is_host_arr[0] : 0;
 
 if(count($pp_value) > 0 && count($pp_exiry_value)) {
 	$isPassportUploaded = true;
@@ -166,8 +170,15 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 	<ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
 		<li class="active"><a href="/your-profile/">Profile</a></li>
 		<li><a href="/your-profile/wish-list/">Wish List</a></li>
-		<li><a href="/your-profile/users-listings/">Your Listings</a></li>
-		<li><a href="/your-profile/users-orders/">Orders</a></li>
+		<?php if($is_host == 1) {?>
+			<li><a href="/your-profile/users-listings/">Your Listings</a></li>
+		<?php }?>
+		<?php if($is_tenant == 1) {?>
+			<li><a href="/your-profile/users-orders/">Orders</a></li>
+		<?php }?>
+		<?php if($is_host == 1) {?>
+			<li><a href="/your-profile/account/">Account</a></li>
+		<?php }?>
 	</ul>
 </div>
 <div class="tml tml-profile" id="theme-my-login<?php $template->the_instance(); ?>">
@@ -279,7 +290,8 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 				</table>
 			</div>
 		</div></br>
-		<div class="panel panel-default">
+		<?php if($is_tenant == 1) {?>
+		<div id="Verification" class="panel panel-default">
 			<div class="panel-heading">Verification</div>
 			<div class="panel-body">
 				<table>
@@ -321,7 +333,7 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 												<td style="width: 5%"></td>
 												<td style="width: 55%">
 													<label class="control-label" for="pp_expiry_date">Expiry Date</label>
-													<input class="form-control input-lg"  style="width: 235px;" type="text" name="pp_expiry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"/>
+													<input class="form-control input-lg"  style="width: 235px;" type="text" name="pp_exname="pp_expiry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"piry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"/>
 												</td>
 											</tr>
 											</tbody>
@@ -490,8 +502,6 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 										</table>
 									</div>
 								<?php } ?>
-
-
 							</td>
 							<td style="width: 15%"></td>
 						</tr>
@@ -499,6 +509,7 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 				</table>
 			</div>
 		</div>
+		<?php } ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">Reset Password</div>
 			<div class="panel-body">

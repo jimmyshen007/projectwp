@@ -328,6 +328,15 @@ function checkName() {
 		add_action( 'user_profile_update_errors', 'last_name_missing_error');
 }
 function uploadPassport() {
+
+	/* First name and last requried for application. If they are not provided,
+	 * then do not allow file upload.
+	 */
+	if (!isset($_POST['first_name']) || $_POST['first_name'] == '')
+		return;
+	if (!isset($_POST['last_name']) || $_POST['last_name'] == '')
+		return;
+
 	global $user_ID;
 
 	//If no passport is uploaded, exit
@@ -491,7 +500,47 @@ function edit_submit_button($submit_button, $args) {
 	return $submit_button;
 
 }
+
 add_filter('comment_form_submit_button','edit_submit_button', 1, 2);
+
+/*---------- Custom Registration Form ----------*/
+add_action( 'register_form', 'add_checkbox_register_form' );
+function add_checkbox_register_form() {
+
+	?>
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="tenant" value="tenant" checked="checked" id="tenantCheckbox" onclick="rentCheck()"> I want to find accommodations on Ulieve.
+		</label>
+	</div>
+	<p></p>
+	<div class="checkbox">
+		<label>
+			<input type="checkbox" name="host" value="host" id="hostCheckbox" onclick="hostCheck()"> I want to host my space on Ulieve.
+		</label>
+	</div>
+	<div>
+		<p></p>
+		<p class="text-muted" style="font-size: 13px">By signing up, I agree to Ulieve's Terms of Service, Payment Terms of Service, and Privacy Policy</p>
+	</div>
+
+	<?php
+}
+//Save our extra registration user meta.
+add_action( 'user_register', 'add_roles_user_register');
+function add_roles_user_register( $user_id ) {
+	if (isset( $_POST['tenant'])) {
+		update_user_meta( $user_id, 'is_tenant', 1 );
+	}
+	if (isset($_POST['host'])) {
+		update_user_meta( $user_id, 'is_host', 1 );
+	} else {
+		update_user_meta( $user_id, 'is_host', 0 );
+		/* If not a host, set is_tenant to true */
+		update_user_meta( $user_id, 'is_tenant', 1 );
+	}
+}
+
 /**
  * Implement the Custom Header feature.
  */
