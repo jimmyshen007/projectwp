@@ -487,6 +487,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 							</tr>
 						</tbody>
 					</table>
+					<?php if($isShortTerm == true) {?>
+					<p class="text-danger" id="unavailableNote" style="display: none; text-align: center;">Those dates are not available</p>
+					<?php }?>
 					<p class="text-muted" id="note">Please be noted the date you pick for moving in is in local time of destination.</p>
 						<div id="summaryDiv" style="display: none">
 							<table  style="margin-top:30px;">
@@ -554,12 +557,55 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 					return d && (d.getMonth() + 1) == bits[1];
 				}
 
+				function isAvailableRange(disableRange, selectedStartDate, selectedEndDate) {
+					/* Check there is any overlap between the selectedRange and any of the range in the disableRange*/
+					var selStart = new Date(selectedStartDate);
+					var selEnd = new Date(selectedEndDate);
+					for(var i = 0; i < disableRange.length; i++) {
+						var start = new Date(disableRange[i].start);
+						var end = new Date(disableRange[i].end);
+						if (start <= selEnd && selStart <= end)
+							return false;
+					}
+					return true;
+				}
+
 				$( function() {
+					<?php if($isShortTerm == true) {?>
+					var now = new Date();
+					var nowStr = now.toISOString().substr(0,10);
+					var disableRange = new Array();
+					// Retrieve the disable range for THIS order
+					jQuery.ajax({
+						url: "/api/0/worders/ActiveGreaterEndDate/" + nowStr,
+						dataType: "json",
+						method: "Get",
+						success: function (result) {
+							for(var i = 0; i < result.data.length; i++)
+							{
+								if(result.data[i].postID == postID) {
+									var startDay = result.data[i].startDate.substr(0,10);
+									var endDay = result.data[i].endDate.substr(0,10);
+									disableRange.push({"start":startDay, "end": endDay});
+								}
+							}
+						}
+					});
+					<?php } ?>
 					var dateFormat = "yy-mm-dd";
 					var from = $( "#datepickerStart" )
 							.datepicker({
 								<?php if($isShortTerm == true) {?>
 								numberOfMonths: 2,
+								beforeShowDay: function(date) {
+									for(var i = 0; i < disableRange.length; i ++ ) {
+										var start = new Date(disableRange[i].start);
+										var end = new Date(disableRange[i].end);
+										if(date > start && date < end)
+											return[false, ''];
+									}
+									return [true, ''];
+								},
 								<?php } ?>
 								dateFormat: dateFormat,
 								minDate: 0,
@@ -584,40 +630,56 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 										document.getElementById("datepickerEnd").value = "";
 									}
 								}
+								// Set the minDate of end date to the next day
 								var date2 = from.datepicker('getDate');
 								date2.setDate(date2.getDate()+1);
 								to.datepicker( "option", "minDate", date2 );
+
+								// If end date is not selected by user, set it to the next day of start date
 								if(to.datepicker('getDate') == null) {
 									to.datepicker('setDate', date2);
 									var dateStart = document.getElementById("datepickerStart").value;
 									var dateEnd = document.getElementById("datepickerEnd").value;
-									term = getInterval(dateStart, dateEnd);
-									if(term > 0) {
-										var rent_unit = <?php echo $rent_per_day; ?>;
-										var rent = rent_unit * term;
-										var service_fee = Math.round(rent * <?php echo $service_rate;?>);
-										var total_fee = rent + service_fee;
-										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
-										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
-										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
-										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
-										document.getElementById("summaryDiv").style.display = 'block';
+									//Check the availablity of the selected range
+									if(isAvailableRange(disableRange, dateStart, dateEnd)) {
+										term = getInterval(dateStart, dateEnd);
+										if(term > 0) {
+											var rent_unit = <?php echo $rent_per_day; ?>;
+											var rent = rent_unit * term;
+											var service_fee = Math.round(rent * <?php echo $service_rate;?>);
+											var total_fee = rent + service_fee;
+											document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+											document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+											document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+											document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+											document.getElementById("summaryDiv").style.display = 'block';
+											document.getElementById("unavailableNote").style.display = 'none';
+										}
+									} else {
+										document.getElementById("summaryDiv").style.display = 'none';
+										document.getElementById("unavailableNote").style.display = 'block';
 									}
 								}
 								else {
 									var dateStart = document.getElementById("datepickerStart").value;
 									var dateEnd = document.getElementById("datepickerEnd").value;
-									term = getInterval(dateStart, dateEnd);
-									if(term > 0) {
-										var rent_unit = <?php echo $rent; ?>;
-										var rent = rent_unit * term;
-										var service_fee = Math.round(rent * <?php echo $service_rate;?>);
-										var total_fee = rent + service_fee;
-										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
-										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
-										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
-										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
-										document.getElementById("summaryDiv").style.display = 'block';
+									if(isAvailableRange(disableRange, dateStart, dateEnd)) {
+										term = getInterval(dateStart, dateEnd);
+										if(term > 0) {
+											var rent_unit = <?php echo $rent; ?>;
+											var rent = rent_unit * term;
+											var service_fee = Math.round(rent * <?php echo $service_rate;?>);
+											var total_fee = rent + service_fee;
+											document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+											document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+											document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+											document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+											document.getElementById("summaryDiv").style.display = 'block';
+											document.getElementById("unavailableNote").style.display = 'none';
+										}
+									}  else {
+										document.getElementById("summaryDiv").style.display = 'none';
+										document.getElementById("unavailableNote").style.display = 'block';
 									}
 								}
 								<?php }else { ?>
@@ -633,6 +695,15 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 					<?php if($isShortTerm == true) {?>
 					var	to = $( "#datepickerEnd" ).datepicker({
 								numberOfMonths: 2,
+								beforeShowDay: function(date) {
+									for(var i = 0; i < disableRange.length; i ++ ) {
+										var start = new Date(disableRange[i].start);
+										var end = new Date(disableRange[i].end);
+										if(date > start && date < end)
+											return[false, ''];
+									}
+									return [true, ''];
+								},
 								dateFormat: dateFormat,
 								minDate : 0
 							})
@@ -656,19 +727,24 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 								if(from.datepicker('getDate') != null) {
 									var dateStart = document.getElementById("datepickerStart").value;
 									var dateEnd = document.getElementById("datepickerEnd").value;
-									term = getInterval(dateStart, dateEnd);
-									if(term > 0) {
-										var rent_unit = <?php echo $rent_per_day; ?>;
-										var rent = rent_unit * term;
-										var service_fee = Math.round(rent * <?php echo $service_rate;?>);
-										var total_fee = rent + service_fee;
-										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
-										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
-										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
-										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
-										document.getElementById("summaryDiv").style.display = 'block';
+									if(isAvailableRange(disableRange, dateStart, dateEnd)) {
+										term = getInterval(dateStart, dateEnd);
+										if(term > 0) {
+											var rent_unit = <?php echo $rent_per_day; ?>;
+											var rent = rent_unit * term;
+											var service_fee = Math.round(rent * <?php echo $service_rate;?>);
+											var total_fee = rent + service_fee;
+											document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+											document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+											document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+											document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+											document.getElementById("summaryDiv").style.display = 'block';
+											document.getElementById("unavailableNote").style.display = 'none';
+										}
+									} else {
+										document.getElementById("summaryDiv").style.display = 'none';
+										document.getElementById("unavailableNote").style.display = 'block';
 									}
-
 								}
 							});
 					<?php } ?>
@@ -711,14 +787,17 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									document.getElementById("datepickerStart").disabled = true;
 									document.getElementById("datepickerStart").value = startDate;
 									<?php if($isShortTerm == true) { ?>
-									var endDate  = new Date(2000, 0, 1);
+									var endDate = result.data[i].endDate.substring(0,10);
+									/*var endDate  = new Date(2000, 0, 1);
 									var startdate = new Date(startDate.concat("T15:00:00Z"));
 									var one_day = 1000*60*60*24;
+									endDate.setTime(startdate.getTime() + term * one_day);
+									endDate = endDate.toISOString().substring(0,10);*/
 									var str = "rental";
 
-									endDate.setTime(startdate.getTime() + term * one_day);
+
 									document.getElementById("datepickerEnd").disabled = true;
-									document.getElementById("datepickerEnd").value = endDate.toISOString().substring(0,10);
+									document.getElementById("datepickerEnd").value = endDate;
 
 									if(term > 0) {
 										var rent_unit = <?php echo $rent_per_day; ?>;
@@ -730,6 +809,7 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
 										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
 										document.getElementById("summaryDiv").style.display = 'block';
+										document.getElementById("unavailableNote").style.display = 'none';
 									}
 									<?php } else { ?>
 									var str = "deposit";
@@ -1105,7 +1185,7 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 								},
 								success: function (result) {
 									var stripeChargeID = result.data.stripeChargeID;
-									AddOrder(skuID, stripeSkuID, stripeAccID, datetimeStart, term, tenants, stripeChargeID);
+									AddOrder(skuID, stripeSkuID, stripeAccID, datetimeStart, datetimeEnd, term, tenants, stripeChargeID);
 								},
 								error: function () {
 									$form.find('.payment-errors').text("Opps, The payment didn't go through. Please make sure your payment info is correct or try it later.");
@@ -1150,22 +1230,33 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 					return interval;
 				}
 
-				function AddOrder(skuID, stripeSkuID, stripeAccID, startDate, term, numTenant, stripeChargeID) { /* Create an order wrapper */
+				function AddOrder(skuID, stripeSkuID, stripeAccID, startDate, endDate, term, numTenant, stripeChargeID) { /* Create an order wrapper */
 					var currency = "<?php echo $currency ?>";
+					var rentType;
+					<?php if($isShortTerm == true) {?>
+					rentType = "daily";
+					<?php } else {?>
+					rentType = "term";
+					<?php } ?>
 					if (stripeSkuID != "" && stripeAccID != "") {
 						jQuery.ajax({
 							url: '/api/0/worders',
 							dataType: "json",
 							method: "POST",
 							data: {
+								"paymentType": "Stripe",
+								"rentalType" : rentType,
 								"postID": postID,
 								"postAuthorID": authorUserID,
-								"currency": currency,
+								/*"currency": currency,*/
 								"userID": userID,
 								"skuID": skuID,
 								"stripeAccID": stripeAccID,
 								"appStatus": "Waiting for approval",
 								"startDate": startDate,
+								<?php if($isShortTerm == true) {?>
+								"endDate" : endDate,
+								<?php } ?>
 								"stripeChargeIDs" : [stripeChargeID],
 								"term": term,
 								"numTenant": numTenant
@@ -1175,14 +1266,19 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 								var start = startDate.substring(0,10);
 								document.getElementById("datepickerStart").value = start;
 								<?php if($isShortTerm == true) {?>
+								var end = endDate.substring(0,10);
+								/*
 								var endDate  = new Date(2000, 0, 1);
 								var startdate  = new Date(start.concat("T15:00:00Z"));
 								var one_day = 1000*60*60*24;
+								endDate.setTime(startdate.getTime() + term * one_day);
+								endDate = endDate.toISOString().substring(0,10);
+								*/
 								var str = "rental";
 
-								endDate.setTime(startdate.getTime() + term * one_day);
+
 								document.getElementById("datepickerEnd").disabled = true;
-								document.getElementById("datepickerEnd").value = endDate.toISOString().substring(0,10);
+								document.getElementById("datepickerEnd").value = end;
 
 								<?php } else { ?>
 								var str = "deposit";

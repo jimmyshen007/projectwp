@@ -335,7 +335,7 @@ if(count($stuID_value) > 0 && count($stuID_exiry_value)) {
 												<td style="width: 5%"></td>
 												<td style="width: 55%">
 													<label class="control-label" for="pp_expiry_date">Expiry Date</label>
-													<input class="form-control input-lg"  style="width: 235px;" type="text" name="pp_exname="pp_expiry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"piry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"/>
+													<input class="form-control input-lg"  style="width: 235px;" type="text" name="pp_expiry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"piry_date" placeholder="yyyy-mm-dd" id="pp_expiry_date"/>
 												</td>
 											</tr>
 											</tbody>

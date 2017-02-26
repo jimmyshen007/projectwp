@@ -147,7 +147,7 @@ for($i = 0; $i < count($results1); $i++) {
         var isShortTerm = (short_term == "short") ? true : false;
 
         if(isShortTerm)
-            document.getElementById("termlabel").innerHTML = "EndDate";
+            document.getElementById("termlabel").innerHTML = "End Date";
         else
             document.getElementById("termlabel").innerHTML = "Term";
 
@@ -179,15 +179,16 @@ for($i = 0; $i < count($results1); $i++) {
                             startDate = result.data[i].startDate.substring(0,10);
                             numTenant = result.data[i].numTenant;
                             if(isShortTerm) {
+                                term = result.data[i].endDate.substring(0,10);
                                 /*short term, convert term to end date*/
-                                term = result.data[i].term;
+                                /*term = result.data[i].term;
                                 var end  = new Date(2000, 0, 1);
                                 var start = new Date(startDate.concat("T15:00:00Z"));
                                 var one_day = 1000*60*60*24;
 
                                 end.setTime(start.getTime() + term * one_day);
-                                /*store end date in term variable*/
-                                term = end.toISOString().substring(0,10);
+                                / *store end date in term variable* /
+                                term = end.toISOString().substring(0,10);*/
                             } else {
                                 term = result.data[i].term;
                                 if(term > 85 && term < 95) // =91
@@ -458,7 +459,7 @@ for($i = 0; $i < count($results1); $i++) {
                         <th>Applicant</th>
                         <th>Start Date</th>
                         <th id="termlabel">Term</th>
-                        <th>Tenants</th>
+                        <th>Tena(s)</th>
                         <th>Status</th>
                         <th>Op</th>
                     </tr>

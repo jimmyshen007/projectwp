@@ -6,6 +6,7 @@
  * Time: 10:19 PM
  */
 
+
 define("HOST", "localhost");
 define("DATABASE", "wordpress");
 define("USERNAME", "wordpress");
@@ -26,7 +27,7 @@ function get_userinfo()
 
     $query = "SELECT user_id, meta_key, meta_value FROM wp_usermeta where (meta_key='first_name' or meta_key='last_name' or meta_key='Passport') and user_id in ".$userIDStr. "order by user_id, umeta_id";
 
-    $mysqli= mysqli_connec(HOST, DATABASE, USERNAME, PASSWORD);
+    $mysqli= mysqli_connect(HOST, DATABASE, USERNAME, PASSWORD);
 
     if ($mysqli) {
 
