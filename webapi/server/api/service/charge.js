@@ -93,14 +93,14 @@ export function createPercentSKUCharge(infoObj){
             let price = data[0].price;
             let charge = 50;
             if (type == "day") {
-                charge = days * price * chargePercent;
+                charge = Math.round((days * price * chargePercent) / 100) * 100;
                 //TBD Landlord discount probably read from sku metadata.
 
             } else if (type == "term") {
                 if (days >= cutoff) {
-                    charge = cutoff * price * chargePercent;
+                    charge = Math.round((cutoff * price * chargePercent) / 100) * 100;
                 } else {
-                    charge = days * price * chargePercent;
+                    charge = Math.round((days * price * chargePercent) / 100) * 100;
                 }
             }
             infoObj['amount'] = charge;

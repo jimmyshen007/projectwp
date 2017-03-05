@@ -6,6 +6,12 @@
  * Time: 10:19 PM
  */
 
+
+define("HOST", "localhost");
+define("DATABASE", "wordpress");
+define("USERNAME", "wordpress");
+define("PASSWORD", "wordpress");
+
 function get_userinfo()
 {
     $userIDs = $_POST["userIDs"];
@@ -21,7 +27,7 @@ function get_userinfo()
 
     $query = "SELECT user_id, meta_key, meta_value FROM wp_usermeta where (meta_key='first_name' or meta_key='last_name' or meta_key='Passport') and user_id in ".$userIDStr. "order by user_id, umeta_id";
 
-    $mysqli= mysqli_connect("localhost", "wordpress", "wordpress", "wordpress");
+    $mysqli= mysqli_connect(HOST, DATABASE, USERNAME, PASSWORD);
 
     if ($mysqli) {
 
@@ -90,7 +96,7 @@ function upload_id()
     // if everything is ok, try to upload file
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
-            $mysqli= mysqli_connect("localhost", "wordpress", "wordpress", "wordpress");
+            $mysqli= mysqli_connect(HOST, DATABASE, USERNAME, PASSWORD);
             $query1 = "insert into wp_usermeta (user_id,meta_key,meta_value) values(".$user_ID.", 'Passport', '".$target_file1."')";
             $query2 = "insert into wp_usermeta (user_id,meta_key,meta_value) values(".$user_ID.",'passport_expire_date','".$pp_expire_date."')";
             if ($mysqli) {
@@ -104,6 +110,7 @@ function upload_id()
     die();
 }
 
+
 switch($_POST["action"])
 {
     case "getInfo":
@@ -111,6 +118,7 @@ switch($_POST["action"])
         break;
     case "uploadID":
         upload_id();
+        break;
     default:
         break;
 }

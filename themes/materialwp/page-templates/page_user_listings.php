@@ -7,6 +7,12 @@ get_header();
 ?>
 <?php
 global $wpdb;
+
+$is_tenant_arr = get_user_meta( $user_ID, "is_tenant", false);
+$is_tenant = (count($is_tenant_arr) > 0) ? $is_tenant_arr[0] : 0;
+$is_host_arr = get_user_meta( $user_ID, "is_host", false);
+$is_host = (count($is_host_arr) > 0) ? $is_host_arr[0] : 0;
+
 $query1 = 'SELECT id, post_title, guid FROM wp_posts WHERE post_type = \'rental\' and post_author = '.$userdata->ID .' ORDER BY id DESC' ;
 $results1 = $wpdb->get_results( $query1, ARRAY_A );
 $rental_count = count($results1);
@@ -32,7 +38,7 @@ $subArraySz = 7;
 /* results2
  * ixsubArraySz+0: property_address_country
  * ixsubArraySz+1: property_address_street
- * ixsubArraySz+2:property_address_street_number
+ * ixsubArraySz+2: property_address_street_number
  * ixsubArraySz+3: property_address_suburb
  * ixsubArraySz+4: property_rent
  * ixsubArraySz+5: property_rent_period
@@ -141,7 +147,7 @@ for($i = 0; $i < count($results1); $i++) {
         var isShortTerm = (short_term == "short") ? true : false;
 
         if(isShortTerm)
-            document.getElementById("termlabel").innerHTML = "EndDate";
+            document.getElementById("termlabel").innerHTML = "End Date";
         else
             document.getElementById("termlabel").innerHTML = "Term";
 
@@ -173,15 +179,16 @@ for($i = 0; $i < count($results1); $i++) {
                             startDate = result.data[i].startDate.substring(0,10);
                             numTenant = result.data[i].numTenant;
                             if(isShortTerm) {
+                                term = result.data[i].endDate.substring(0,10);
                                 /*short term, convert term to end date*/
-                                term = result.data[i].term;
+                                /*term = result.data[i].term;
                                 var end  = new Date(2000, 0, 1);
                                 var start = new Date(startDate.concat("T15:00:00Z"));
                                 var one_day = 1000*60*60*24;
 
                                 end.setTime(start.getTime() + term * one_day);
-                                /*store end date in term variable*/
-                                term = end.toISOString().substring(0,10);
+                                / *store end date in term variable* /
+                                term = end.toISOString().substring(0,10);*/
                             } else {
                                 term = result.data[i].term;
                                 if(term > 85 && term < 95) // =91
@@ -216,10 +223,6 @@ for($i = 0; $i < count($results1); $i++) {
     function AcceptApp()
     {
         /* Change order status */
-        var urlstr1 = '/api/0/wcharges/user/';
-        var urlstr2 = '/api/0/worders/';
-        var urlstr3 = '/api/0/charges/capture/';
-        var urlstr4 = '/api/0/charges/';
         var chargeId = "";
         var found = false;
 
@@ -243,43 +246,40 @@ for($i = 0; $i < count($results1); $i++) {
                             dataType: "json",
                             method: "get",
                             success: function (result) {
-                                // If the charge is captured, clean up the chargeId
-                                if (result.data[0].captured == true){
-                                    chargeId = "";
-                                    found = false;
-                                }
-                                if (result.data[0].captured == false) {
-                                    found = true;
-                                    // Found the uncaptured charge. Capture the charge and update status to approved
-                                    jQuery.ajax({
-                                        url: '/api/0/charges/capture/' + chargeId,
-                                        dataType: "json",
-                                        method: "Post",
-                                        success: function (result) {
-                                            jQuery.ajax({
-                                                url: '/api/0/worders/' + selectedID,
-                                                data: {appStatus: "Approved"},
-                                                dataType: "json",
-                                                method: "Post",
-                                                success: function (result) {
-                                                    document.getElementById("BtnApprove").disabled = true;
-                                                    document.getElementById("BtnReject").disabled = true;
-                                                    var div = document.getElementById('status');
-                                                    div.innerHTML="Status: Approved";
-                                                    cellStatus.data("Approved").draw();
-                                                    /* Send notification email */
-                                                    jQuery.ajax({
-                                                        url: "/api/0/sendMail",
-                                                        data: {to: "ccyangtianfang@gmail.com", subject: "Test email", html: "<b>Hello world ✔</b>"},
-                                                        dataType: "json",
-                                                        method: "Post",
-                                                        success: function (result) {
-                                                        }
-                                                    });
-                                                }
-                                            });
-                                        }
-                                    });
+                                // Found the uncaptured charge. Capture the charge and update status to approved
+                                if (result.data[0].captured == false){
+                                    if(found == false) {
+                                        found = true;
+                                        jQuery.ajax({
+                                            url: '/api/0/charges/capture/stripe/' + result.data[0].id,
+                                            dataType: "json",
+                                            method: "Post",
+                                            success: function (result) {
+                                                jQuery.ajax({
+                                                    url: '/api/0/worders/' + selectedID,
+                                                    data: {appStatus: "Approved"},
+                                                    dataType: "json",
+                                                    method: "Post",
+                                                    success: function (result) {
+                                                        document.getElementById("BtnApprove").disabled = true;
+                                                        document.getElementById("BtnReject").disabled = true;
+                                                        var div = document.getElementById('status');
+                                                        div.innerHTML="Status: Approved";
+                                                        cellStatus.data("Approved").draw();
+                                                        /* Send notification email */
+                                                        jQuery.ajax({
+                                                            url: "/api/0/sendMail",
+                                                            data: {to: "ccyangtianfang@gmail.com", subject: "Test email", html: "<b>Hello world ✔</b>"},
+                                                            dataType: "json",
+                                                            method: "Post",
+                                                            success: function (result) {
+                                                            }
+                                                        });
+                                                    }
+                                                });
+                                            }
+                                        });
+                                    }
                                 }
                             }
                         });
@@ -459,7 +459,7 @@ for($i = 0; $i < count($results1); $i++) {
                         <th>Applicant</th>
                         <th>Start Date</th>
                         <th id="termlabel">Term</th>
-                        <th>Tenants</th>
+                        <th>Tena(s)</th>
                         <th>Status</th>
                         <th>Op</th>
                     </tr>
@@ -487,8 +487,15 @@ for($i = 0; $i < count($results1); $i++) {
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
                                 <li><a href="/your-profile/">Profile</a></li>
                                 <li><a href="/your-profile/wish-list/">Wish List</a></li>
-                                <li  class="active"><a href="/your-profile/users-listings/">Your Listings</a></li>
-                                <li><a href="/your-profile/users-orders/">Orders</a></li>
+                                <?php if($is_host == 1) {?>
+                                    <li  class="active"><a href="/your-profile/users-listings/">Your Listings</a></li>
+                                <?php }?>
+                                <?php if($is_tenant == 1) {?>
+                                    <li><a href="/your-profile/users-orders/">Orders</a></li>
+                                <?php }?>
+                                <?php if($is_host == 1) {?>
+                                    <li><a href="/your-profile/account/">Account</a></li>
+                                <?php }?>
                             </ul>
                         </div>
                         <div class="panel panel-default">
@@ -520,9 +527,9 @@ for($i = 0; $i < count($results1); $i++) {
                                                                                 </p>
                                                                             </td>
                                                                             <td align="right" valign="middle">
-                                                                                <a href="<?php echo $results1[$i][guid]?>" class="btn btn-success btn-sm">View</a>
-                                                                                <a href="" class="btn btn-danger btn-sm">Delete</a>
-                                                                                <button id="app<?php echo $results1[$i][id];?>" type="button" class="btn btn-warning btn-sm" data-toggle="modal" data-target="#complete-dialog" onclick="checkApp(this.id, '<?php echo $short_term_arr[$results1[$i][id]];?>')">Applies</button>
+                                                                                <a href="<?php echo $results1[$i][guid]?>" class="btn btn-default btn-sm" style="width: 86px;border: 1px solid #4caf50; border-radius: 3px"><span style="color: #4caf50">View</span></a>
+                                                                                <a href="" class="btn btn-default btn-sm" style="width: 86px;border: 1px solid #f44336; border-radius: 3px"><span style="color: #f44336">Delete</span></a>
+                                                                                <button id="app<?php echo $results1[$i][id];?>" type="button" class="btn btn-default btn-sm" style="width: 86px;border: 1px solid #03a9f4; border-radius: 3px" data-toggle="modal" data-target="#complete-dialog" onclick="checkApp(this.id, '<?php echo $short_term_arr[$results1[$i][id]];?>')"><span style="color: #03a9f4">Applies</span></button>
 
                                                                             </td>
                                                                         </tr>

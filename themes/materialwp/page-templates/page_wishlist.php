@@ -8,6 +8,11 @@ get_header();
 <?php
 global $user_ID, $wpdb;
 
+$is_tenant_arr = get_user_meta( $user_ID, "is_tenant", false);
+$is_tenant = (count($is_tenant_arr) > 0) ? $is_tenant_arr[0] : 0;
+$is_host_arr = get_user_meta( $user_ID, "is_host", false);
+$is_host = (count($is_host_arr) > 0) ? $is_host_arr[0] : 0;
+
 $ch = curl_init("http://localhost:3000/api/0/favorites/user/".$user_ID);
 
 curl_setopt($ch, CURLOPT_HEADER, 0);
@@ -71,8 +76,15 @@ curl_close($ch);
                             <ul class="nav nav-pills" style="margin-bottom: 35px; margin-left: 0px;margin-top: -15px;">
                                 <li><a href="/your-profile/">Profile</a></li>
                                 <li class="active"><a href="/your-profile/wish-list/">Wish List</a></li>
-                                <li><a href="/your-profile/users-listings/">Your Listings</a></li>
-                                <li><a href="/your-profile/users-orders/">Orders</a></li>
+                                <?php if($is_host == 1) {?>
+                                    <li><a href="/your-profile/users-listings/">Your Listings</a></li>
+                                <?php }?>
+                                <?php if($is_tenant == 1) {?>
+                                    <li><a href="/your-profile/users-orders/">Orders</a></li>
+                                <?php }?>
+                                <?php if($is_host == 1) {?>
+                                    <li><a href="/your-profile/account/">Account</a></li>
+                                <?php }?>
                             </ul>
                         </div>
                         <div class="panel panel-default">

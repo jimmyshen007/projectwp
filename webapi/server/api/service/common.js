@@ -54,7 +54,7 @@ export function getServicesByAttribute(serviceName, attrName, attrValue){
 export function getActiveWOrderByGreaterDate(serviceName, attrName, attrValue){
     let service = m.model(serviceName, chooseSchema(serviceName));
     let jsonObj = constructJSONHelper(attrName, {$gt: new Date(attrValue)});
-    jsonObj['appStatus'] = { $in: [ 'approved', 'paid' ] };
+    jsonObj['appStatus'] = { $in: [ 'Approved', 'Completed' ] };
     return service.find(jsonObj).lean().exec();
 }
 

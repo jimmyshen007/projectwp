@@ -198,7 +198,7 @@ app.post('/api/0/charges/:id', api.editCharge);
 app.post('/api/0/charges/stripe/:id', api.editChargeByStripeID);
 app.post('/api/0/charges/capture/:id', api.captureCharge);
 app.post('/api/0/charges/capture/stripe/:id', api.captureChargeByStripeID);
-app.post('/api/0/charges/createPercentSKUCharge', api.createPercentSKUCharge);
+app.post('/api/0/charges/create/percentSKUCharge', api.createPercentSKUCharge);
 
 app.get('/api/0/accounts', api.getAccounts);
 app.get('/api/0/accounts/:id', api.getAccountByID);
