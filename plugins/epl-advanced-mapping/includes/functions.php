@@ -251,7 +251,7 @@ function epl_am_tabbed_map_bottom($tablocation='bottom',$width='100%', $zoom=16)
 						}
 					}
 					$req_url = $serv_root . '[' . $combo_key . '=' . $combo_val .']';
-					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'">' . $tab_array['label'] . '</a></li>';
+					echo '<li class="' . '"><a class="btn" id="' . $tab_key  . '" href="' . $req_url .'">' . $tab_array['label'] . '</a></li>';
 				}
 			  ?>
 			  </ul>
@@ -357,7 +357,7 @@ function epl_am_tabbed_map_top($tablocation='top',$width='100%',$zoom=16) {
 						}
 					}
 					$req_url = $serv_root . '[' . $combo_key . '=' . $combo_val .']';
-					echo '<li class="' . '"><a id="' . $tab_key  . '" href="' . $req_url .'"><img src="'
+					echo '<li class="' . '"><a class="btn" id="' . $tab_key  . '" href="' . $req_url .'"><img src="'
 						. $tab_array['icon'] . '"/> ' . $tab_array['label'] . '</a></li>';
 				}
 				?>

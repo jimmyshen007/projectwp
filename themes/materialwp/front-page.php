@@ -20,7 +20,7 @@
     <!-- <php wp_enqueue_style('hover-effects-1', get_template_directory_uri()  . '/hover-effects/css/set1.css', array(), '', 'all' ); ?> -->
     <?php wp_enqueue_style('hover-effects-2', get_template_directory_uri()  . '/hover-effects/css/set2.css', array(), '', 'all' ); ?>
     <style>
-        .custom-width {
+        /* .custom-width {
             width: 300px !important;
         }
 
@@ -35,10 +35,11 @@
                 padding-top: 15px !important;
                 padding-bottom: 15px !important;
             }
-        }
+        }*/
         .mb-search-result-a{
             display: block;
         }
+
     </style>
     <script>
         var textTranslation = {
@@ -53,6 +54,122 @@
 <body <?php body_class(); ?>>
 
 <?php
+
+    function generateSearch(){ ?>
+        <!-- Search section -->
+        <div id="my-epl-form-wrapper" class="panel panel-default" style="left: 50%;
+-webkit-transform: translate(-50%, 100%);
+transform: translate(-50%, 100%); position: absolute; z-index: 99">
+            <div class="panel-body" style="width: 100%; text-align: center">
+                <div style="display: inline-block; position: relative">
+                            <ul class="nav nav-tabs" style="margin-left: 0px">
+                                <li><a id="search-tab-long" class="btn">Term Rental</a></li>
+                                <li><a id="search-tab-daily" class="btn">Daily Rental</a></li>
+                            </ul>
+                    <!-- <div id="myTabContent" class="tab-content"> -->
+                            <div id="mb-main-search-bar" class="custom-geocoder-control col-lg-4" style="">
+                                <!-- <a id="mb-search-link" class="leaflet-control-mapbox-geocoder-toggle mapbox-icon mapbox-icon-geocoder"
+                                style="visibility: hidden"></a> -->
+                                <div id="mb-search-wrap">
+                                    <form id="mb-search-form" style="border: 0; box-shadow: none;">
+                                        <div class="form-group is-empty custom-input">
+                                            <input id="mb-search-input" autocomplete="off" placeholder="Where to go"
+                                                   style="text-align: center" class="form-control custom-width" type="text" />
+                                            <span class="material-input"></span>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                            <form id="my_epl_form">
+                                  <div class="form-group col-lg-2 custom-input">
+                                     <input type="text" name="property_available_date[]" placeholder="Start Date" id="datepicker-s"
+                                            style="text-align: center; position: relative; z-index: 99"
+                                            class="form-control">
+                                     <!--<i class="fa fa-calendar form-control"></i>-->
+                                  </div>
+                            <!-- </td>
+                            <td style="display: inline-block"> -->
+                                 <div id="end-date-block" class="form-group col-lg-2 custom-input">
+                                     <select name="property_min_stay" class="form-control">
+                                         <option value>Any</option>
+                                         <?php for($x = 0; $x <= 11; $x++) {
+            if($x == 0):
+                echo '<option value="1">1 month</option>';
+            else:
+                echo '<option value="' . ($x + 1) . '">'
+                    . ($x + 1) . ' months</option>';
+            endif;
+        } ?>
+        </select>
+        <input type="hidden" name="property_rent_period" value="week|month" />
+        <!--<i class="fa fa-calendar"></i>-->
+        </div>
+        <!-- </td>
+        <td style="display: inline-block"> -->
+        <div class="form-group custom-input col-lg-2">
+            <select name="property_number_guests" data-placeholder="guests" class="form-control">
+                <option value>Any</option>
+                <option value="1">1 guest</option>
+                <option value="2">2 guests</option>
+                <option value="3">3 guests</option>
+                <option value="4">4 guests</option>
+            </select>
+        </div>
+        <!-- </td>
+        <td style="display: inline-block; padding: 0 8px"> -->
+        <div class="col-lg-2">
+            <button class="btn btn-transparent"><?php echo __('Search', 'materialwp') ?></button>
+        </div>
+        </form>
+        <!-- </div> -->
+        <div id="mb-search-results" class="custom-width" style="position: absolute; top:140px; z-index: 99;
+                        background: white; border: 0px solid black; display: block; margin-left: 10px;"></div>
+        </div>
+        </div>
+        </div>
+        <!-- end search section -->
+    <?php }
+
+    function generateSlider($cid, $imgs){
+        $n_imgs = count($imgs);
+        ?>
+        <div style="width:100%; text-align: center; position: relative">
+            <?php generateSearch() ?>
+            <ul id="<?php echo $cid ?>">
+    <?php
+             for($x = 0; $x < $n_imgs; $x++) { ?>
+                 <li title="<?php echo $imgs[$x]['title'] ?><?php echo $imgs[$x]['desc'] ?>">
+                 <img class="img-responsive center-block" src="<?php echo $imgs[$x]['url'] ?>"
+                             alt="<?php echo $imgs[$x]->title ?>">
+                 </li>
+    <?php    }
+    ?>
+            </ul>
+        </div>
+        <script>
+            $('#<?php echo $cid ?>').slippry({
+                // general elements & wrapper
+                slippryWrapper: '<div class="sy-box pictures-slider" />', // wrapper to wrap everything, including pager
+
+                // options
+                adaptiveHeight: false, // height of the sliders adapts to current slide
+                captions: false, // Position: overlay, below, custom, false
+
+                // pager
+                pager: false,
+
+                // controls
+                controls: true,
+                autoHover: false,
+
+                // transitions
+                transition: 'kenburns', // fade, horizontal, kenburns, false
+                kenZoom: 140,
+                speed: 2000 // time the transition takes (ms)
+            });
+        </script>
+    <?php
+    }
     /*
      * $cid: carousel id.
      * $imgs: array of image elements. each image is also an array with url, title and desc.
@@ -62,6 +179,7 @@
 ?>
         <!-- start carousel -->
         <div id="<?php echo $cid ?>" class="carousel slide" data-ride="carousel">
+
             <!-- Indicators -->
             <ol class="carousel-indicators">
                 <?php for($x = 0; $x < $n_imgs; $x++) {
@@ -78,6 +196,8 @@
 
             <!-- Wrapper for slides -->
             <div class="carousel-inner" role="listbox">
+                <?php generateSearch() ?>
+
                 <?php for($x = 0; $x < $n_imgs; $x++){
                     if($x == 0){
                         $active = 'active';
@@ -151,12 +271,22 @@
                       var images = images.data;
                       var listHtml = '';
                       for (var i = 0; i < images.length; i++) {
+                          var refer = '?epl_action=epl_search&distance-scope=auto&post_type=rental&action=load_post_ajax';
+                          if(images[i].lat && images[i].lng){
+                              refer += '&my_epl_input_lat=' + images[i].lat
+                                    + '&my_epl_input_lng=' + images[i].lng;
+                          }else{
+                              refer += '&my_epl_bb_min_lat=' + images[i].min_lat
+                                    + '&my_epl_bb_max_lat=' + images[i].max_lat
+                                    + '&my_epl_bb_min_lng=' + images[i].min_lng
+                                    + '&my_epl_bb_max_lng=' + images[i].max_lng;
+                          }
                           listHtml += '<li class="grid-item"><figure class="effect-julia"><img src="'
                               + <?php echo '"' . $tdir . '"' ?>  + '/images/' + images[i].icon_id
                               + '.jpg" /><figcaption><div>'
                               + '<h3><span>' + images[i].name + '</span></h3>'
                               + '<p>' + images[i].state + ', ' + images[i].country  + '</p></div>'
-                              + '<a href="#">View more</a>'
+                              + '<a href="'+ refer + '"></a>'
                               + '</figcaption></figure></li>';
                       }
                       var redirectAnchor = '<a href="/wordpress/popular-' + '<?php echo $service ?>">';
@@ -240,24 +370,19 @@
                         pointZoom: ZOOM
                     }));
 
-                $('#my_epl_form').on('submit', function(e){
-                    e.preventDefault();
-                    var link = window.location.href;
-                    var arr=link.split('?');
-                    window.location.href = arr[0] + '?' + $(this).serialize()
-                        + '&epl_action=epl_search&distance-scope=auto&post_type=rental&action=load_post_ajax';
-                });
-
                 $( "#datepicker-s" ).datepicker({ minDate:0});
                 $( "#datepicker-s" ).datepicker( "option", "dateFormat", "yy-mm-dd");
-                $( "#search-tab-daily").on('click', function(){
-                    $('#end-date-block').html('<input type="text" name="departure" placeholder="End Date" id="datepicker-e"'
-                      + ' style="text-align: center; position: relative; z-index: 10" class="form-control">');
+                $( "#search-tab-daily").on('click', function(e){
+                    e.preventDefault();
+                    $('#end-date-block').html('<input type="text" name="property_available_date[]" placeholder="End Date" id="datepicker-e"'
+                      + ' style="text-align: center; position: relative; z-index: 99" class="form-control" />'
+                      + '<input type="hidden" name="property_rent_period" value="day" />');
                     $( "#datepicker-e" ).datepicker({ minDate:0});
                     $( "#datepicker-e" ).datepicker( "option", "dateFormat", "yy-mm-dd");
                 });
-                $( "#search-tab-long").on('click', function(){
-                    var options = '';
+                $( "#search-tab-long").on('click', function(e){
+                    e.preventDefault();
+                    var options = '<option value>Any</option>';
                     for(var x = 0; x <= 11; x++) {
                         if(x == 0) {
                             options += '<option value="1">1 ' + _("month") + '</option>';
@@ -266,8 +391,18 @@
                                 + (x + 1) + ' ' + _("months") + '</option>';
                         }
                     }
-                    $('#end-date-block').html('<select name="term" class="form-control">' +
-                        '<option>Term</option>' + options + '</select>')
+                    $('#end-date-block').html('<select name="property_min_stay" class="form-control">' +
+                        options +
+                        '</select><input type="hidden" name="property_rent_period" value="week|month" />')
+                });
+
+                $('#my_epl_form').on('submit', function(e){
+                    e.preventDefault();
+                    var link = window.location.href;
+                    var arr=link.split('?');
+                    var testser = $(this).serialize();
+                    window.location.href = arr[0] + '?' + $(this).serialize()
+                        + '&epl_action=epl_search&distance-scope=auto&post_type=rental&action=load_post_ajax';
                 });
             } );
         </script>
@@ -293,93 +428,12 @@
                 'title' => '',
                 'desc' => '')
         );
-            generateCarousel('HomePageCarousel', $img_array) ?>
+            //generateCarousel('HomePageCarousel', $img_array)
+        generateSlider('HomePageSlider', $img_array)
+        ?>
+
         <!-- map container but hidden in main page -->
         <div id="general-map-container" style="visibility: hidden; display:none"></div>
-
-        <!-- Search section -->
-        <div id="my-epl-form-wrapper" class="panel panel-default" style="margin-top: 10px">
-            <div class="panel-body" style="width: 100%; text-align: center">
-                <div style="display: inline-block; position: relative">
-                    <table class="table-responsive" style="overflow: hidden; border: 0px;
-                        border-collapse: separate; border-spacing: 10px;">
-                        <tr><td colspan="5">
-                                <ul class="nav nav-tabs" style="margin-left: 0px">
-                                    <li class="active"><a id="search-tab-long" class="btn">Term Rental</a></li>
-                                    <li><a id="search-tab-daily" class="btn">Daily Rental</a></li>
-                                </ul>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td style="display: inline-block">
-                                <div id="mb-main-search-bar" class="custom-geocoder-control" style="">
-                                    <!-- <a id="mb-search-link" class="leaflet-control-mapbox-geocoder-toggle mapbox-icon mapbox-icon-geocoder"
-                                    style="visibility: hidden"></a> -->
-                                    <div id="mb-search-wrap">
-                                        <form id="mb-search-form" style="border: 0; box-shadow: none;">
-                                            <div class="form-group is-empty custom-input">
-                                                <input id="mb-search-input" autocomplete="off" placeholder="Where to go"
-                                                       style="text-align: center" class="form-control custom-width" type="text" />
-                                                <span class="material-input"></span>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </td>
-                            <td style="display: inline-block">
-                                <form id="my_epl_form">
-                                      <span>
-                                          <div class="form-group col-sm-10 custom-input">
-                                             <input type="text" name="arrival" placeholder="Start Date" id="datepicker-s"
-                                                    style="text-align: center; position: relative; z-index: 10"
-                                                    class="form-control">
-                                             <!--<i class="fa fa-calendar form-control"></i>-->
-                                          </div>
-                                      </span>
-                            </td>
-                            <td style="display: inline-block">
-                                      <span>
-                                         <div id="end-date-block" class="form-group col-sm-10 custom-input">
-                                             <select name="term" class="form-control col-sm-10">
-                                                 <option>Term</option>
-                                                 <?php for($x = 0; $x <= 11; $x++) {
-                                                            if($x == 0):
-                                                                echo '<option value="1">1 month</option>';
-                                                            else:
-                                                                echo '<option value="' . ($x + 1) . '">'
-                                                                    . ($x + 1) . ' months</option>';
-                                                            endif;
-                                                   } ?>
-                                             </select>
-                                            <!--<i class="fa fa-calendar"></i>-->
-                                         </div>
-                                      </span>
-                            </td>
-                            <td style="display: inline-block">
-                                        <div class="form-group custom-input">
-                                           <select name="guests" data-placeholder="guests" class="form-control">
-                                                <option>Guests</option>
-                                                <option value="1">1 guest</option>
-                                                <option value="2">2 guests</option>
-                                                <option value="3">3 guests</option>
-                                                <option value="4">4 guests</option>
-                                            </select>
-                                        </div>
-                            </td>
-                            <td style="display: inline-block; padding: 0 8px">
-                                      <span class="submit-btn">
-                                        <button class="btn btn-transparent"><?php echo __('Search', 'materialwp') ?></button>
-                                      </span>
-                                </form>
-                            </td>
-                        </tr>
-                    </table>
-                    <div id="mb-search-results" class="custom-width" style="position: absolute; top:140px; z-index: 99;
-                        background: white; border: 0px solid black; display: block; margin-left: 10px;"></div>
-                </div>
-            </div>
-        </div>
-        <!-- end search section -->
 
         <!-- popular school gallery -->
         <div class="panel panel-default">

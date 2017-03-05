@@ -102,24 +102,6 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                         }
                     }
                     ?>
-                    <script>
-                        $(document).ready(function(){
-                            $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
-                            $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
-                            $('a#daily_rental').on('click', function(){
-                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).show();
-                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).hide();
-                                $('select#property_min_stay').val('');
-                                $('input#property_rent_period').val('day');
-                            });
-                            $('a#term_rental').on('click', function(){
-                                $($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
-                                $($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
-                                $('input#search_end_date').val('');
-                                $('input#property_rent_period').val('week|month');
-                            });
-                        });
-                    </script>
                     <form id="my_epl_form" class="form-horizontal" method="get" action="<?php echo esc_url( home_url('/') ); ?>">
                         <fieldset>
                             <ul class="nav nav-tabs" style="color: white; margin-right: auto; margin-left: auto; margin-bottom: 10px">
@@ -143,6 +125,41 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                                 </div>
                                 <span class="material-input"></span>
                             </div>
+                            <div class="form-group">
+                                    <label for="Price_range" class="col-md-3 control-label">
+                                        <?php echo __('Price', 'epl') ?></label>
+                                <div class="col-md-8">
+                                    <div id='slider_price' class="slider shor"></div>
+                                </div>
+                            </div>
+                            <script>
+                                var slider = document.getElementById('slider_price');
+                                var minVal = 0;
+                                var maxVal = 10000;
+                                noUiSlider.create(slider, {
+                                    start: [minVal, maxVal],
+                                    connect: true,
+                                    step: 10,
+                                    format: wNumb({
+                                        decimals: 0
+                                    }),
+                                    range: {
+                                        'min': [minVal],
+                                        '60%': [ 500, 10 ],
+                                        '90%': [ 4000, 100 ],
+                                        'max': [maxVal]
+                                    },
+                                    tooltips: true
+                                });
+                                slider.noUiSlider.on('update', function ( values, handle ){
+                                    if(handle == 0) {
+                                        $('#property_price_from').val(values[handle]);
+                                    }else if(handle == 1){
+                                        $('#property_price_to').val(values[handle]);
+                                    }
+                                });
+                                $('.noUi-tooltip').css({'margin-top': '10px'});
+                            </script>
                             <?php
                             $epl_frontend_fields = epl_search_widget_fields_frontend($post_type,$property_status);
 
@@ -163,7 +180,7 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
 
                             <div class="form-group">
                                 <div class="col-md-10 col-md-offset-2">
-                                    <button type="submit" class="btn btn-primary"><?php echo $submit_label != ''
+                                    <button id="epl_form_submit" type="submit" class="btn btn-primary"><?php echo $submit_label != ''
                                             ? $submit_label : __('Search', 'epl'); ?></button>
                                 </div>
                             </div>

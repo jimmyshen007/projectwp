@@ -1,15 +1,15 @@
-{"name": "Unversity of Melbourne", "state": "Victoria", "country": "Australia", "zh_name": "墨尔本大学", "icon_id": "umel", "hits": 100}
-{"name": "Unversity of Sydney", "state": "New South Wales", "country": "Australia", "zh_name": "悉尼大学", "icon_id": "usyd", "hits": 100}
-{"name": "Unversity of Queensland", "state": "Queensland", "country": "Australia", "zh_name": "昆士兰大学","icon_id": "uque", "hits": 100}
-{"name": "Australian National Unversity", "state": "Australian Capital Territory", "country": "Australia", "zh_name": "澳洲国立大学", "icon_id": "uanu", "hits": 100}
-{"name": "Unversity of Western Australia", "state": "Western Australia", "country": "Australia", "zh_name": "西澳大学", "icon_id": "uwau", "hits": 100}
-{"name": "University of Adelaide", "state": "South Australia", "country": "Australia", "zh_name": "阿德莱德大学", "icon_id": "uade", "hits": 100}
-{"name": "Monash Unversity", "state": "Victoria", "country": "Australia", "zh_name": "莫纳什大学", "icon_id": "umon", "hits": 100}
-{"name": "New South Wales Unversity", "state": "New South Wales", "country": "Australia", "zh_name": "新南威尔士大学", "icon_id": "unsw", "hits": 100}
+{"name": "Unversity of Melbourne", "state": "Victoria", "country": "Australia", "zh_name": "墨尔本大学", "icon_id": "umel", "hits": 100, "lat": -37.796303, "lng": 144.961181 }
+{"name": "Unversity of Sydney", "state": "New South Wales", "country": "Australia", "zh_name": "悉尼大学", "icon_id": "usyd", "hits": 100, "lat": -33.888495, "lng": 151.187342 }
+{"name": "Unversity of Queensland", "state": "Queensland", "country": "Australia", "zh_name": "昆士兰大学","icon_id": "uque", "hits": 100, "lat": -27.495212, "lng": 153.012009}
+{"name": "Australian National Unversity", "state": "Australian Capital Territory", "country": "Australia", "zh_name": "澳洲国立大学", "icon_id": "uanu", "hits": 100, "lat": -35.277577, "lng": 149.118506}
+{"name": "Unversity of Western Australia", "state": "Western Australia", "country": "Australia", "zh_name": "西澳大学", "icon_id": "uwau", "hits": 100, "lat": -31.981033, "lng": 115.819910}
+{"name": "University of Adelaide", "state": "South Australia", "country": "Australia", "zh_name": "阿德莱德大学", "icon_id": "uade", "hits": 100, "lat": -34.920392, "lng": 138.606249}
+{"name": "Monash Unversity", "state": "Victoria", "country": "Australia", "zh_name": "莫纳什大学", "icon_id": "umon", "hits": 100, "lat": -37.911312, "lng": 145.134400}
+{"name": "New South Wales Unversity", "state": "New South Wales", "country": "Australia", "zh_name": "新南威尔士大学", "icon_id": "unsw", "hits": 100, "lat": -33.917196, "lng": 151.231278}
 
-{"name": "Columbia Unversity", "state": "New York", "country": "USA", "zh_name": "纽约", "icon_id": "ucbu", "hits": 100}
-{"name": "UCLA", "state": "California", "country": "USA", "zh_name": "加州大学洛杉矶分校", "icon_id": "ucla", "hits": 100}
-{"name": "Stanford Unversity", "state": "California", "country": "USA", "zh_name": "斯坦福大学", "icon_id": "ustf", "hits": 100}
-{"name": "University of Chicago", "state": "Illinois", "country": "USA", "zh_name": "芝加哥大学", "icon_id": "uchi", "hits": 100}
-{"name": "University of Washington", "state": "Washington", "country": "USA", "zh_name": "华盛顿大学", "icon_id": "uwas", "hits": 100}
-{"name": "UCSD", "state": "California", "country": "USA", "zh_name": "加州大学圣地亚哥分校", "icon_id": "ucsd", "hits": 100}
+{"name": "Columbia Unversity", "state": "New York", "country": "USA", "zh_name": "纽约", "icon_id": "ucbu", "hits": 100, "lat": 40.807576, "lng": -73.962551}
+{"name": "UCLA", "state": "California", "country": "USA", "zh_name": "加州大学洛杉矶分校", "icon_id": "ucla", "hits": 100, "lat": 34.069028, "lng": -118.445192}
+{"name": "Stanford Unversity", "state": "California", "country": "USA", "zh_name": "斯坦福大学", "icon_id": "ustf", "hits": 100, "lat": 37.427611, "lng": -122.169740}
+{"name": "University of Chicago", "state": "Illinois", "country": "USA", "zh_name": "芝加哥大学", "icon_id": "uchi", "hits": 100, "lat": 41.788552, "lng": -87.598563}
+{"name": "University of Washington", "state": "Washington", "country": "USA", "zh_name": "华盛顿大学", "icon_id": "uwas", "hits": 100, "lat": 47.655501, "lng": -122.303541}
+{"name": "UCSD", "state": "California", "country": "USA", "zh_name": "加州大学圣地亚哥分校", "icon_id": "ucsd", "hits": 100, "lat": 32.880078, "lng": -117.234014}

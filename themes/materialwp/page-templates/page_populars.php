@@ -73,7 +73,17 @@ ajaxHelpers();
                 var numRows = Math.ceil(pois.length / numColums);
                 listHtml += listGroupOpen;
                 for(var j = 0; j < pois.length; j++){
-                    listHtml += '<div class="list-group-item"><a href="">' + pois[j].name + '</a></div>';
+                    var refer = '<?php echo site_url(); ?>' + '?epl_action=epl_search&distance-scope=auto&post_type=rental&action=load_post_ajax';
+                    if(pois[j].lat && pois[j].lng){
+                        refer += '&my_epl_input_lat=' + pois[j].lat
+                            + '&my_epl_input_lng=' + pois[j].lng;
+                    }else{
+                        refer += '&my_epl_bb_min_lat=' + pois[j].min_lat
+                            + '&my_epl_bb_max_lat=' + pois[j].max_lat
+                            + '&my_epl_bb_min_lng=' + pois[j].min_lng
+                            + '&my_epl_bb_max_lng=' + pois[j].max_lng;
+                    }
+                    listHtml += '<div class="list-group-item"><a href="' + refer + '">' + pois[j].name + '</a></div>';
                     // If the items reach to the max row number, open a new column.
                     if((j+1) % numRows == 0){
                         // If not the last one.
@@ -91,9 +101,14 @@ ajaxHelpers();
         <div class="row">
             <div id="primary" class="col-md-12 col-lg-12">
                 <main id="main" class="site-main" role="main">
-                    <ul id="countryTabs" class="nav nav-tabs" style="">
-                    </ul>
-                    <div id="stateList"></div>
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <ul id="countryTabs" class="nav nav-tabs" style="">
+                            </ul>
+                        </div>
+                        <div class="panel-body" style="position: relative">
+                            <div id="stateList" style="margin-left: 3em"></div>
+                        </div>
                 </main><!-- #main -->
             </div><!-- #primary -->
 

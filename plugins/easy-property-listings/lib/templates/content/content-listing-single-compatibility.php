@@ -46,7 +46,8 @@
 					<!-- heading -->
 					<!-- <h2 class="entry-title"><?php do_action('epl_property_heading'); ?></h2> -->
 			
-					<h4 class="secondary-heading"><?php do_action('epl_property_secondary_heading'); ?></h4> 
+					<h4 class="secondary-heading"><?php do_action('epl_property_secondary_heading'); ?></h4>
+					<h5><?php do_action('epl_property_third_heading'); ?></h5>
 					<?php
 						do_action('epl_property_content_before');
 						

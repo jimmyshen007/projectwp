@@ -32,7 +32,7 @@ function wpuf_states_fields( $form_id, $post_id, $form_settings ) {
     wp_enqueue_script( 'custom_form_wpuf', WPUF_ASSET_URI . '/js/custom_form.js', array('jquery'), false, true);    
     ?>
         <div id="state_label_USA" class="wpuf-label">
-            <label>州 (USA)<span class="required">*</span></label>
+            <label>州 (USA)<span class="required" style="color: #a94442">*</span></label>
         </div>
         <div id="state_field_USA" class="wpuf-fields">
             <select class="form-control" id="state_field_select_USA" name="wpuf_address_state_field_USA" data-required="yes" data-type="select">
@@ -91,7 +91,7 @@ function wpuf_states_fields( $form_id, $post_id, $form_settings ) {
             </select>
         </div>
         <div id="state_label_AU" class="wpuf-label">
-            <label>州 (AU)<span class="required">*</span></label>
+            <label>州 (AU)<span class="required" style="color: #a94442">*</span></label>
         </div>
         <div id="state_field_AU" class="wpuf-fields">
             <select class="form-control" id="state_field_select_AU" name="wpuf_address_state_field_AU" data-required="yes" data-type="select">

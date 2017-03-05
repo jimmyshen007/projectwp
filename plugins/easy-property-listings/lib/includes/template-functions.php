@@ -650,6 +650,16 @@ function epl_property_secondary_heading() {
 }
 add_action('epl_property_secondary_heading','epl_property_secondary_heading');
 
+function epl_property_third_heading() {
+	global $property;
+	if(!$property){
+	    return '';
+	}
+    echo $property->get_property_space_type() . '<br>'
+        . $property->get_property_available_date_custom();
+}
+add_action('epl_property_third_heading', 'epl_property_third_heading');
+
 function epl_property_category() {
 	global $property;
 	echo $property->get_property_category();
@@ -709,7 +719,7 @@ function epl_property_tab_section() {
 	$the_property_feature_list .= $property->get_property_security_system('l').' '.$property->get_property_land_value('l');
 	$the_property_feature_list .= $property->get_property_building_area_value('l').' '.$property->get_property_new_construction('l');
 
-	$common_features = array(
+	/* $common_features = array(
 				'property_toilet',
 				'property_garage',
 				'property_carport',
@@ -719,7 +729,7 @@ function epl_property_tab_section() {
 			);
 	foreach($common_features as $common_feature){
 		$the_property_feature_list .= $property->get_additional_features_html($common_feature);
-	}
+	} */
 	$additional_features 	= array (
 		'property_remote_garage',
 		'property_secure_parking',
@@ -757,7 +767,7 @@ function epl_property_tab_section() {
 			$the_property_feature_list .= $property->get_additional_features_html($additional_feature);
 		}
 	}
-	$the_property_feature_list .= $property->get_property_available_date_custom('l').' '.$property->get_property_minimum_term('l');
+	$the_property_feature_list .= $property->get_property_minimum_term('l');
 	$the_property_feature_list .= $property->get_property_number_guests('l');
 
 	if ( $property->post_type != 'land' || $property->post_type != 'business') { ?>
@@ -934,6 +944,18 @@ function epl_sorting_options() {
 			'key'	=>	'post_date',
 			'order'	=>	'ASC'
 		),
+		array(
+            'id'	=>	'near',
+			'label'	=>	__('Distance: Nearest First','epl'),
+			'type'	=>	'distance',
+			'order'	=>	'ASC'
+		),
+        array(
+            'id'	=>	'far',
+			'label'	=>	__('Distance: Farthest First','epl'),
+			'type'	=>	'distance',
+			'order'	=>	'DESC'
+		)
 /*		array(
 			'id'	=>	'status_asc',
 			'label'	=>	__('Status : Current First','epl'),
@@ -984,6 +1006,45 @@ function epl_switch_views_sorting() {
 }
 add_action( 'epl_property_loop_start' , 'epl_switch_views_sorting' , 20 );
 
+/*function getCenterCoords(){
+    $latLng = array();
+	if (epl_is_search()) {
+	    if (isset($_GET['my_epl_input_lat']) && isset($_GET['my_epl_input_lng'])) {
+			    array_push($latLng, floatval($_GET['my_epl_input_lat']),
+			        floatval($_GET['my_epl_input_lng']));
+	    }
+		else if (isset($_GET['my_epl_bb_max_lat']) && isset($_GET['my_epl_bb_min_lat']) &&
+			isset($_GET['my_epl_bb_max_lng']) && isset($_GET['my_epl_bb_min_lng'])){
+				$min_lat = floatval($_GET['my_epl_bb_min_lat']);
+				$max_lat = floatval($_GET['my_epl_bb_max_lat']);
+				$min_lng = floatval($_GET['my_epl_bb_min_lng']);
+				$max_lng = floatval($_GET['my_epl_bb_max_lng']);
+
+				array_push($latLng, )
+        }
+    }
+}*/
+
+function get_distance_formula($orderby, $wp_query){
+    if (isset($_GET['mid_lat']) && isset($_GET['mid_lng']))
+    {
+        $order = 'ASC';
+        if(isset($_GET['sortby']) && trim($_GET['sortby']) != ''){
+            if($_GET['sortby'] == 'far'){
+                $order = 'DESC';
+            }
+        }
+        $slat = floatval($_GET['mid_lat']);
+        $slng = floatval($_GET['mid_lng']);
+        $lat = "lat_postmeta.meta_value";
+        $lng = "lng_postmeta.meta_value";
+        $orderby = ' acos( cos( radians(' . $slat . ') ) * cos( radians(' . $lat . ') )' .
+            '* cos( radians(' . $lng . ')' . '- radians(' . $slng . ') ) + sin( radians(' . $slat . ') )' .
+            '* sin( radians(' . $lat . ') ) ) ' . $order . ' ';
+    }
+    return $orderby;
+}
+
 function epl_archive_sorting($query) {
 	$post_types_sold 	= array('property','land', 'commercial', 'business', 'commercial_land' , 'location_profile','rural');
 	$post_types_rental 	= array('rental');
@@ -1006,10 +1067,20 @@ function epl_archive_sorting($query) {
 					if($sorter['type'] == 'meta') {
 						$query->set( 'orderby', $sorter['orderby'] );
 						$query->set( 'meta_key', $sorter['key'] );
-					} else {
-						$query->set( 'orderby', $sorter['key'] );
+                        $query->set( 'order', $sorter['order'] );
+					} else if($sorter['type'] == 'distance'){
+					    if (isset($_GET['mid_lat']) && isset($_GET['mid_lng']))
+					    {
+                            add_filter('posts_orderby', 'get_distance_formula', 10, 2);
+                        }
+                        $query->set( 'order', $sorter['order'] );
+
 					}
-					$query->set( 'order', $sorter['order'] );
+					else {
+						$query->set( 'orderby', '' );
+                        $query->set( 'order', $sorter['order'] );
+
+					}
 					break;
 				}
 			

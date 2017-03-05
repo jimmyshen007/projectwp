@@ -11,27 +11,17 @@ get_header(); ?>
 		overflow: hidden;
 	}
 </style>
-<script>
-	(function(window,undefined) {
 
-		// Bind to StateChange Event
-		History.Adapter.bind(window, 'statechange', function () { // Note: We are using statechange instead of popstate
-			//var State = History.getState(); // Note: We are using History.getState() instead of event.state
-		});
-	})(window);
-	$(document).ready(function(e) {
-		$('#main_section').height($(window).height() - 180);
-		$(window).on('resize', function () {
-			$('#main_section').height($(window).height() - 175);
-		});
-		$('body').css("overflow", "hidden");
-	});
-</script>
 <script type="text/javascript">
 	var markers = undefined;
 	var gmarker = undefined;
 
 	$(document).ready(function() {
+		// Bind to StateChange Event
+		History.Adapter.bind(window, 'statechange', function () { // Note: We are using statechange instead of popstate
+			//var State = History.getState(); // Note: We are using History.getState() instead of event.state
+		});
+
 		var ZOOM = 14;
 		L.mapbox.accessToken = MAPBOX_TOKEN;
 		var map = L.mapbox.map('general-map-container', 'mapbox.streets', {
@@ -51,6 +41,13 @@ get_header(); ?>
 		};
 		L.control.layers(layers).addTo(map);
 
+		// Window resize.
+		$('#main_section').height($(window).height() - 180);
+		$(window).on('resize', function () {
+			$('#main_section').height($(window).height() - 175);
+		});
+		$('body').css("overflow", "hidden");
+
 		$('#pagination-list a').live('click', function(e){
 				e.preventDefault();
 				var link = $(this).attr('href');
@@ -63,7 +60,7 @@ get_header(); ?>
 		$('#epl-sort-listings').live('change', function(e){
 				e.preventDefault();
 				var sortby = $(this).val();
-				reset_gmarker();
+				//reset_gmarker();
 				var epl_form = $('#my_epl_form').serialize() + '&action=load_post_ajax&sortby=' + sortby;
 				call_submit(epl_form);
 		});
@@ -79,6 +76,11 @@ get_header(); ?>
 				var a = jsonoutput[i];
 				var lat = parseFloat(a.coord_lat);
 				var lng = parseFloat(a.coord_lng);
+				if(gmarker) {
+					var gmlatlng = gmarker.getLatLng();
+					var distance = gmlatlng.distanceTo(new L.LatLng(lat, lng)) / 1000;
+					$('div#info-box' + (i + 1)).append('<br><span>' + distance.toFixed(1) + ' km</span>');
+				}
 				if(i == 0){
 					if(epl_form.indexOf('my_epl_bb_min_lat') > -1) {
 						//map.setView([lat, lng]);
@@ -139,7 +141,7 @@ get_header(); ?>
 		}
 
 		//Deal with page refresh case.
-		var link = window.location.href;
+		var link = decodeURI(window.location.href);
 		var arr=link.split('?');
 		var queryJSON = queryStringToJSON(arr[1]);
 		if(queryJSON.my_epl_input_lat && queryJSON.my_epl_input_lng){
@@ -156,10 +158,56 @@ get_header(); ?>
 				updateBBoxFields([min_lat, max_lat, min_lng, max_lng]);
 				map.fitBounds([[min_lat, min_lng], [max_lat, max_lng]]);
 		}
+		toggleRentalMode(queryJSON.property_rent_period);
+		updateCommonFields(queryJSON);
 		reset_gmarker();
 		setup_markers(arr[1]);
 
+		function toggleRentalMode(mode){
+			if(mode == 'day'){
+				$('input#search_end_date').prop('disabled', false);
+				$($('input#search_end_date').parentsUntil('#my_epl_form')[1]).show();
+				$($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).hide();
+				$('select#property_min_stay').prop('disabled', true);
+				$('input#property_rent_period').val('day');
+			}else{
+				$('select#property_min_stay').prop('disabled', false);
+				$($('select#property_min_stay').parentsUntil('#my_epl_form')[1]).show();
+				$($('input#search_end_date').parentsUntil('#my_epl_form')[1]).hide();
+				$('input#search_end_date').prop('disabled', true);
+				$('input#property_rent_period').val('week|month');
+			}
+		}
+
+		function updateCommonFields(queryJSON){
+			$('a#daily_rental').on('click', function(){
+				toggleRentalMode('day');
+			});
+			$('a#term_rental').on('click', function(){
+				toggleRentalMode('week|month');
+			});
+
+			if(queryJSON.property_available_date) {
+				$('input#search_start_date').val(queryJSON.property_available_date[0]);
+				$('input#search_end_date').val(queryJSON.property_available_date[1]);
+			}
+
+			if(queryJSON.property_space_type) {
+				var space_type = ['private_room', 'entire_house'];
+				for(var i=0; i < space_type.length; i++) {
+					if(queryJSON.property_space_type.indexOf(space_type[i]) != -1 ) {
+						$('input#' + space_type[i]).prop('checked', true);
+					}else{
+						$('input#' + space_type[i]).prop('checked', false);
+					}
+				}
+			}
+		}
+
 		function call_submit(epl_form){
+			if(gmarker) {
+				epl_form += '&mid_lat=' + gmarker.getLatLng().lat + '&mid_lng=' + gmarker.getLatLng().lng;
+			}
 			$.ajax({
 				type: "GET",
 				url: "/wordpress/wp-admin/admin-ajax.php",
@@ -190,7 +238,6 @@ get_header(); ?>
 			}catch(err){
 				//Do nothing.
 			}
-
 		}
 
 		function updateCenterFields(latLngValues){
@@ -251,6 +298,7 @@ get_header(); ?>
 			var bbMinLat = L.DomUtil.get('my_epl_bb_min_lat');
 			if(!bbMinLat){
 				bbMinLat = L.DomUtil.create('input', '', eplform);
+				bbMinLat.type = "hidden";
 				bbMinLat.id = "my_epl_bb_min_lat";
 				bbMinLat.name = "my_epl_bb_min_lat";
 			}
@@ -258,6 +306,7 @@ get_header(); ?>
 			var bbMaxLat = L.DomUtil.get('my_epl_bb_max_lat');
 			if(!bbMaxLat){
 				bbMaxLat = L.DomUtil.create('input', '', eplform);
+				bbMaxLat.type = "hidden";
 				bbMaxLat.id = "my_epl_bb_max_lat";
 				bbMaxLat.name = "my_epl_bb_max_lat";
 			}
@@ -266,6 +315,7 @@ get_header(); ?>
 			var bbMinLng = L.DomUtil.get('my_epl_bb_min_lng');
 			if(!bbMinLng){
 				bbMinLng = L.DomUtil.create('input', '', eplform);
+				bbMinLng.type = "hidden";
 				bbMinLng.id = "my_epl_bb_min_lng";
 				bbMinLng.name = "my_epl_bb_min_lng";
 			}
@@ -273,11 +323,21 @@ get_header(); ?>
 			var bbMaxLng = L.DomUtil.get('my_epl_bb_max_lng');
 			if(!bbMaxLng){
 				bbMaxLng = L.DomUtil.create('input', '', eplform);
+				bbMaxLng.type = "hidden";
 				bbMaxLng.id = "my_epl_bb_max_lng";
 				bbMaxLng.name = "my_epl_bb_max_lng";
 			}
 			bbMaxLng.value = bboxValues[3];
 		}
+
+		// We need to distinguish whether the submit action is from filter or from mapbox.js.
+		// filter has a submit button we can use. If the action is from filter, we don't need
+		// to reset global marker.
+		$("#epl_form_submit").on('click', function(e){
+			e.preventDefault();
+			var epl_form = $('#my_epl_form').serialize() + '&action=load_post_ajax';
+			call_submit(epl_form);
+		});
 
 		$("#my_epl_form").submit(function(e) {
 			e.preventDefault();
