@@ -64,7 +64,15 @@ for($i = 0; $i < count($post_arr); $i++){
 }
 curl_close($ch);
 ?>
+<link rel="stylesheet" type="text/css" href="/wp-content/plugins/loading_spinner/loading.css">
 <script>
+    $body = $("body");
+
+    $(document).on({
+        ajaxStart: function() { $body.addClass("loading");    },
+        ajaxStop: function() { $body.removeClass("loading"); }
+    });
+    
     function createOrder(currency, postID, isShortTerm) // Check if stripe order exist or not. If not, create one.
     {
         var urlstr1 = "/api/0/worders/user/";
@@ -293,4 +301,5 @@ curl_close($ch);
     </div> <!-- .row -->
 </div> <!-- .container -->
 
+<div class="spinning"><!-- Place at bottom of page --></div>
 <?php get_footer(); ?>

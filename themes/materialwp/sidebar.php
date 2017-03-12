@@ -82,6 +82,7 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 }
 
 ?>
+<link rel="stylesheet" type="text/css" href="/wp-content/plugins/loading_spinner/loading.css">
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 
 <button id="hidelogin" style="display: none" type="button" class="btn btn-primary" data-toggle="modal" data-target="#login-dialog">Open dialog</button>
@@ -549,6 +550,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 				var datetimeEnd = "";
 				var term = 0;
 				var tenants = 0;
+				var disableRange = new Array();
+				var form = null;
+				var to = null;
 
 				// Expect input as y-m-d
 				function isValidDate(s) {
@@ -559,53 +563,34 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 
 				function isAvailableRange(disableRange, selectedStartDate, selectedEndDate) {
 					/* Check there is any overlap between the selectedRange and any of the range in the disableRange*/
-					var selStart = new Date(selectedStartDate);
-					var selEnd = new Date(selectedEndDate);
+					var selStartArr = selectedStartDate.split("-");
+					var selEndArr = selectedEndDate.split("-");
+					// Format them as dates : Year, Month (zero-based), Date
+					var selStart = new Date(selStartArr[0],selStartArr[1]-1,selStartArr[2]);
+					var selEnd = new Date(selEndArr[0],selEndArr[1]-1,selEndArr[2]);
+
 					for(var i = 0; i < disableRange.length; i++) {
-						var start = new Date(disableRange[i].start);
-						var end = new Date(disableRange[i].end);
+						var startArr = disableRange[i].start.split("-");
+						var endArr = disableRange[i].end.split("-");
+						// Format them as dates : Year, Month (zero-based), Date
+						var start = new Date(startArr[0],startArr[1]-1,startArr[2]);
+						var end = new Date(endArr[0],endArr[1]-1,endArr[2]);
+
 						if (start <= selEnd && selStart <= end)
 							return false;
 					}
 					return true;
 				}
 
+				$sideDiv = $("#div1");
+				$sideDiv.addClass("spinning2");
+
 				$( function() {
-					<?php if($isShortTerm == true) {?>
-					var now = new Date();
-					var nowStr = now.toISOString().substr(0,10);
-					var disableRange = new Array();
-					// Retrieve the disable range for THIS order
-					jQuery.ajax({
-						url: "/api/0/worders/ActiveGreaterEndDate/" + nowStr,
-						dataType: "json",
-						method: "Get",
-						success: function (result) {
-							for(var i = 0; i < result.data.length; i++)
-							{
-								if(result.data[i].postID == postID) {
-									var startDay = result.data[i].startDate.substr(0,10);
-									var endDay = result.data[i].endDate.substr(0,10);
-									disableRange.push({"start":startDay, "end": endDay});
-								}
-							}
-						}
-					});
-					<?php } ?>
 					var dateFormat = "yy-mm-dd";
-					var from = $( "#datepickerStart" )
+					from = $( "#datepickerStart" )
 							.datepicker({
 								<?php if($isShortTerm == true) {?>
 								numberOfMonths: 2,
-								beforeShowDay: function(date) {
-									for(var i = 0; i < disableRange.length; i ++ ) {
-										var start = new Date(disableRange[i].start);
-										var end = new Date(disableRange[i].end);
-										if(date > start && date < end)
-											return[false, ''];
-									}
-									return [true, ''];
-								},
 								<?php } ?>
 								dateFormat: dateFormat,
 								minDate: 0,
@@ -623,6 +608,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 										document.getElementById("datepickerStart").value = "";
 									}
 								}
+
+								$sideDiv = $("#div1");
+								$sideDiv.addClass("spinning2");
 								<?php if($isShortTerm == true) {?>
 								var checkTo = document.getElementById("datepickerEnd").value;
 								if(checkTo != "") {
@@ -640,7 +628,7 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									to.datepicker('setDate', date2);
 									var dateStart = document.getElementById("datepickerStart").value;
 									var dateEnd = document.getElementById("datepickerEnd").value;
-									//Check the availablity of the selected range
+									//Check the availability of the selected range
 									if(isAvailableRange(disableRange, dateStart, dateEnd)) {
 										term = getInterval(dateStart, dateEnd);
 										if(term > 0) {
@@ -691,19 +679,11 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 								document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
 								document.getElementById("summaryDiv").style.display = 'block';
 								<?php } ?>
+								$sideDiv.removeClass("spinning2");
 							});
 					<?php if($isShortTerm == true) {?>
-					var	to = $( "#datepickerEnd" ).datepicker({
+					to = $( "#datepickerEnd" ).datepicker({
 								numberOfMonths: 2,
-								beforeShowDay: function(date) {
-									for(var i = 0; i < disableRange.length; i ++ ) {
-										var start = new Date(disableRange[i].start);
-										var end = new Date(disableRange[i].end);
-										if(date > start && date < end)
-											return[false, ''];
-									}
-									return [true, ''];
-								},
 								dateFormat: dateFormat,
 								minDate : 0
 							})
@@ -714,11 +694,16 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 										document.getElementById("datepickerStart").value = "";
 									}
 								}
+								$sideDiv = $("#div1");
+								$sideDiv.addClass("spinning2");
 								var checkTo = document.getElementById("datepickerEnd").value;
 								if(checkTo != "") {
 									if(!isValidDate(checkTo)) {
 										document.getElementById("datepickerEnd").value = "";
+										from.datepicker( "option", "maxDate", +730 );
 									}
+								} else {
+									from.datepicker( "option", "maxDate", +730 );
 								}
 
 								var date2 = to.datepicker('getDate');
@@ -746,11 +731,74 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 										document.getElementById("unavailableNote").style.display = 'block';
 									}
 								}
+								$sideDiv.removeClass("spinning2");
 							});
+
+					if(applied == true) {
+						from.datepicker( "option", "minDate", null );
+						to.datepicker( "option", "minDate", null );
+					}
+
+					var now = new Date();
+					var nowStr = now.toISOString().substr(0,10);
+					// Retrieve the disable range for THIS order, and disable the unavailable dates
+					$sideDiv = $("#div1");
+					$sideDiv.addClass("spinning3");
+					jQuery.ajax({
+						url: "/api/0/worders/ActiveGreaterEndDate/" + nowStr,
+						dataType: "json",
+						method: "Get",
+						success: function (result) {
+							for(var i = 0; i < result.data.length; i++)
+							{
+								if(result.data[i].postID == postID) {
+									var startDay = result.data[i].startDate.substr(0,10);
+									var endDay = result.data[i].endDate.substr(0,10);
+									disableRange.push({"start":startDay, "end": endDay});
+									if(from != null) {
+										from.datepicker("option","beforeShowDay", function(date) {
+											for(var i = 0; i < disableRange.length; i ++ ) {
+												var Start = disableRange[i].start.split("-");
+												var End = disableRange[i].end.split("-");
+												// Format them as dates : Year, Month (zero-based), Date
+												var FromDate = new Date(Start[0],Start[1]-1,Start[2]);
+												var ToDate = new Date(End[0],End[1]-1,End[2]);
+
+												var end = new Date(disableRange[i].end);
+												if(date >= FromDate && date <=	 ToDate)
+													return[false, ''];
+											}
+											return [true, ''];
+										});
+									}
+									if(to != null) {
+										to.datepicker("option","beforeShowDay", function(date) {
+											for(var i = 0; i < disableRange.length; i ++ ) {
+												var Start = disableRange[i].start.split("-");
+												var End = disableRange[i].end.split("-");
+												// Format them as dates : Year, Month (zero-based), Date
+												var FromDate = new Date(Start[0],Start[1]-1,Start[2]);
+												var ToDate = new Date(End[0],End[1]-1,End[2]);
+
+												var end = new Date(disableRange[i].end);
+												if(date >= FromDate && date <=	 ToDate)
+													return[false, ''];
+											}
+											return [true, ''];
+										});
+									}
+								}
+							}
+							$sideDiv = $("#div1");
+							$sideDiv.removeClass("spinning3");
+						}
+					});
 					<?php } ?>
 				});
 
 				if (userID != 0) {
+					$sideDiv = $("#div1");
+					$sideDiv.addClass("spinning4");
 					jQuery.ajax({
 						url: urlstr.concat(userID),
 						dataType: "json",
@@ -769,51 +817,90 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									ChangeFav();
 								}
 							}
+							$sideDiv = $("#div1");
+							$sideDiv.removeClass("spinning4");
 						},
 					})
 						.always(function(data) {
 							deleteCookie('action');
 						});
+					$sideDiv = $("#div1");
+					$sideDiv.addClass("spinning5");
 					jQuery.ajax({
 						url: urlstr2.concat(postID),
 						dataType: "json",
 						method: "Get",
 						success: function (result) {
 							for (var i = 0; i < result.data.length; i++) {
+								/* If this user currently has a valid order: */
 								if (result.data[i].userID == userID) {
 									var startDate = result.data[i].startDate.substring(0,10);
 									term = result.data[i].term;
 									numTenant = result.data[i].numTenant;
-									document.getElementById("datepickerStart").disabled = true;
-									document.getElementById("datepickerStart").value = startDate;
+
 									<?php if($isShortTerm == true) { ?>
 									var endDate = result.data[i].endDate.substring(0,10);
-									/*var endDate  = new Date(2000, 0, 1);
-									var startdate = new Date(startDate.concat("T15:00:00Z"));
-									var one_day = 1000*60*60*24;
-									endDate.setTime(startdate.getTime() + term * one_day);
-									endDate = endDate.toISOString().substring(0,10);*/
-									var str = "rental";
+									var endDateArr = endDate.split("-");
+									// Format them as dates : Year, Month (zero-based), Date
+									var toDate = new Date(endDateArr[0],endDateArr[1]-1,endDateArr[2]);
+									var now = new Date();
+									/* Check if the order is still valid */
+									if(toDate >= now) {
+										var str = "rental";
+
+										if(typeof from != 'undefined' && from != null)
+											from.datepicker( "option", "minDate", null );
+										if(typeof to != 'undefined' && to != null)
+											to.datepicker( "option", "minDate", null );
 
 
-									document.getElementById("datepickerEnd").disabled = true;
-									document.getElementById("datepickerEnd").value = endDate;
+										document.getElementById("datepickerStart").disabled = true;
+										document.getElementById("datepickerStart").value = startDate;
+										document.getElementById("datepickerEnd").disabled = true;
+										document.getElementById("datepickerEnd").value = endDate;
 
-									if(term > 0) {
-										var rent_unit = <?php echo $rent_per_day; ?>;
-										var rent = rent_unit * term;
-										var service_fee = Math.round(rent * <?php echo $service_rate;?>);
-										var total_fee = rent + service_fee;
-										document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
-										document.getElementById("dayspricelabel").innerHTML = '$'+rent;
-										document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
-										document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
-										document.getElementById("summaryDiv").style.display = 'block';
-										document.getElementById("unavailableNote").style.display = 'none';
+										if(term > 0) {
+											var rent_unit = <?php echo $rent_per_day; ?>;
+											var rent = rent_unit * term;
+											var service_fee = Math.round(rent * <?php echo $service_rate;?>);
+											var total_fee = rent + service_fee;
+											document.getElementById("daysnumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+											document.getElementById("dayspricelabel").innerHTML = '$'+rent;
+											document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
+											document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+											document.getElementById("summaryDiv").style.display = 'block';
+											document.getElementById("unavailableNote").style.display = 'none';
+										}
+										document.getElementById("tenants").disabled = true;
+										document.getElementById("tenants").value = numTenant;
+										//document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
+										document.getElementById("BtnApply").innerHTML = "Check order status";
+
+										switch(result.data[i].appStatus) {
+											case "Waiting for approval":
+												document.getElementById("note").innerHTML = "You've applied for the" +
+													" property successfully. The landlord will respond to your application"+
+													" within 24 hours. If your application gets approved, you will need to"+
+													" pay the " + str + " within 48 hours to complete the application.";
+												break;
+											case "Approved":
+												document.getElementById("note").innerHTML = "The landlord" +
+													" has approved your applicaiton. Please click the button below to" +
+													" complete this application";
+												break;
+											case "Completed":
+												document.getElementById("note").innerHTML = "Congratulations! You've" +
+													" successfully booked the property. Relax now and get ready to check" +
+													" in on " + startDate + ".";
+												break;
+										}
+										applied = true;
 									}
 									<?php } else { ?>
 									var str = "deposit";
 
+									document.getElementById("datepickerStart").disabled = true;
+									document.getElementById("datepickerStart").value = startDate;
 									document.getElementById("term").disabled = true;
 									if(term > 85 && term < 95) // =91
 										document.getElementById("term").value = "3 months";
@@ -828,7 +915,6 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									document.getElementById("servicefeelabel").innerHTML = '$'+service_fee;
 									document.getElementById("totalpricelabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
 									document.getElementById("summaryDiv").style.display = 'block';
-									<?php } ?>
 									document.getElementById("tenants").disabled = true;
 									document.getElementById("tenants").value = numTenant;
 									//document.getElementById("BtnApply").className = 'btn btn-raised btn-success';
@@ -854,6 +940,7 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									}
 
 									applied = true;
+									<?php } ?>
 								}
 							}
 							document.getElementById("BtnApply").style.pointerEvents = 'auto';
@@ -862,6 +949,8 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									//Apply(); TODO: need to pass start_date, term, numTenant via Cookie
 								}
 							}
+							$sideDiv = $("#div1");
+							$sideDiv.removeClass("spinning5");
 						}
 					})
 						.always(function(data) {
@@ -916,6 +1005,8 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 					var feePerDay  = <?php echo $rent_per_day * 100 ?>;
 					var email = "<?php echo $user_email ?>";
 					var country = (currency == "AUD") ? "AU" : "US";
+					$sideDiv = $("#div1");
+					$sideDiv.addClass("spinning6");
 					jQuery.ajax({
 						url: urlstr4.concat(authorUserID),
 						dataType: "json",
@@ -923,6 +1014,8 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 						success: function (result) {
 							stripeAccID = result.data[0].id;
 							if ( typeof stripeAccID != 'undefined' && stripeAccID != "") { // Stripe acc exists.
+								$sideDiv = $("#div1");
+								$sideDiv.addClass("spinning7");
 								jQuery.ajax({ // Check if product and sku existed
 									url: urlstr3.concat(postID),
 									dataType: "json",
@@ -950,16 +1043,22 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 											stripeSkuID = result.data[0].stripeSkuID;
 											skuID = result.data[0]._id;
 										}
+										$sideDiv = $("#div1");
+										$sideDiv.removeClass("spinning7");
 									}
 								});
 							}
 							else { // Stripe acc doesn't exist yet. Create account and prod/sku
+								$sideDiv = $("#div1");
+								$sideDiv.addClass("spinning7");
 								jQuery.ajax({
 									url: '/api/0/accounts',
 									dataType: "json",
 									method: "POST",
 									data: {"country": country, "managed": true, "email": email, "metadata": {"userID": authorUserID}},
 									success: function (result) {
+										$sideDiv = $("#div1");
+										$sideDiv.addClass("spinning8");
 										stripeAccID = result.data.stripeAccID;
 										jQuery.ajax({
 											url: '/api/0/skus/pas',
@@ -975,11 +1074,17 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 											success: function (result) {
 												stripeSkuID = result.data.stripeSkuID;
 												skuID = result.data._id;
+												$sideDiv = $("#div1");
+												$sideDiv.removeClass("spinning8");
 											}
 										});
+										$sideDiv = $("#div1");
+										$sideDiv.removeClass("spinning7");
 									}
 								});
 							}
+							$sideDiv = $("#div1");
+							$sideDiv.removeClass("spinning6");
 						}
 
 					});
@@ -1049,24 +1154,28 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 									datetimeStart = dateStart.concat(" 15:00:00 UTC");
 									datetimeEnd = dateEnd.concat(" 15:00:00 UTC");
 
-									term = getInterval(dateStart, dateEnd);
-									document.getElementById("endDatelabel").innerHTML = dateEnd;
-									var rent_unit = <?php echo $rent_per_day; ?>;
-									var rent = rent_unit * term;
-									var service_fee = Math.round(rent * <?php echo $service_rate;?>);
-									var total_fee = rent + service_fee;
-									document.getElementById("daysNumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
-									document.getElementById("pricelabel").innerHTML = '$'+rent;
-									document.getElementById("serviceFeelabel").innerHTML = '$'+service_fee;
-									document.getElementById("totallabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
-									document.getElementById("preorderDepositlabel").innerHTML = service_fee;
-									document.getElementById("preorderDepositlabel2").innerHTML = service_fee;
-									
-									tenants = document.getElementById("tenants").value;
-									document.getElementById("startDatelabel").innerHTML = dateStart;
-									document.getElementById("tenantslabel").innerHTML = tenants;
-									if (datetimeStart != "" && term > 0 && tenants > 0)
-										document.getElementById("chargeform").click();
+									if(isAvailableRange(disableRange, dateStart, dateEnd)) {
+										term = getInterval(dateStart, dateEnd);
+										document.getElementById("endDatelabel").innerHTML = dateEnd;
+										var rent_unit = <?php echo $rent_per_day; ?>;
+										var rent = rent_unit * term;
+										var service_fee = Math.round(rent * <?php echo $service_rate;?>);
+										var total_fee = rent + service_fee;
+										document.getElementById("daysNumlabel").innerHTML = '$'+rent_unit + " x " +term + ((term > 1)?" nights":" night");
+										document.getElementById("pricelabel").innerHTML = '$'+rent;
+										document.getElementById("serviceFeelabel").innerHTML = '$'+service_fee;
+										document.getElementById("totallabel").innerHTML = '$' + total_fee + ' <?php echo $currency;?>';
+										document.getElementById("preorderDepositlabel").innerHTML = service_fee;
+										document.getElementById("preorderDepositlabel2").innerHTML = service_fee;
+
+										tenants = document.getElementById("tenants").value;
+										document.getElementById("startDatelabel").innerHTML = dateStart;
+										document.getElementById("tenantslabel").innerHTML = tenants;
+										if (datetimeStart != "" && term > 0 && tenants > 0)
+											document.getElementById("chargeform").click();
+									} else {
+										document.getElementById("datepickerStart").focus();
+									}
 								}
 								<?php } else {?>
 								if (stripeSkuID != "") {
@@ -1115,6 +1224,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 						// Disable the submit button to prevent repeated clicks:
 						$form.find('.submit').prop('disabled', true);
 						document.getElementById("BtnPay").disabled = true;
+						//add spinner
+						$div2 = $("#div2");
+						$div2.addClass("spinning9");
 
 						// Request a token from Stripe:
 						Stripe.card.createToken($form, stripeResponseHandler);
@@ -1135,6 +1247,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 						$form.find('.payment-errors').text(response.error.message);
 						$form.find('.submit').prop('disabled', false); // Re-enable submission
 						document.getElementById("BtnPay").disabled = false;
+						//remove spinner
+						$div2 = $("#div2");
+						$div2.removeClass("spinning9");
 
 					} else { // Token was created!
 
@@ -1184,10 +1299,16 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 												'days': term, 'type': type}
 								},
 								success: function (result) {
+									//remove spinner
+									$div2 = $("#div2");
+									$div2.removeClass("spinning9");
 									var stripeChargeID = result.data.stripeChargeID;
 									AddOrder(skuID, stripeSkuID, stripeAccID, datetimeStart, datetimeEnd, term, tenants, stripeChargeID);
 								},
 								error: function () {
+									//remove spinner
+									$div2 = $("#div2");
+									$div2.removeClass("spinning9");
 									$form.find('.payment-errors').text("Opps, The payment didn't go through. Please make sure your payment info is correct or try it later.");
 									document.getElementById("BtnPay").disabled = false;
 								}
@@ -1239,6 +1360,9 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 					rentType = "term";
 					<?php } ?>
 					if (stripeSkuID != "" && stripeAccID != "") {
+						//add spinner
+						$div2 = $("#div2");
+						$div2.addClass("spinning9");
 						jQuery.ajax({
 							url: '/api/0/worders',
 							dataType: "json",
@@ -1303,9 +1427,16 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 								//document.getElementById("summaryDiv").style.display = 'none';
 								applied = true;
 							}
-						});
+						})
+							.always(function(data) {
+								//remove spinner
+								$div2 = $("#div2");
+								$div2.removeClass("spinning9");
+							});
 					}
 				}
+
+				$sideDiv.removeClass("spinning2");
 			</script>
 		</div>
 	</div>
@@ -1325,11 +1456,27 @@ if(count($pp_value) > 0 && count($pp_exiry_value)) {
 				document.getElementById("sidebar-1").style.width = "350px";
 			}
 		});
+
+
+		//$sideDiv = $("#div1");
+
+
+		//$(document).on({
+		//	ajaxStart: function() { $sideDiv.addClass("loading"); },
+		//	ajaxStop: function() { $sideDiv.removeClass("loading"); }
+		//});
+
+		/*$body = $("body");
+
+		$(document).on({
+			ajaxStart: function() { $body.addClass("loading");    },
+			ajaxStop: function() { $body.removeClass("loading"); }
+		});*/
 	</script>
 
 	
 		<?php dynamic_sidebar( 'sidebar-1' ); ?>
-	
+<div id="div2"><!-- Place at bottom of page --></div>
 </div><!-- #secondary -->
 
 

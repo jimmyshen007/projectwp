@@ -349,6 +349,8 @@ function uploadPassport() {
 	$imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
 	$target_file = "/var/www/wordpress".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
 	$target_file1 = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+	$target_file_blur = "/var/www/wordpress".$target_dir . "user_" . $user_ID ."_passport_blur." . $imageFileType;
+	$target_file_blur1 = $target_dir . "user_" . $user_ID ."_passport_blur." . $imageFileType;
 	$pp_expire_date = $_POST['pp_expiry_date'];
 
 	// Check if image file is a actual image or fake image
@@ -374,10 +376,16 @@ function uploadPassport() {
 		return;
 	}
 	// if everything is ok, try to upload file
+
 	if ($uploadOk == 1) {
 		if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
 			update_user_meta( $user_ID, "passport_expire_date", $pp_expire_date);
 			update_user_meta( $user_ID, "Passport", $target_file1);
+			$im = new Imagick($target_file);
+			$im_b = clone $im;
+			$im_b->gaussianBlurImage(10, 10);
+			$im_b->writeImage($target_file_blur);
+			update_user_meta( $user_ID, "Passport_blur", $target_file_blur1);
 		} else {
 			add_action( 'user_profile_update_errors', 'upload_passport_error');
 		}
