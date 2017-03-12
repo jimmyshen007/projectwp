@@ -289,10 +289,21 @@
 				'type'			=>	'select',
 				'exclude'		=>	array('land','commercial','commercial_land','business'),
 				'query'			=>	array(
+					'multiple'	=>	true,
 					'query'		=>	'meta',
-					'key'		=>	'property_num_guests',
-					'type'		=>	'numeric',
-					'compare'	=>	'>='
+					'relation'	=>	'OR',
+					'sub_queries'	=> array(
+						array(
+							'key'		=>	'property_num_guests',
+							'type'		=>	'numeric',
+							'compare'	=>	'>='
+						),
+						array(
+							'key'		=>	'property_num_guests',
+							'compare'	=>	'=',
+							'value'     =>  ''
+						)
+					)
 				),
 				'class'			=>	'epl-search-row-full',
 			),
@@ -415,6 +426,29 @@
 			array(
 				'key'			=>	'search_price',
 				'meta_key'		=>	'property_price_from',
+				'type'			=>	'hidden',
+				'query'			=>	array(
+					'query'		=>	'meta',
+					'key'		=>	$price_meta_key,
+					'type'		=>	'numeric',
+					'compare'	=>	'>='
+				),
+			),
+			array(
+				'key'			=>	'search_price',
+				'meta_key'		=>	'property_price_to',
+				'type'			=>	'hidden',
+				'query'			=>	array(
+					'query'		=>	'meta',
+					'key'		=>	$price_meta_key,
+					'type'		=>	'numeric',
+					'compare'	=>	'<='
+				),
+			),
+			/*
+			array(
+				'key'			=>	'search_price',
+				'meta_key'		=>	'property_price_from',
 				'label'			=>	__('Price From','epl'),
 				'type'			=>	'select',
 				'option_filter'		=>	'price_from',
@@ -444,6 +478,7 @@
 								),
 				'class'			=>	'epl-search-row-half',
 			),
+			*/
 			array(
 				'key'			=>	'search_bed',
 				'meta_key'		=>	'property_bedrooms_min',
@@ -1024,9 +1059,7 @@ function epl_search_pre_get_posts( $query ) {
 		$epl_search_form_fields = epl_search_widget_fields_frontend($post_type,$property_status);
 		
 		foreach($epl_search_form_fields as $epl_search_form_field) {
-			
-			
-			
+
 			if( isset($epl_search_form_field['query']) ) {
 				
 				if($epl_search_form_field['query']['query'] == 'meta') {
@@ -1050,6 +1083,13 @@ function epl_search_pre_get_posts( $query ) {
 									'type'		=>	$sub_query['type'],
 									'compare'	=>	$sub_query['compare']
 								);
+								if(isset($sub_query['value'])){
+									$this_sub_query['value'] = $sub_query['value'];
+									//if(empty($sub_query['value'])){
+									//	unset($this_sub_query['value']);
+									//	unset($this_sub_query['type']);
+									//}
+								}
 								if($same_key) {
 									$this_meta_query = $this_sub_query;
 									break;
@@ -1249,6 +1289,18 @@ function set_bbox_where($where, &$wp_query)
 
 add_filter('posts_where', 'set_bbox_where', 10, 2);
 
+/*function allow_null_value_cond($where,$query) {
+	global $wpdb;
+	$new_where = " TRIM(IFNULL({$wpdb->postmeta}.meta_value,''))<>'' ";
+	if (empty($where))
+		$where = $new_where;
+	else
+		$where = "{$where} AND {$new_where}";
+	return $where;
+}
+add_filter('posts_where','allow_null_value_cond',10,2);
+*/
+
 //Is Property Search
 function epl_is_search() {
 	if((isset($_REQUEST['action']) && $_REQUEST['action'] == 'epl_search') ||
@@ -1413,6 +1465,8 @@ class CustomSearchPageGenerator
 							</script>';
 
 			echo $like_scrpit2;
+
+
 			// the Loop
 			while (have_posts()) : the_post();
 				if(!is_epl_post()){
@@ -1467,6 +1521,7 @@ class CustomSearchPageGenerator
 				$parking_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/garage-24.png" title="Parking" width="24">';
 				$air_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/air_conditioner-24.png" title="Air Conditioner" width="24">';
 				$pool_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Sports/swimming-24.png" title="Pool" width="24">';
+
 				$fhtml = '<div class="epl-adv-popup-meta" style="position: relative;">';
 				$fhtml .= '<span class="c-span">' . $bed_icon . '</span><span class="c-span">' . $post_bed . '</span>';
 				$fhtml .= '<span class="c-span">' . $bath_icon . '</span><span class="c-span">' . $post_bath . '</span>';
@@ -1525,7 +1580,7 @@ class CustomSearchPageGenerator
                                         
 								</script>';
 				$contents .= $title_elem . $fhtml . '</div>';
-				$price_elem = '<div style="position:absolute; left: 0px; top: 61.8%;
+				$price_elem = '<div id="info-box' . $num_idx . '" style="position:absolute; left: 0px; top: 61.8%;
 			    display: block; padding: 5px; background-color: rgba(230,232,232,0.618)"><span>'
 					. $post_price_tag . '</span></div>';
 				$img_elem = '<div style="max-width:100%; height: auto; margin-bottom: 20%;">' .
@@ -1678,7 +1733,7 @@ function single_checkbox($field, $value, $i_val='', $lb_val=''){
 			    if($i_val_set){
 					echo $field['meta_key'] . '[]';
 				}else{
-					echo $field['meta_key']; }?>" id="<?php echo $field['meta_key']; ?>"
+					echo $field['meta_key']; }?>" id="<?php if($i_val_set){echo $i_val;} else {echo $field['meta_key'];} ?>"
 				<?php if(isset($value) && !empty($value)) { echo 'checked="checked"'; }
 				    if($i_val_set) { echo ' value="' . $i_val . '"'; }
 				?> />
@@ -1713,10 +1768,12 @@ function epl_custom_render_frontend_fields($field,$config='',$value='',$post_typ
 					<label for="<?php echo $field['meta_key']; ?>" class="col-md-3 control-label">
 						<?php echo apply_filters('epl_search_widget_label_'.$field['meta_key'], $field['label'] ); ?>
 					</label>
+					<div class="col-md-8">
 				<?php
 					foreach($field['query']['sub_queries'] as $f) {
 						single_checkbox($field, $value, $i_val = $f['value'], $lb_val = $f['label']);
 					}	?>
+					</div>
 				</div>
 			<?php
 			} else { ?>

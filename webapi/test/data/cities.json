@@ -1,14 +1,27 @@
-{"name": "Melbourne", "state": "Victoria", "country": "Australia", "zh_name": "墨尔本", "icon_id": "cmel", "hits": 100}
-{"name": "Sydney", "state": "New South Wales", "country": "Australia", "zh_name": "悉尼", "icon_id": "csyd", "hits": 100}
-{"name": "Brisbane", "state": "Queensland", "country": "Australia", "zh_name": "布里斯班", "icon_id": "cbri", "hits": 100}
-{"name": "Canberra", "state": "Australian Capital Territory", "country": "Australia", "zh_name": "堪培拉", "icon_id": "ccan",  "hits": 100}
-{"name": "Perth", "state": "Western Australia", "country": "Australia", "zh_name": "珀斯", "icon_id": "cper", "hits": 100}
-{"name": "Adelaide", "state": "South Australia", "country": "Australia", "zh_name": "阿德莱德", "icon_id": "cade", "hits": 100}
-{"name": "Gold Coast", "state": "Queensland", "country": "Australia", "zh_name": "黄金海岸", "icon_id": "cgct", "hits": 100}
+{"name": "Melbourne", "state": "Victoria", "country": "Australia", "zh_name": "墨尔本", "icon_id": "cmel", "hits": 100,
+  "min_lat": -38.433859306, "max_lat": -37.5112737225, "min_lng": 144.593741856, "max_lng": 145.512528832}
+{"name": "Sydney", "state": "New South Wales", "country": "Australia", "zh_name": "悉尼", "icon_id": "csyd", "hits": 100,
+  "min_lat": -34.118344992, "max_lat": -33.578140996, "min_lng": 150.520928608, "max_lng": 151.343020992}
+{"name": "Brisbane", "state": "Queensland", "country": "Australia", "zh_name": "布里斯班", "icon_id": "cbri", "hits": 100,
+  "min_lat": -27.767436998, "max_lat": -26.996844991, "min_lng": 152.668522848, "max_lng": 153.31787024}
+{"name": "Canberra", "state": "Australian Capital Territory", "country": "Australia", "zh_name": "堪培拉", "icon_id": "ccan",  "hits": 100,
+  "min_lat": -35.480260417, "max_lat": -35.147699163, "min_lng": 148.9959216, "max_lng": 149.263643456}
+{"name": "Perth", "state": "Western Australia", "country": "Australia", "zh_name": "珀斯", "icon_id": "cper", "hits": 100,
+  "min_lat": -32.675715325, "max_lat": -31.6244855145, "min_lng": 115.617614368, "max_lng": 116.239023008}
+{"name": "Adelaide", "state": "South Australia", "country": "Australia", "zh_name": "阿德莱德", "icon_id": "cade", "hits": 100,
+  "min_lat": -35.348970061, "max_lat": -34.652564053, "min_lng": 138.44212992, "max_lng": 138.780189824}
+{"name": "Gold Coast", "state": "Queensland", "country": "Australia", "zh_name": "黄金海岸", "icon_id": "cgct", "hits": 100,
+  "min_lat": -28.2003171475, "max_lat": -27.708126368, "min_lng": 153.186551712, "max_lng": 153.552171232}
 
-{"name": "New York", "state": "New York", "country": "USA", "zh_name": "纽约", "icon_id": "cnyc", "hits": 100}
-{"name": "Los Angeles", "state": "California", "country": "USA", "zh_name": "洛杉矶", "icon_id": "clax", "hits": 100}
-{"name": "San Francisco", "state": "California", "country": "USA", "zh_name": "旧金山", "icon_id": "csfo", "hits": 100}
-{"name": "Chicago", "state": "Illinois", "country": "USA", "zh_name": "芝加哥", "icon_id": "cchi", "hits": 100}
-{"name": "Seattle", "state": "Washington", "country": "USA", "zh_name": "西雅图", "icon_id": "csea", "hits": 100}
-{"name": "San Diego", "state": "California", "country": "USA", "zh_name": "圣地亚哥", "icon_id": "csdo", "hits": 100}
+{"name": "New York", "state": "New York", "country": "USA", "zh_name": "纽约", "icon_id": "cnyc", "hits": 100,
+  "min_lat": 40.477399, "max_lat": 40.917577, "min_lng": -74.25909, "max_lng": -73.700293}
+{"name": "Los Angeles", "state": "California", "country": "USA", "zh_name": "洛杉矶", "icon_id": "clax", "hits": 100,
+  "min_lat": 33.901599990108, "max_lat": 34.1612200099034, "min_lng": -118.529221009603, "max_lng": -118.121099990025}
+{"name": "San Francisco", "state": "California", "country": "USA", "zh_name": "旧金山", "icon_id": "csfo", "hits": 100,
+  "min_lat": 37.6041399900046, "max_lat": 37.8324400092519, "min_lng": -122.517909004229, "max_lng": -122.354997990413}
+{"name": "Chicago", "state": "Illinois", "country": "USA", "zh_name": "芝加哥", "icon_id": "cchi", "hits": 100,
+  "min_lat": 41.6281339900091, "max_lat": 42.0231310099982, "min_lng": -87.9058100070711, "max_lng": -87.5240439900003}
+{"name": "Seattle", "state": "Washington", "country": "USA", "zh_name": "西雅图", "icon_id": "csea", "hits": 100,
+  "min_lat": 47.3403199933435, "max_lat": 47.77802001, "min_lng": -122.436048001695, "max_lng": -122.218628990044}
+{"name": "San Diego", "state": "California", "country": "USA", "zh_name": "圣地亚哥", "icon_id": "csdo", "hits": 100,
+  "min_lat": 32.5342699992689, "max_lat": 33.0722200099958, "min_lng": -117.262369009773, "max_lng": -116.857040990022}
