@@ -25,7 +25,8 @@ function get_userinfo()
 
     $userIDStr = $userIDStr . "0)";
 
-    $query = "SELECT user_id, meta_key, meta_value FROM wp_usermeta where (meta_key='first_name' or meta_key='last_name' or meta_key='Passport') and user_id in ".$userIDStr. "order by user_id, umeta_id";
+    $query = "SELECT user_id, meta_key, meta_value FROM wp_usermeta where (meta_key='first_name'
+ or meta_key='Passport' or meta_key='Passport_blur') and user_id in ".$userIDStr. "order by user_id, meta_key";
 
     $mysqli= mysqli_connect(HOST, DATABASE, USERNAME, PASSWORD);
 
@@ -35,17 +36,18 @@ function get_userinfo()
         $temp = Array();
         $data = Array();
         $firstName = "";
-        $n = 0;
+        $n = -1;
 
         while ($row = $resultSet->fetch_assoc()) {
-            if ($row["meta_key"] == "first_name")
+            if ($row["meta_key"] == "first_name") {
                 $firstName = $row["meta_value"];
-            else if($row["meta_key"] == "last_name"){
-                $fullName = $firstName . " ". $row["meta_value"];
             }
             else if($row["meta_key"] == "Passport"){
                 $passport = $row["meta_value"];
-                $temp[$n++] = array("userID"=> $row["user_id"], "name" => $fullName, "passport" => $passport);
+                $temp[++$n] = array("userID"=> $row["user_id"], "name" => $firstName, "passport" => $passport);
+            }
+            else if($row["meta_key"] == "Passport_blur") {
+                $temp[$n]["passport_blur"] = $row["meta_value"];
             }
         }
 
@@ -67,8 +69,10 @@ function upload_id()
     $target_file_name = basename($_FILES['passport']['name']);
     $uploadOk = 0;
     $imageFileType = pathinfo($target_file_name,PATHINFO_EXTENSION);
-    $target_file = "/var/www/wordpress".$target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+    $target_file = "/var/www/wordpress". $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
     $target_file1 = $target_dir . "user_" . $user_ID ."_passport." . $imageFileType;
+    $target_file_blur = "/var/www/wordpress". $target_dir . "user_" . $user_ID ."_passport_blur." . $imageFileType;
+    $target_file_blur1 = $target_dir . "user_" . $user_ID ."_passport_blur." . $imageFileType;
     $pp_expire_date = $_POST['pp_expiry_date'];
 
     // Check if image file is a actual image or fake image
@@ -97,11 +101,18 @@ function upload_id()
     if ($uploadOk == 1) {
         if (move_uploaded_file($_FILES['passport']['tmp_name'], $target_file)) {
             $mysqli= mysqli_connect(HOST, DATABASE, USERNAME, PASSWORD);
+            $im = new Imagick($target_file);
+            $im_b = clone $im;
+            $im_b->gaussianBlurImage(10, 10);
+            $im_b->writeImage($target_file_blur);
+
             $query1 = "insert into wp_usermeta (user_id,meta_key,meta_value) values(".$user_ID.", 'Passport', '".$target_file1."')";
             $query2 = "insert into wp_usermeta (user_id,meta_key,meta_value) values(".$user_ID.",'passport_expire_date','".$pp_expire_date."')";
+            $query3 = "insert into wp_usermeta (user_id,meta_key,meta_value) values(".$user_ID.", 'Passport_blur', '".$target_file_blur1."')";
             if ($mysqli) {
                 if($mysqli->query($query1))
                     $mysqli->query($query2);
+                $mysqli->query($query3);
             }
         }
     }

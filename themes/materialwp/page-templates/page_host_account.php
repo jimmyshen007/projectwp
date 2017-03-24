@@ -71,10 +71,18 @@ if(!empty($_POST) && $_POST["action"] == "updateAccount") {
     die();
 }
 ?>
+<link rel="stylesheet" type="text/css" href="/wp-content/plugins/loading_spinner/loading.css">
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
     Stripe.setPublishableKey('pk_test_JJCG8Qu51sXzY3sIRLhfU2sf'); // TODO: update to live publishable key
 
+    $body = $("body");
+
+    $(document).on({
+        ajaxStart: function() { $body.addClass("loading");    },
+        ajaxStop: function() { $body.removeClass("loading"); }
+    });
+    
     var userID = <?php echo $user_ID;?>;
     var stripeAccID = "";
     var stripeExtaccountID = "";
@@ -487,5 +495,5 @@ if(!empty($_POST) && $_POST["action"] == "updateAccount") {
 
     </div> <!-- .row -->
 </div> <!-- .container -->
-
+<div class="spinning"><!-- Place at bottom of page --></div>
 <?php get_footer(); ?>

@@ -9,8 +9,16 @@ $query = 'SELECT user_email FROM wp_users WHERE ID = ' . $user_ID;
 $results = $wpdb->get_results( $query, ARRAY_A );
 $email = $results[0]['user_email'];
 ?>
+<link rel="stylesheet" type="text/css" href="/wp-content/plugins/loading_spinner/loading.css">
 <script type="text/javascript" src="https://js.stripe.com/v2/"></script>
 <script type="text/javascript">
+    $body = $("body");
+
+    $(document).on({
+        ajaxStart: function() { $body.addClass("loading");    },
+        ajaxStop: function() { $body.removeClass("loading"); }
+    });
+
     Stripe.setPublishableKey('pk_test_JJCG8Qu51sXzY3sIRLhfU2sf'); // TODO: update to live publishable key
 
     $(function() {
@@ -189,5 +197,7 @@ $email = $results[0]['user_email'];
 
     </div> <!-- .row -->
 </div> <!-- .container -->
+
+<div class="spinning"><!-- Place at bottom of page --></div>
 
 <?php get_footer(); ?>

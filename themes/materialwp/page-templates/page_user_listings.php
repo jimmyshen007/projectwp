@@ -62,6 +62,8 @@ for($i = 0; $i < count($results1); $i++) {
 }
 
 ?>
+<link rel="stylesheet" type="text/css" href="/wp-content/plugins/loading_spinner/loading.css">
+
 <script>
     var dataSet = new Array();
     var table;
@@ -94,6 +96,11 @@ for($i = 0; $i < count($results1); $i++) {
                     "visible": false,
                     "searchable": false
                 },
+                {
+                    "targets": [ 6 ],
+                    "visible": false,
+                    "searchable": false
+                },
                 { "width": "10%", "targets": 4 },
                 {"className": "dt-center", "targets": "_all"}
             ],
@@ -111,12 +118,16 @@ for($i = 0; $i < count($results1); $i++) {
             var numTenant = data[6];
             var appStatus = data[7];
             var div = document.getElementById('app-detail');
-            var apptable = '<table><tr><td><h4>Applicant : ' + applicantName + '</h4></td></tr>';
+            var apptable = '<table style="width: 70%"><tr><td><h4>Applicant : ' + applicantName + '</h4></td></tr>';
             var end = new Date(term);
             var str = (end != "Invalid Date")? 'End Date' : 'Term';
             apptable = apptable + '<tr><td><h4>Start Date: '+ startDate + '</td><td><h4>' + str + ': ' + term + '</h4></td></tr>';
             apptable = apptable + '<tr><td><h4>Tenants   : '+ numTenant + '</td><td><h4 id="status"> Status: ' + appStatus + '</h4></td></tr></table>';
-            apptable = apptable + '<p><img style="width: 600px; height: 300px" src="' +data[2] +'"></p>';
+            if(appStatus != "Completed")
+            {
+                apptable = apptable + '<p style="width: 80%" class="text-muted">We have collected the copy of applicant\'s passport and verfied its authenticity. You will be able to see the clear version once the application is completed.</p>';
+            }
+            apptable = apptable + '<p><img style="width: 500px; height: 300px" src="' +data[2] +'"></p>';
             div.innerHTML = apptable;
 
             if(appStatus == "Approved" || appStatus == "Rejected" || appStatus == "Completed")
@@ -132,6 +143,14 @@ for($i = 0; $i < count($results1); $i++) {
             selectedID = data[0];
         } );
     });
+
+    $body = $("body");
+
+    $(document).on({
+        ajaxStart: function() { $body.addClass("loading");    },
+        ajaxStop: function() { $body.removeClass("loading"); }
+    });
+
     function checkApp(btnId, short_term){
         var startDate;
         var term;
@@ -168,12 +187,17 @@ for($i = 0; $i < count($results1); $i++) {
                     success: function (result1) {
                         for (var i = 0; i < result.data.length; i++) {
                             var userID = result.data[i].userID;
+                            appStatus = result.data[i].appStatus;
+
                             //Search applicant name in result1 by userID
                             for(var j = 0; j < result1.data.length; j++)
                                 if(result1.data[j].userID == userID)
                                 {
                                     applicantName = result1.data[j].name;
-                                    passport = result1.data[j].passport;
+                                    if(appStatus == "Completed")
+                                        passport = result1.data[j].passport;
+                                    else
+                                        passport = result1.data[j].passport_blur;
                                 }
                             id = result.data[i]._id;
                             startDate = result.data[i].startDate.substring(0,10);
@@ -199,7 +223,6 @@ for($i = 0; $i < count($results1); $i++) {
                                     term = "12 months";
                             }
 
-                            appStatus = result.data[i].appStatus;
                             var para = document.createElement("p");
                             var node = document.createTextNode("This is new.");
                             para.appendChild(node);
@@ -309,21 +332,6 @@ for($i = 0; $i < count($results1); $i++) {
             }
         });
 
-        /* Refund pre-order charge to the rejected applicant */
-        jQuery.ajax({
-            url: urlstr.concat(selectedID),
-            data: {appStatus: "Rejected"},
-            dataType: "json",
-            method: "Post",
-            success: function (result) {
-                document.getElementById("BtnApprove").disabled = true;
-                document.getElementById("BtnReject").disabled = true;
-                var div = document.getElementById('status');
-                div.innerHTML="Status: Rejected";
-                cellStatus.data("Rejected").draw();
-            }
-        });
-
         /* Send notification email */
         /*jQuery.ajax({
             url: "/api/0/sendMail",
@@ -340,29 +348,24 @@ for($i = 0; $i < count($results1); $i++) {
     }
 </script>
 
-<div id="confirm-dialog" class="modal fade" style="z-index: 3000" tabindex="-1">
+<div id="confirm-dialog" class="modal fade" style="z-index: 3000; top:100px" tabindex="-1">
     <div class="modal-dialog" style="width: 450px; height:1000px;">
-        <div class="modal-content">
+        <div class="modal-content" style="border: 1px solid #009688;border-radius: 4px;">
             <div class="modal-header">
-                <table>
-                    <tbody>
-                    <tr>
-                        <td><button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="float: right">&times;</button></td>
-                    </tr>
-                    </tbody>
-                </table>
             </div>
             <div class="modal-body">
                 <h4>Are you sure to approve this application?</h4>
-                <p class="text-muted">Once you confirmed, we will send an notification email to the successful applicant.</p>
+                <p class="text-muted">Once you confirmed, the successful applicant will be required to finish the
+                    payment within 48 hours. Failing to pay in time results in the application aborts, and you will be
+                    able to accpect other applcation. </p>
             </div>
             <div class="modal-footer">
                 <table>
                     <tbody>
                     <tr>
                         <td width="15%"></td>
-                        <td><button type="button" class="btn btn-success" data-dismiss="modal" onclick="AcceptApp()">Confirm</button></td>
-                        <td><button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button></td>
+                        <td><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" onclick="AcceptApp()" style="width: 86px;border: 1px solid #4caf50; border-radius: 3px"><span style="color: #4caf50">Confirm</span></button></td>
+                        <td><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" style="width: 86px;border: 1px solid #03a9f4; border-radius: 3px"><span style="color: #03a9f4">Cancel</span></button></td>
                         <td width="25%"></td>
                     </tr>
                     </tbody>
@@ -372,18 +375,10 @@ for($i = 0; $i < count($results1); $i++) {
     </div>
 </div>
 
-<div id="reject-dialog" class="modal fade" style="z-index: 3000" tabindex="-1">
+<div id="reject-dialog" class="modal fade" style="z-index: 3000; top:100px" tabindex="-1">
     <div class="modal-dialog" style="width: 450px; height:1000px;">
-        <div class="modal-content">
-            <div class="modal-header">
-                <table>
-                    <tbody>
-                    <tr>
-                        <td><button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="float: right">&times;</button></td>
-                    </tr>
-                    </tbody>
-                </table>
-            </div>
+        <div class="modal-content" style="border: 1px solid #009688;border-radius: 4px;">
+            <div class="modal-header"></div>
             <div class="modal-body">
                 <h4>Are you sure to reject this application?</h4>
                 <p class="text-muted">Once you confirmed, we will send an notification email to the applicant.</p>
@@ -393,8 +388,8 @@ for($i = 0; $i < count($results1); $i++) {
                     <tbody>
                     <tr>
                         <td width="15%"></td>
-                        <td><button type="button" class="btn btn-success" data-dismiss="modal" onclick="RejectApp()">Confirm</button></td>
-                        <td><button type="button" class="btn btn-info" data-dismiss="modal">Cancel</button></td>
+                        <td><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" onclick="RejectApp()" style="width: 86px;border: 1px solid #4caf50; border-radius: 3px"><span style="color: #4caf50">Confirm</span></button></td>
+                        <td><button type="button" class="btn btn-default btn-sm" data-dismiss="modal" style="width: 86px;border: 1px solid #03a9f4; border-radius: 3px"><span style="color: #03a9f4">Cancel</span></button></td>
                         <td width="25%"></td>
                     </tr>
                     </tbody>
@@ -405,7 +400,7 @@ for($i = 0; $i < count($results1); $i++) {
 </div>
 
 <div id="detail-dialog" class="modal fade" style="z-index: 2000" tabindex="-1">
-    <div class="modal-dialog" style="width: 750px; height:1000px;">
+    <div class="modal-dialog" style="width: 660px; height:1000px;">
         <div class="modal-content">
             <div class="modal-header">
                 <table>
@@ -424,10 +419,11 @@ for($i = 0; $i < count($results1); $i++) {
                 <table>
                     <tbody>
                         <tr>
-                            <td width="60%"></td>
-                            <td><button id="BtnApprove" type="button" class="btn btn-success" data-toggle='modal' data-target='#confirm-dialog'>Approve</button></td>
-                            <td><button id="BtnReject" type="button" class="btn btn-danger" data-toggle='modal' data-target='#reject-dialog'>Reject</button></td>
-                            <td><button type="button" class="btn btn-primary" data-dismiss="modal">Dismiss</button></td>
+                            <td width="2%"></td>
+                            <td width="20%"><button id="BtnApprove" type="button" class="btn btn-success btn-sm" style="width: 100px; float: left" data-toggle='modal' data-target='#confirm-dialog'>Approve</button></td>
+                            <td width="20%"><button id="BtnReject" type="button" class="btn btn-danger btn-sm" style="width: 100px; float: left" data-toggle='modal' data-target='#reject-dialog'>Reject</button></td>
+                            <td width="20%"><button type="button" class="btn btn-primary btn-sm" style="width: 100px; float: left" data-dismiss="modal">Dismiss</button></td>
+                            <td width="38%"></td>
                         </tr>
                     </tbody>
                 </table>
@@ -437,7 +433,7 @@ for($i = 0; $i < count($results1); $i++) {
 </div>
 
 <div id="complete-dialog" class="modal fade" tabindex="-1">
-    <div class="modal-dialog" style="width: 700px; height:400px;">
+    <div class="modal-dialog" style="width: 650px; height:400px;">
         <div class="modal-content">
             <div class="modal-header">
                 <table>
@@ -556,6 +552,6 @@ for($i = 0; $i < count($results1); $i++) {
     </div> <!-- .row -->
 </div> <!-- .container -->
 
-
+<div class="spinning"><!-- Place at bottom of page --></div>
 
 <?php get_footer(); ?>
