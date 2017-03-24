@@ -148,6 +148,10 @@ function materialwp_scripts() {
 
 	wp_enqueue_style( 'slippry-styles', get_template_directory_uri() . '/slippry/slippry.css' );
 
+	wp_enqueue_style( 'jqcloud-styles', get_template_directory_uri() . '/js/jqcloud.min.css');
+
+	wp_enqueue_style( 'bootstrap-tags', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.css');
+
 	//wp_enqueue_style( 'nouislider-styles', 'https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.css');
 
 	wp_enqueue_script( 'mwp-bootstrap-js', get_template_directory_uri() . '/bower_components/bootstrap/dist/js/bootstrap.min.js', array('jquery'), '3.3.4', true );
@@ -174,9 +178,19 @@ function materialwp_scripts() {
 
 	wp_enqueue_script( 'animOnScroll', get_template_directory_uri() . '/grid-effects/AnimOnScroll.js', array(), '', true);
 
-	wp_enqueue_script( 'nouislider', 'https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.js');
+	wp_enqueue_script( 'nouislider', 'https://cdnjs.cloudflare.com/ajax/libs/noUiSlider/9.2.0/nouislider.min.js', array(), '', false);
 
-	wp_enqueue_script( 'wnumb', 'https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.1.0/wNumb.min.js');
+	wp_enqueue_script( 'wnumb', 'https://cdnjs.cloudflare.com/ajax/libs/wnumb/1.1.0/wNumb.min.js', array(), '', false);
+
+	wp_enqueue_script( 'overlapping-marker', get_template_directory_uri() . '/js/oms.min.js');
+
+	wp_enqueue_script( 'd3', 'https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.17/d3.min.js', array(), '', true);
+
+	wp_enqueue_script( 'd3-cloud', get_template_directory_uri() . '/js/d3.layout.cloud.js', array(), '', true);
+
+	wp_enqueue_script( 'tag-input', 'https://cdnjs.cloudflare.com/ajax/libs/bootstrap-tagsinput/0.8.0/bootstrap-tagsinput.min.js'
+		, array(), '', true);
+
 	if ( is_singular() && comments_open() && get_option( 'thread_comments' ) ) {
 		wp_enqueue_script( 'comment-reply' );
 	}
@@ -214,6 +228,53 @@ function add_comment_fields($fields) {
 }
 add_filter('comment_form_field_comment','add_comment_fields');
 */
+
+add_filter( 'template_include', 'var_template_include', 1000 );
+function var_template_include( $t ){
+	$GLOBALS['current_theme_template'] = basename($t);
+	return $t;
+}
+
+function get_current_template( $echo = false ) {
+	if( !isset( $GLOBALS['current_theme_template'] ) )
+		return false;
+	if( $echo )
+		echo $GLOBALS['current_theme_template'];
+	else
+		return $GLOBALS['current_theme_template'];
+}
+
+function attach_map_search(){
+	?>
+	<script>
+		$(document).ready(function(){
+			var ZOOM = 1;
+			L.mapbox.accessToken = MAPBOX_TOKEN;
+			var map = L.mapbox.map('general-map-container', 'mapbox.streets', {
+			minZoom: 2,
+			maxZoom: 17,
+			worldCopyJump: true
+			})
+			.addControl(L.mapbox.geocoderControl('mapbox.places', {
+			autocomplete: true,
+			keepOpen: true,
+			pointZoom: ZOOM
+			}));
+
+			$('#my_epl_form').on('submit', function(e){
+				e.preventDefault();
+				window.location.href = '<?php echo get_site_url() ?>' + '?' + $(this).serialize()
+					+ '&epl_action=epl_search&distance-scope=auto&post_type=rental&action=load_post_ajax';
+			});
+		});
+	</script>
+	<div id="general-map-container" style="display:none"></div>
+	<form id="my_epl_form">
+		<input id="epl_action" type="hidden" name="epl_action" value="epl_search">
+		<button type="submit" style="display: none" class="btn btn-sm search-btn-color" ></button>
+	</form>
+	<?php
+}
 
 function add_comment_class($classes, $class, $commentID, $comment, $post_id ){
 	array_push($classes, "well");

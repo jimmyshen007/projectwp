@@ -16,7 +16,8 @@ function the_slug_exists($post_name) {
     }
 }
 
-function create_custom_page($page_name, $page_title, $page_content){
+function create_custom_page($page_name, $page_title, $page_template='page_populars.php',
+    $page_content=''){
     // create the blog page
     if (!is_admin()){
         $page_check = get_page_by_title($page_title);
@@ -30,7 +31,7 @@ function create_custom_page($page_name, $page_title, $page_content){
         );
         if(!isset($page_check->ID) && !the_slug_exists($page_name)){
             $page_id = wp_insert_post($page);
-            add_post_meta( $page_id, '_wp_page_template', 'page-templates/page_populars.php' );
+            add_post_meta( $page_id, '_wp_page_template', 'page-templates/' . $page_template);
         }
     }
 }

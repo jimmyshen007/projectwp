@@ -1407,12 +1407,48 @@ class CustomSearchPageGenerator
 					width: 45%;
 				}
 			}
+			.custom-row {
+				margin-left: 0px;
+				margin-right: 0px;
+			}
+			.cell-wrapper {
+			 	padding: 0 0 19px 0 !important;
+			 	margin: 0 0 10px 0 !important;
+			 	position: relative;
+			}
+			.info-box {
+				position:absolute;
+				left: 0px;
+				top: 61.8%;
+			    display: block;
+			    padding: 5px;
+			    background-color: rgba(230,232,232,0.618)
+			}
+			.img-wrapper {
+				position: relative;
+				width:100%;
+				height: 0;
+				padding: 66.4% 0 0 0;
+				overflow: hidden;
+				display: block;
+				background-color: #D8D8D8 !important
+			}
+			.img-inner {
+				position: absolute;
+				left: 0; right: 0; top: 0; bottom: 0;
+				max-width: 100%;
+  				max-height: 100%;
+  				margin: auto;
+  				display: block;
+  				height: 100%;
+			}
 			</style>';
 			echo $custom_styles;
 			$cs_path = plugins_url('custom_support');
-			echo '<table class="table-responsive" style="border-collapse: separate; border-spacing: 10px">';
+			echo '<div class="listing-wrapper">';
 			$idx = 0;
 			$cols = 2;
+			$bs_col = round(12 / $cols);
 			$num_idx = 1;
 			global $user_ID;
 			/* script to add to or remove from wishlist */
@@ -1474,12 +1510,17 @@ class CustomSearchPageGenerator
 				}
 				//do_action('epl_property_blog');
 				$idx = $idx % $cols;
-
+				$img_width = '100%';
 				if (has_post_thumbnail()) {
 					$image = wp_get_attachment_image_src(get_post_thumbnail_id(get_the_ID()), 'medium');
 					$prop_image = $image[0];
 				} else {
 					$prop_image = $cs_path . '/images/no_photo_ph.jpg';
+				}
+				list($width, $height) = getimagesize($prop_image);
+				if ($width < $height) {
+					// Portrait; set image width to 75%.
+					$img_width = '47%';
 				}
 				$post_title = $post->post_title;
 				$post_link = esc_url(get_permalink());
@@ -1513,7 +1554,7 @@ class CustomSearchPageGenerator
 					$post_price_tag .= $post_json['rent'] . ' /' . $post_json['period'];
 				}
 				if ($idx == 0) {
-					echo '<tr>';
+					echo '<div class="custom-row">';
 				}
 
 				$bed_icon = '<img src="https://maxcdn.icons8.com/Color/PNG/24/Household/bed-24.png" title="Bed" width="24" height="24">';
@@ -1580,17 +1621,18 @@ class CustomSearchPageGenerator
                                         
 								</script>';
 				$contents .= $title_elem . $fhtml . '</div>';
-				$price_elem = '<div id="info-box' . $num_idx . '" style="position:absolute; left: 0px; top: 61.8%;
-			    display: block; padding: 5px; background-color: rgba(230,232,232,0.618)"><span>'
+				$price_elem = '<div id="info-box' . $num_idx . '" class="info-box"><span>'
 					. $post_price_tag . '</span></div>';
-				$img_elem = '<div style="max-width:100%; height: auto; margin-bottom: 20%;">' .
-					'<a href="' . $post_link . ' "><img class="img-responsive" src="' . $prop_image . '"
-				 style="margin-left: auto; margin-right: auto;" /></a></div>';
-				echo '<td class="jumbotron c-responsive" style="position: relative;">' .
+				$img_elem = '<div id="image-box' . $num_idx . '" style="margin-bottom: 20%">' .
+					'<a href="' . $post_link . ' "
+					class="img-wrapper"><img src="' . $prop_image . '"
+				 	class="img-inner" style="width:' . $img_width . '" /></a></div>';
+				echo '<div class="col-md-' . $bs_col . '" style="position: relative; padding: 5px 10px 5px 0px">
+					<div class="jumbotron cell-wrapper">' .
 					$img_elem . $contents . $price_elem . $like_elem. $like_scrpit. $author_elem .
-					'</td>';
+					'</div></div>';
 				if ($idx == $cols - 1) {
-					echo '</tr>';
+					echo '</div>';
 				}
 				$idx += 1;
 				array_push($posts_json, $post_json);
@@ -1599,9 +1641,9 @@ class CustomSearchPageGenerator
 			endwhile;
 			// We only have one cell in the row. Add a fake cell to make the align well.
 			if ($idx == 1) {
-				echo '<td class="c-responsive" style="position: relative;"></td></tr>';
+				echo '</div>';
 			}
-			echo '</table>';
+			echo '</div>';
 			CustomSearchPageGenerator::generate_post_pagination($wp_query);
 		else:
 			get_template_part('content', 'none');

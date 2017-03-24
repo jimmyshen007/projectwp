@@ -235,7 +235,9 @@ app.post('/api/0/charges/test/createPercentSKUCharge', api.testCreatePercentSKUC
 app.post('/api/0/sendMail', api.sendMail);
 
 // APIs for getting cities or schools.
+app.get('/api/0/schools/hits/:hits', api.getSchoolsByGreaterHitsSorted);
 app.get('/api/0/schools', api.getSchools);
+app.get('/api/0/cities/hits/:hits', api.getCitiesByGreaterHitsSorted);
 app.get('/api/0/cities', api.getCities);
 
 db.once('open', ()=> {

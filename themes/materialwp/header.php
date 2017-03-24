@@ -43,6 +43,12 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 <div id="page" class="hfeed site">
 	<a class="skip-link screen-reader-text" href="#content"><?php _e( 'Skip to content', 'materialwp' ); ?></a>
 
+	<?php
+	$template_name = get_current_template();
+	if($template_name != 'search.php') {
+		attach_map_search();
+	}
+	?>
 	<header id="masthead" class="site-header" role="banner">
 
 		<nav class="navbar navbar-inverse" style="margin-bottom: 5px !important;" role="navigation">
@@ -55,7 +61,7 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		      </button>
-				<a class="navbar-brand hidden-sm hidden-xs" style="padding-top: 10px; padding-bottom: 10px; height: 30px"; rel="home" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
+				<a class="navbar-brand hidden-sm hidden-xs" rel="home" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
 				<div id="mb-main-search-bar" class="custom-geocoder-control" style="margin-right: 10px; display: inline-block">
 					<!-- <a id="mb-search-link" class="leaflet-control-mapbox-geocoder-toggle mapbox-icon mapbox-icon-geocoder"
                     style="visibility: hidden"></a> -->

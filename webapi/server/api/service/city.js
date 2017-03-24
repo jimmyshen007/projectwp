@@ -18,6 +18,10 @@ export function getCitiesByHits(hits){
     return common.getServicesByAttribute(serviceName, 'hits', hits);
 }
 
+export function getCitiesByGreaterHitsSorted(servObj){
+    return common.getServiceByGreaterHitsSorted(serviceName, servObj);
+}
+
 export function addCity(city) {
     return common.addService(serviceName, city);
 }

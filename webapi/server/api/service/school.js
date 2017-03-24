@@ -14,8 +14,12 @@ export function getSchoolById(schoolID){
     return common.getServiceById(serviceName, schoolID);
 }
 
-export function getSchoolByHits(hits){
+export function getSchoolsByHits(hits){
     return common.getServicesByAttribute(serviceName, 'hits', hits);
+}
+
+export function getSchoolsByGreaterHitsSorted(servObj){
+    return common.getServiceByGreaterHitsSorted(serviceName, servObj);
 }
 
 export function addSchool(school) {

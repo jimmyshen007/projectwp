@@ -23,6 +23,14 @@ function preprocessRoute(serviceName, servObj){
     }
 }
 
+function preprocessNumericQuery(query){
+    for(let [k,v] of Object.entries(query)) {
+        if (typeof v === 'string') {
+            query[k] = parseInt(v);
+        }
+    }
+}
+
 export function getServices(serviceName){
     let service = m.model(serviceName, chooseSchema(serviceName));
     return service.find().lean().exec();
@@ -56,6 +64,14 @@ export function getActiveWOrderByGreaterDate(serviceName, attrName, attrValue){
     let jsonObj = constructJSONHelper(attrName, {$gt: new Date(attrValue)});
     jsonObj['appStatus'] = { $in: [ 'Approved', 'Completed' ] };
     return service.find(jsonObj).lean().exec();
+}
+
+export function getServiceByGreaterHitsSorted(serviceName, servObj){
+    let service = m.model(serviceName, chooseSchema(serviceName));
+    preprocessNumericQuery(servObj);
+    let jsonObj = constructJSONHelper("hits", {$gt: servObj.hits});
+    return service.find(jsonObj).limit(servObj.limit).sort(
+        constructJSONHelper("hits", servObj.order)).lean().exec();
 }
 
 export function addService(serviceName, servObj){

@@ -431,11 +431,11 @@ figure.effect-winston:hover p a:first-child i {
 /*-----------------*/
 
 figure.effect-selena {
-	background: #fff;
+	background: #d1cccc;
 }
 
 figure.effect-selena img {
-	opacity: 0.95;
+	opacity: 0.85;
 	-webkit-transition: -webkit-transform 0.35s;
 	transition: transform 0.35s;
 	-webkit-transform-origin: 50% 50%;
@@ -443,8 +443,8 @@ figure.effect-selena img {
 }
 
 figure.effect-selena:hover img {
-	-webkit-transform: scale3d(0.95,0.95,1);
-	transform: scale3d(0.95,0.95,1);
+	-webkit-transform: scale3d(0.995,0.995,1);
+	transform: scale3d(0.995,0.995,1);
 }
 
 figure.effect-selena h2 {

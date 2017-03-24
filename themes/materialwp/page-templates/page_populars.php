@@ -62,13 +62,13 @@ ajaxHelpers();
             }
             var allStates = Object.keys(stateDict).sort();
             var listHtml = '';
+            var listGroupOpen = '<div class="col-md-4"><div class="bs-component"><div class="list-group">';
+            var listGroupClose = '</div></div></div>';
             for(var i = 0; i < allStates.length; i++) {
                 listHtml += '<h3>' + allStates[i]
                     + '</h3>';
 
                 var pois = stateDict[allStates[i]];
-                var listGroupOpen = '<div class="col-md-4"><div class="bs-component"><div class="list-group">';
-                var listGroupClose = '</div></div></div>';
                 var numColums = 3;
                 var numRows = Math.ceil(pois.length / numColums);
                 listHtml += listGroupOpen;
@@ -109,9 +109,9 @@ ajaxHelpers();
                         <div class="panel-body" style="position: relative">
                             <div id="stateList" style="margin-left: 3em"></div>
                         </div>
+                        </div>
                 </main><!-- #main -->
             </div><!-- #primary -->
-
         </div> <!-- .row -->
     </div> <!-- .container -->
 

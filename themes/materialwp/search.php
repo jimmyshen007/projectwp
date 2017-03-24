@@ -26,6 +26,7 @@ get_header(); ?>
 		L.mapbox.accessToken = MAPBOX_TOKEN;
 		var map = L.mapbox.map('general-map-container', 'mapbox.streets', {
 				minZoom: 2,
+				maxZoom: 17,
 				worldCopyJump: true
 			})
 			.addControl(L.mapbox.geocoderControl('mapbox.places', {
@@ -33,7 +34,10 @@ get_header(); ?>
 				keepOpen: true,
 				pointZoom: ZOOM
 			}));
-
+		var oms = new OverlappingMarkerSpiderfier(map, {keepSpiderfied: true, nearbyDistance: 10});
+		oms.addListener('spiderfy', function(markers) {
+			map.closePopup();
+		});
 		var layers = {
 			Streets: map.tileLayer,
 			Satellite: L.mapbox.tileLayer('mapbox.streets-satellite'),
@@ -69,9 +73,16 @@ get_header(); ?>
 			var jsonoutput = $.parseJSON($("#posts-jsonoutput").html());
 			if(markers) {
 				map.removeLayer(markers);
+				oms.clearMarkers();
 			}
 			//$.each(data.data, function(index, value) { $('.data').append(value.a+'<br />'); } );
-			markers = new L.MarkerClusterGroup();
+			/*markers = new L.MarkerClusterGroup({
+				spiderfyOnMaxZoom: true,
+				showCoverageOnHover: false,
+				zoomToBoundsOnClick: true,
+				maxClusterRadius: 20
+			}); */
+			markers = L.featureGroup();
 			for (var i = 0; i < jsonoutput.length; i++) {
 				var a = jsonoutput[i];
 				var lat = parseFloat(a.coord_lat);
@@ -81,6 +92,7 @@ get_header(); ?>
 					var distance = gmlatlng.distanceTo(new L.LatLng(lat, lng)) / 1000;
 					$('div#info-box' + (i + 1)).append('<br><span>' + distance.toFixed(1) + ' km</span>');
 				}
+
 				if(i == 0){
 					if(epl_form.indexOf('my_epl_bb_min_lat') > -1) {
 						//map.setView([lat, lng]);
@@ -93,13 +105,34 @@ get_header(); ?>
 					icon: L.mapbox.marker.icon({'marker-symbol': (i + 1), 'marker-color': 'FF8000'}),
 					title: a.title
 				});
+
 				var icon_id = i + 1;
+				(function(inner_marker, inner_i) {
+					//var ori_color = inner_marker.icon[marker-color];
+					$('div#image-box' + inner_i).mouseenter(function(e) {
+						inner_marker.setIcon(L.mapbox.marker.icon({
+							'marker-symbol': inner_i,
+							'marker-color': '#357645'
+						}));
+					});
+					$('div#image-box' + inner_i).mouseleave(function(e) {
+						var color_code = '#FF8000';
+						if(inner_marker.clicked){
+							color_code = '#808080';
+						}
+						inner_marker.setIcon(L.mapbox.marker.icon({
+							'marker-symbol': inner_i,
+							'marker-color': color_code
+						}));
+					});
+				})(marker, icon_id);
 				(function(inner_i) {
 					marker.on('popupclose', function (e) {
 						this.setIcon(L.mapbox.marker.icon({
 							'marker-symbol': inner_i,
 							'marker-color': '#808080'
 						}));
+						this.clicked = true;
 					});
 				})(icon_id);
 				var pphtml = '';
@@ -136,6 +169,7 @@ get_header(); ?>
 					+ a.title + '</h4>' +
 					'<img src="' + a.image + '" /></a>' + pphtml);
 				markers.addLayer(marker);
+				oms.addMarker(marker);
 			}
 			map.addLayer(markers);
 		}
@@ -362,7 +396,7 @@ get_header(); ?>
 </script>
 
 <div id="main_section" class="container" style="overflow: hidden !important; width: 100%; height:600px;
-    min-height: 600px; margin-left: 0px; margin-right: 0px; max-width: none" xmlns="http://www.w3.org/1999/html">
+    min-height: 600px; margin-left: 0px; margin-right: 0px; max-width: none; padding-right: 5px" xmlns="http://www.w3.org/1999/html">
   	<!-- first column -->
   	<div id="search-result-wrapper" style="overflow-x: hidden; overflow-y: scroll; max-width: 100%; width: 60%; height: 100%; float: left">
 		<!-- filter panel -->

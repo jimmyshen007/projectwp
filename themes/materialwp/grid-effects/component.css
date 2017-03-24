@@ -1,16 +1,23 @@
 .grid {
-	max-width: 69em;
+	max-width: 69em !important;
 	list-style: none;
-	margin: 30px auto;
+	margin: 10px auto;
 	padding: 0;
+	background: white !important;
 }
 
 .grid li {
 	display: block;
 	float: left;
-	padding: 7px;
-	width: 33%;
+	padding: 1px;
+	width: 23%;
 	opacity: 0;
+}
+
+@media screen and (max-width: 780px) {
+	.grid li {
+		width: 47% !important;
+	}
 }
 
 .grid li.shown,
@@ -24,7 +31,7 @@
 	outline: none;
 	border: none;
 	display: block;
-	max-width: 100%;
+	max-width: 100% !important;
 }
 
 /* Effect 1: opacity */

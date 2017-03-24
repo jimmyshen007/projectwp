@@ -37,6 +37,20 @@ export function getSchools(req, res){
     handleRet(ret, res,  "Get Schools Error");
 }
 
+export function getSchoolsByGreaterHitsSorted(req, res){
+    let hits = req.params.hits;
+    req.query["hits"] = hits;
+    let ret = service.getSchoolsByGreaterHitsSorted(req.query);
+    handleRet(ret, res,  "Get Schools By Greater Hits Sorted Error");
+}
+
+export function getCitiesByGreaterHitsSorted(req, res){
+    let hits = req.params.hits;
+    req.query["hits"] = hits;
+    let ret = service.getCitiesByGreaterHitsSorted(req.query);
+    handleRet(ret, res,  "Get Cities By Greater Hits Sorted Error");
+}
+
 export function testPayOrder(req, res){
     sapi.tokens.create({
         email: 'maidongxi1@example.com',
