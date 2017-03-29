@@ -10009,7 +10009,7 @@ var GeocoderControl = L.Control.extend({
         }
 
         input.type = 'text';
-        input.setAttribute('placeholder', 'Search');
+        //input.setAttribute('placeholder', 'Search');
 
         L.DomEvent.addListener(form, 'submit', this._geocode, this);
         L.DomEvent.addListener(input, 'keyup', this._autocomplete, this);

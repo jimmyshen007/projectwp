@@ -10,6 +10,9 @@ get_header(); ?>
 	body {
 		overflow: hidden;
 	}
+	.modal-body {
+		padding: 2px !important;
+	}
 </style>
 
 <script type="text/javascript">
@@ -392,6 +395,27 @@ get_header(); ?>
 			var epl_form_serial = $('#my_epl_form').serialize() + '&action=load_post_ajax';
 			call_submit(epl_form_serial);
 		});
+		$('#map-view-modal').hide();
+		$('#search-map-view-btn').on('click', function(){
+			$('#map-view-modal').fadeIn({done: function(){
+				map.invalidateSize();
+			}});
+		});
+		$('#map-dismiss-btn').on('click', function(){
+			$('#map-view-modal').fadeOut();
+		});
+		function showMapContent(){
+			if($(window).width() <= 800 ) {
+				$('#map-modal-content').append($('#map-container-inner'));
+			}else{
+				$('#map-container-wrapper').append($('#map-container-inner'));
+				$('#map-view-modal').hide();
+			}
+		}
+		showMapContent();
+		$(window).resize(function(){
+			showMapContent();
+		});
 	});
 </script>
 
@@ -420,12 +444,29 @@ get_header(); ?>
 	</div>
 	<!-- second column for map  -->
 	<div id="map-container-wrapper" style="overflow: hidden; width: 40%; height: 100%; float: left; padding-left: 5px; position: relative">
-		<div id="general-map-container" class="panel panel-default" style="height: 100%"></div>
-		<button id="search-map-btn" class="btn btn-raised btn-default"
-			style="position: absolute; z-index: 10000; bottom: 5px; left: 80px;
-		    background-color: rgba(1, 1, 1, 0.10)">
-			<?php echo  __( 'Search current map', 'materialwp' ) ?>
-		</button>
+		<div id="map-container-inner" style="position: relative; overflow: hidden; width: 100%; height: 100%;">
+			<div id="general-map-container" class="panel panel-default"
+				 style="height: 100%; position: relative; overflow: hidden"></div>
+			<button id="search-map-btn" class="btn btn-raised btn-default"
+				style="position: absolute; z-index: 10000; bottom: 5px; left: 80px;
+				background-color: rgba(1, 1, 1, 0.10)">
+				<?php echo  __( 'Search current map', 'materialwp' ) ?>
+			</button>
+		</div>
+	</div>
+
+	<!-- Map view modal -->
+	<div id="map-view-modal" class="modal" role="dialog">
+		<div class="modal-dialog">
+			<div class="modal-content">
+				<div class="modal-header">
+					<button id="map-dismiss-btn" type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+				</div>
+				<div class="modal-body" >
+					<div id="map-modal-content" style="overflow: hidden; position: relative; height:auto"></div>
+				</div>
+			</div>
+		</div>
 	</div>
 </div> <!-- .container -->
 

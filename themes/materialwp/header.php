@@ -37,6 +37,21 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 			display: block;
 		}
 	</style>
+	<script>
+		function showMenu() {
+			if ($(window).width() < 753) {
+				$('#drawer-body-inner').appendTo($('#main-drawer-body'));
+			} else {
+				$('#drawer-body-inner').appendTo($('#bs-example-navbar-collapse-1'));
+			}
+		}
+		$(document).ready(function() {
+			showMenu();
+			$(window).resize(function(){
+				showMenu();
+			});
+		});
+	</script>
 </head>
 
 <body <?php body_class(); ?> >
@@ -55,12 +70,18 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 		  <div class="container">
 		    <!-- Brand and toggle get grouped for better mobile display -->
 		    <div class="navbar-header">
-		      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+		      <!-- <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
 		        <span class="sr-only">Toggle navigation</span>
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
 		        <span class="icon-bar"></span>
-		      </button>
+		      </button> -->
+				<button href="#main-nav-drawer" data-toggle="drawer" aria-foldedopen="false" aria-controls="main-nav-drawer" class="navbar-toggle collapsed">
+					<span class="sr-only">Toggle navigation</span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+					<span class="icon-bar"></span>
+				</button>
 				<a class="navbar-brand hidden-sm hidden-xs" rel="home" href="<?php echo esc_url( home_url( '/' ) ); ?>"><?php bloginfo( 'name' ); ?></a>
 				<div id="mb-main-search-bar" class="custom-geocoder-control" style="margin-right: 10px; display: inline-block">
 					<!-- <a id="mb-search-link" class="leaflet-control-mapbox-geocoder-toggle mapbox-icon mapbox-icon-geocoder"
@@ -79,18 +100,31 @@ echo '<script>window.jQuery = window.$ = jQuery;</script>'; ?>
 				</div>
     		</div>
 
-    			<div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-					 <?php
-						wp_nav_menu( array(
-							'theme_location'    => 'primary',
-							'depth'             => 2,
-							'container'         => false,
-							'menu_class'        => 'nav navbar-nav navbar-right',
-							'fallback_cb'       => 'wp_bootstrap_navwalker::fallback',
-							'walker'            => new wp_bootstrap_navwalker())
-						);
-					?>
-        		</div> <!-- .navbar-collapse -->
+    			<!--<div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">-->
+			  <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
+				  <div id="drawer-body-inner">
+					  <?php
+					  wp_nav_menu( array(
+							  'theme_location'    => 'primary',
+							  'depth'             => 2,
+							  'container'         => false,
+							  'menu_class'        => 'nav navbar-nav navbar-right',
+							  'fallback_cb'       => 'wp_bootstrap_navwalker::fallback',
+							  'walker'            => new wp_bootstrap_navwalker())
+					  );
+					  ?>
+				  </div>
+			  </div>
+			  <div id="main-nav-drawer" class="drawer dw-xs-6 dw-sm-3 dw-md-2 fold" aria-labelledby="main-nav-drawer">
+				  <div class="drawer-contents">
+					  <div class="drawer-heading">
+						  <h2 class="drawer-title">Ulieve</h2>
+					  </div>
+					  <div id="main-drawer-body" class="drawer-body">
+					  </div>
+				  </div>
+			  </div>
+        		<!--</div> --> <!-- .navbar-collapse -->
         	</div><!-- /.container -->
 		</nav><!-- .navbar .navbar-default -->
 	</header><!-- #masthead -->

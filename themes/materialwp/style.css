@@ -904,4 +904,12 @@ Media Queries
 	#search-result-wrapper {
 		min-width: 100%;
 	}
+	.toggle-hide-element {
+		visibility: visible !important;
+	}
+	#general-map-container{
+		height: 0 !important;
+		padding-top: 85vh;
+		margin-bottom: 0 !important;
+	}
 }

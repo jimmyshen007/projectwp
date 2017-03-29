@@ -66,6 +66,9 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
             .custom_bgcolor{
                 background-color: #fff !important;
             }
+            .toggle-hide-element{
+                visibility: hidden;
+            }
         </style>
         <div class="panel-group">
             <div class="panel panel-default bs-component">
@@ -73,6 +76,9 @@ function epl_custom_shortcode_listing_search_callback( $atts ) {
                     <a data-toggle="collapse" href="#filters-collapse" class="btn btn-default"
                        style="margin-top: 0; margin-bottom: 0;">
                             <?php echo __('Filters', 'epl') ?></a>
+                    <btn id="search-map-view-btn" class="btn btn-default toggle-hide-element pull-right"
+                       style="margin-top: 0; margin-bottom: 0;">
+                        <?php echo __('Map', 'epl') ?></btn>
                         <!-- <a data-toggle="collapse" href="#filters-collapse"><php echo __('Filters', 'epl') ?></a> -->
                 </div>
         <?php

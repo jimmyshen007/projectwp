@@ -30,7 +30,7 @@ function materialwp_body_classes( $classes ) {
 	if ( is_multi_author() ) {
 		$classes[] = 'group-blog';
 	}
-
+	array_push($classes, 'has-drawer');
 	return $classes;
 }
 add_filter( 'body_class', 'materialwp_body_classes' );

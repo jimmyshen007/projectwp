@@ -62,19 +62,22 @@
 <?php
 
     function generateSearch(){ ?>
-        <!-- Search section -->
+        <!-- Small window search section -->
         <div id="my-epl-form-wrapper-s" class="panel panel-default" style="top: 40%; left: 50%;
         -webkit-transform: translate(-50%, -50%);
         transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none; width: 60%">
             <div class="panel-body" style="width: 100%; text-align: center">
-                <input type="text" />
+                <div style="float: left; width: 80%; text-align: center; margin: 0 auto"><input id="search-input-sm" style="text-align: center" type="text" class="form-control" placeholder="<?php echo __('Where to go'); ?>" /></div>
+                <div style="float: left; width: 20%"><img class="icon icons8-Search" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAYCAYAAADgdz34AAABWklEQVRIS7WUfU0DQRBHXx0gARSAhKIAcAAOkAAKCgpAAjjAAXUADsBBySM7yfbu9uaabDe53B87O28+fjMrjnxWif9T4Ao4KXa/wDvwvTSuFkDHL8AZ8Abo2CPoGvgCHoGPDDQFuAUeyvfacLAGvNsAz3OQIcCHRux/m0RnNmbwVGCT5jXAB5/AzQLn4cw39uOi1ZcacF8MLdEhx3Las8l3NcCSaJSVZgiPLEJpe/c1YAdksm1lZlCqayTfXgCbbalGsu0JsIej8tYA01Oei6e0Gr6fVnlrgHp2Yk31kKMwrL/f6AznwBTVdKyGDBSzc9daG0PVGI21tFRLIK4L7XyTTnIYWCoBczMRyzBWymUroJburacgV4e7KRqvY526TuyVQZwX9UxCssESpEP74hGk1mOFx8JrQjJA1mTvZyE9ALOQXoAmpCeghoQYtr0BARHwv5eOAdgTxh/xCU8ZbouwdAAAAABJRU5ErkJggg==" width="24" height="24"></div>
             </div>
         </div>
+
+        <!-- large window search section -->
         <div id="my-epl-form-wrapper" class="panel panel-default" style="top: 40%; left: 50%;
 -webkit-transform: translate(-50%, -50%);
 transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none; width: 60%">
-            <div class="panel-body" style="width: 100%; text-align: center">
-                <div style="display: inline-block; position: relative; width: 100%">
+            <div id="search-form-panel-body" class="panel-body" style="width: 100%; text-align: center">
+                <div id="search-form-inner-wrapper" style="display: inline-block; position: relative; width: 100%">
                             <ul class="nav nav-tabs" style="background-color: #999; margin-left: 0px; margin-bottom: 20px">
                                 <li><a id="search-tab-long" class="btn">Term Rental</a></li>
                                 <li><a id="search-tab-daily" class="btn">Daily Rental</a></li>
@@ -86,7 +89,7 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                                 <div id="mb-search-wrap">
                                     <form id="mb-search-form">
                                         <div class="form-group">
-                                            <input id="mb-search-input" autocomplete="off" placeholder="<?php echo __('where to go'); ?>"
+                                            <input id="mb-search-input" autocomplete="off" placeholder="<?php echo __('Where to go'); ?>"
                                                    class="form-control label-floating custom-width" style="text-align: center" type="text" />
                                         </div>
                                     </form>
@@ -140,12 +143,29 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                 </div>
         </div>
         <!-- end search section -->
+
+        <!-- Small window search modal -->
+        <div id="small-search-modal" class="modal" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button id="modal-dismiss-btn" type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    </div>
+                    <div class="modal-body" >
+                        <div id="search-modal-content" style="overflow: hidden; position: relative; height:auto"></div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="modal-close-btn" type="button" class="btn btn-default" data-dismiss="modal"><?php echo __('Close', 'materialwp'); ?></button>
+                    </div>
+                </div>
+            </div>
+        </div>
     <?php }
 
     function generateSlider($cid, $imgs){
         $n_imgs = count($imgs);
         ?>
-        <div style="width:100%; text-align: center; position: relative">
+        <div id="slider-wrapper" style="width:100%; text-align: center; position: relative">
             <?php generateSearch() ?>
             <ul id="<?php echo $cid ?>">
     <?php
@@ -193,6 +213,9 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                 top: 0 !important;
                 bottom: 0 !important;
             }
+            .ui-datepicker {
+                z-index: 9999 !important;
+            }
         </style>
         <script>
                 $('#colophon').hide();
@@ -219,7 +242,13 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                 });
 
                 function showSearch(){
+                    if($(document).width() < 753 ){
+                        $('#drawer-body-inner').appendTo($('#main-drawer-body'));
+                    }else{
+                        $('#drawer-body-inner').appendTo($('#bs-example-navbar-collapse-1'));
+                    }
                     if($(window).width() < 1000 ) {
+                        $('div#search-modal-content').append($('#search-form-inner-wrapper'));
                         if($('#my-epl-form-wrapper').is(":visible")){
                             $('#my-epl-form-wrapper').hide();
                         }
@@ -227,16 +256,20 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                             $('#my-epl-form-wrapper-s').show();
                         }
                     }else{
+                        $('div#search-form-panel-body').append($('#search-form-inner-wrapper'));
                         if(!$('#my-epl-form-wrapper').is(":visible")){
                             $('#my-epl-form-wrapper').show();
                         }
                         if($('#my-epl-form-wrapper-s').is(":visible")){
                             $('#my-epl-form-wrapper-s').hide();
                         }
+                        $('#small-search-modal').hide();
                     }
+                    $('.ui-datepicker').hide();
                 }
 
                 $(document).ready(function() {
+                    $('#small-search-modal').hide();
                     $('#popular-panel-wrapper').show();
                     showSearch();
                     $('#colophon').show();
@@ -244,6 +277,16 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                     $('#benefits-wrapper').show();
                     $(window).resize(function(){
                         showSearch();
+                    });
+                    //$('#slider-wrapper').append($('#my-epl-form-wrapper'))
+                    $('input#search-input-sm').on('click', function(){
+                        $('#small-search-modal').fadeIn();
+                    });
+                    $('#modal-dismiss-btn').on('click', function(){
+                        $('#small-search-modal').fadeOut();
+                    });
+                    $('#modal-close-btn').on('click', function(){
+                        $('#small-search-modal').fadeOut();
                     });
                 });
 
@@ -383,7 +426,13 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
             <div class="container">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                    <!--<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1">
+                        <span class="sr-only">Toggle navigation</span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </button> -->
+                    <button href="#main-nav-drawer" data-toggle="drawer" aria-foldedopen="false" aria-controls="main-nav-drawer" class="navbar-toggle collapsed">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -393,17 +442,29 @@ transform: translate(-50%, -50%); position: absolute; z-index: 99; display: none
                 </div>
 
                 <div class="navbar-collapse collapse" id="bs-example-navbar-collapse-1">
-                    <?php
-                    wp_nav_menu( array(
-                            'theme_location'    => 'primary',
-                            'depth'             => 2,
-                            'container'         => false,
-                            'menu_class'        => 'nav navbar-nav navbar-right',
-                            'fallback_cb'       => 'wp_bootstrap_navwalker::fallback',
-                            'walker'            => new wp_bootstrap_navwalker())
-                    );
-                    ?>
-                </div> <!-- .navbar-collapse -->
+                    <div id="drawer-body-inner">
+                        <?php
+                        wp_nav_menu( array(
+                                'theme_location'    => 'primary',
+                                'depth'             => 2,
+                                'container'         => false,
+                                'menu_class'        => 'nav navbar-nav navbar-right',
+                                'fallback_cb'       => 'wp_bootstrap_navwalker::fallback',
+                                'walker'            => new wp_bootstrap_navwalker())
+                        );
+                        ?>
+                    </div>
+                </div>
+                <div id="main-nav-drawer" class="drawer dw-xs-6 dw-sm-3 dw-md-2 fold" aria-labelledby="main-nav-drawer">
+                    <div class="drawer-contents">
+                        <div class="drawer-heading">
+                            <h2 class="drawer-title">Ulieve</h2>
+                        </div>
+                        <div id="main-drawer-body" class="drawer-body">
+                        </div>
+                    </div>
+                </div>
+                <!-- </div> <!-- .navbar-collapse -->
             </div><!-- /.container -->
         </nav><!-- .navbar .navbar-default -->
     </header><!-- #masthead -->
